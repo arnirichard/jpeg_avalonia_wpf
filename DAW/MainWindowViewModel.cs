@@ -26,7 +26,7 @@ namespace DAW
         public List<IModule> Modules { get; }
         public ObservableCollection<FileInfo> Files { get; } = new ObservableCollection<FileInfo>();
 
-        public IModule SelectedModule
+        public IModule? SelectedModule
         {
             get => selectedModule;
             set

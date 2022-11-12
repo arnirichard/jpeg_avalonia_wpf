@@ -57,7 +57,7 @@ namespace DAW
 
                 if (File.Exists(folderBrowser.FileName))
                 {
-                    viewModel.SelectedModule.SetFile(folderBrowser.FileName);
+                    viewModel.SelectedModule?.SetFile(folderBrowser.FileName);
                 }    
             }
         }
@@ -66,7 +66,7 @@ namespace DAW
         {
             if(fileList.SelectedItem is FileInfo fi)
             {
-                viewModel.SelectedModule.SetFile(fi.FullName);
+                viewModel.SelectedModule?.SetFile(fi.FullName);
             }
         }
     }

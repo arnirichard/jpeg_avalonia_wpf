@@ -24,6 +24,8 @@ namespace SignalPlot
         public static int Black = int.Parse("000000", System.Globalization.NumberStyles.HexNumber);
         public static int White = int.Parse("FFFFFF", System.Globalization.NumberStyles.HexNumber);
         public static int Beige = int.Parse("DDDDDD", System.Globalization.NumberStyles.HexNumber);
+        public static int Blue = int.Parse("0026FF", System.Globalization.NumberStyles.HexNumber);
+        
         public static int SelectedIntervalColor = int.Parse("AAFF0000", System.Globalization.NumberStyles.HexNumber);
 
         public int SignalColor
@@ -33,7 +35,7 @@ namespace SignalPlot
         }
 
         public static readonly DependencyProperty SignalColorProperty =
-            DependencyProperty.Register("SignalColor", typeof(int), typeof(Plot), new PropertyMetadata(Black));
+            DependencyProperty.Register("SignalColor", typeof(int), typeof(Plot), new PropertyMetadata(Blue));
 
         public int BackgroundColor
         {

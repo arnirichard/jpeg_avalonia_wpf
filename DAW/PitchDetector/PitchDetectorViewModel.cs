@@ -1,4 +1,5 @@
-﻿using PitchDetector;
+﻿using NAudio.Wave;
+using PitchDetector;
 using SignalPlot;
 using System;
 using System.Collections.Generic;
@@ -14,12 +15,20 @@ namespace DAW.PitchDetector
         public FileInfo File { get; private set; }
         public PlotData SignalPlotData { get; private set; }
         public PlotData PitchPlotData { get; private set; }
+        public WaveFormat Format { get; private set; }
 
-        public PitchDetectorViewModel(FileInfo file, PlotData signalPlotData, PlotData pitchPlotData)
+        public int? Samples => SignalPlotData?.Y.Length;
+
+        public double? Duration => Samples.HasValue && Format != null 
+            ? Samples.Value / (double)Format.SampleRate
+            : null;
+
+        public PitchDetectorViewModel(FileInfo file, PlotData signalPlotData, PlotData pitchPlotData, WaveFormat waveFormat)
         {
             File = file;
             SignalPlotData = signalPlotData;
             PitchPlotData = pitchPlotData;
+            Format = waveFormat;
         }
     }
 }
