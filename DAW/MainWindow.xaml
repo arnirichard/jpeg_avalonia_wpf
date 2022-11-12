@@ -1,0 +1,47 @@
+﻿<Window x:Class="DAW.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DAW"
+        mc:Ignorable="d"
+        Title="DAW" Height="1100" Width="1500" >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        
+        <ListBox Grid.Column="0"
+                 ItemsSource="{Binding Modules}" 
+                 SelectedItem="{Binding SelectedModule, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
+        <ContentPresenter x:Name="contentPresenter" Grid.Column="1" Grid.RowSpan="10"
+                          Content="{Binding UserInterface}" />
+
+        <Button Grid.Row="1" Click="OpenFolder_Click">Select file</Button>
+        
+        <ListBox x:Name="fileList"
+            Grid.Row="2"
+                 ItemsSource="{Binding Files}" 
+                 SelectionChanged="Files_SelectionChanged">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
+    </Grid>
+</Window>
