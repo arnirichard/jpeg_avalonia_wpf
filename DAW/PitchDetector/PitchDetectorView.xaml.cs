@@ -1,4 +1,5 @@
-﻿using NAudio.MediaFoundation;
+﻿using DAW.Utils;
+using NAudio.MediaFoundation;
 using NAudio.Wave;
 using SignalPlot;
 using System;
@@ -62,13 +63,7 @@ namespace DAW.PitchDetector
         {
             if (DataContext is PitchDetectorViewModel vm && vm.SignalPlotData?.Y.Length > 0)
             {
-                IWaveProvider provider = new RawSourceWaveStream(
-                            new MemoryStream(GetSamplesWaveData(vm.SignalPlotData.Y)), 
-                            new WaveFormat(vm.Format.SampleRate, 16, 1));
-
-                WaveOut waveOut = new WaveOut();
-                waveOut.Init(provider);
-                waveOut.Play();
+                PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate);
             }
         }
 
@@ -84,36 +79,9 @@ namespace DAW.PitchDetector
 
                 if (fromIndex >= 0 && fromIndex+length <= vm.SignalPlotData.Y.Length)
                 {
-                    IWaveProvider provider = new RawSourceWaveStream(
-                                new MemoryStream(GetSamplesWaveData(vm.SignalPlotData.Y, fromIndex, length)),
-                                new WaveFormat(vm.Format.SampleRate, 16, 1));
-
-                    WaveOut waveOut = new WaveOut();
-                    waveOut.Init(provider);
-                    waveOut.Play();
+                    PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, fromIndex, length);
                 }
             }
-        }
-
-        public static byte[] GetSamplesWaveData(float[] samples, int? offset = null, int? length = null)
-        {
-            int startIndex = offset ?? 0;
-            int len = Math.Min(length ?? samples.Length, samples.Length - startIndex);
-
-            var pcm = new byte[len*2];
-            int sampleIndex = startIndex, pcmIndex = 0;
-            short outsample;
-            int toSampelIndex = startIndex + len;
-
-            while (sampleIndex < toSampelIndex)
-            {
-                outsample = (short)(samples[sampleIndex++] * short.MaxValue);
-
-                pcm[pcmIndex++] = (byte)(outsample & 0xff);
-                pcm[pcmIndex++] = (byte)((outsample >> 8) & 0xff);
-            }
-
-            return pcm;
         }
 
         

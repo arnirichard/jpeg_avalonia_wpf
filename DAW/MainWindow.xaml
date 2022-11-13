@@ -14,11 +14,13 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         
         <ListBox Grid.Column="0"
                  ItemsSource="{Binding Modules}" 
+                 SelectionChanged="Module_SelectionChanged"
                  SelectedItem="{Binding SelectedModule, Mode=TwoWay}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
@@ -30,10 +32,12 @@
         <ContentPresenter x:Name="contentPresenter" Grid.Column="1" Grid.RowSpan="10"
                           Content="{Binding UserInterface}" />
 
-        <Button Grid.Row="1" Click="OpenFolder_Click">Select file</Button>
-        
+        <Button Grid.Row="1" Click="OpenFolder_Click">Select folder</Button>
+
+        <TextBlock Grid.Row="2" Text="{Binding Folder}"/>
+
         <ListBox x:Name="fileList"
-            Grid.Row="2"
+            Grid.Row="3"
                  ItemsSource="{Binding Files}" 
                  SelectionChanged="Files_SelectionChanged">
             <ListBox.ItemTemplate>

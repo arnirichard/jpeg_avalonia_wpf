@@ -22,7 +22,7 @@
 
             <StackPanel Orientation="Vertical" Margin="50,0">
                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <TextBlock Text="{Binding File.Name}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    <TextBlock Text="{Binding File.Name}" />
                     <TextBlock Margin="5,0" Text="{Binding Samples, StringFormat='Samples {0}'}"/>
                     <TextBlock Margin="5,0" Text="{Binding Duration, StringFormat='Duration {0:0.000}s'}"/>
                     <TextBlock Margin="5,0" Text="{Binding Format.SampleRate, StringFormat='SampleRate {0}'}"/>
@@ -56,9 +56,9 @@
             
         </Grid>
 
-        <signalplot:Plot x:Name="signalPlot" Grid.Row="1" UnitX="s" DataContext="{Binding SignalPlotData}"/>
+        <signalplot:Plot x:Name="signalPlot" Grid.Row="1" UnitX="s" DataContext="{Binding SignalPlotData}" Margin="0,0,10,0"/>
 
-        <signalplot:Plot x:Name="pitchPlot" Grid.Row="2" UnitX="s" UnitY="Hz" DataContext="{Binding PitchPlotData}"
+        <signalplot:Plot x:Name="pitchPlot" Grid.Row="2" UnitX="s" UnitY="Hz" DataContext="{Binding PitchPlotData}" Margin="0,0,10,0"
                          IndexFrom="{Binding ElementName=signalPlot, Path=IndexFrom, Mode=TwoWay}"
                          IndexTo="{Binding ElementName=signalPlot, Path=IndexTo, Mode=TwoWay}"
                          CurrentIndex="{Binding ElementName=signalPlot, Path=CurrentIndex, Mode=TwoWay}"/>

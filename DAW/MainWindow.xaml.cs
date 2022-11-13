@@ -29,42 +29,39 @@ namespace DAW
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog folderBrowser = new OpenFileDialog();
-            // Set validate names and check file exists to false otherwise windows will
-            // not let you select "Folder Selection."
-            folderBrowser.Filter = "All Supported Files (*.wav;*.mp3;*.pcm)|*.wav;*.mp3;*.pcm|All Files (*.*)|*.*";
-            folderBrowser.ValidateNames = false;
-            folderBrowser.CheckFileExists = false;
-            folderBrowser.CheckPathExists = true;
 
-            // Always default to Folder Selection.
-            //folderBrowser.FileName = "Folder Selection.";
-            if (folderBrowser.ShowDialog() == true)
+            System.Windows.Forms.FolderBrowserDialog openFileDlg = new System.Windows.Forms.FolderBrowserDialog();
+            var result = openFileDlg.ShowDialog();
+            if (result.ToString() != string.Empty)
             {
-                string? folder = Path.GetDirectoryName(folderBrowser.FileName);
-
-                if(Directory.Exists(folder))
+                if (Directory.Exists(openFileDlg.SelectedPath))
                 {
                     viewModel.Files.Clear();
 
-                    foreach (var f in Directory.GetFiles(folder))
+                    foreach (var f in Directory.GetFiles(openFileDlg.SelectedPath))
                     {
                         FileInfo fi = new FileInfo(f);
-                        if(fi.Name.EndsWith("wav"))
+                        if (fi.Name.EndsWith("wav"))
                             viewModel.Files.Add(fi);
                     }
-                }
 
-                if (File.Exists(folderBrowser.FileName))
-                {
-                    viewModel.SelectedModule?.SetFile(folderBrowser.FileName);
-                }    
+                    viewModel.Modules.ForEach(m => m.SetFolder(openFileDlg.SelectedPath));
+                    viewModel.Folder = openFileDlg.SelectedPath;
+                }
             }
         }
 
         private void Files_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if(fileList.SelectedItem is FileInfo fi)
+            {
+                viewModel.SelectedModule?.SetFile(fi.FullName);
+            }
+        }
+
+        private void Module_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (fileList.SelectedItem is FileInfo fi)
             {
                 viewModel.SelectedModule?.SetFile(fi.FullName);
             }

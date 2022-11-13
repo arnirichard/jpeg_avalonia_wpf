@@ -251,7 +251,7 @@ namespace SignalPlot
 
         void RefreshPlot()
         {
-            if (!IsLoaded)
+            if (!IsLoaded || grid.ActualHeight == 0)
                 return;
 
             WriteableBitmap writeableBitmap = image.Source is WriteableBitmap wb &&
@@ -305,6 +305,11 @@ namespace SignalPlot
                         horizontalLabels.Children.Add(textBlock);
                     }
                 }
+
+                if (VerticalLines.Any())
+                    horizontalLabels.Height = 30;
+                if(HorizontalLines.Any())
+                    verticalLabels.Height = 40;
             }
             else
             {

@@ -12,7 +12,8 @@ namespace DAW
 {
     class MainWindowViewModel : ViewModelBase
     {
-        private IModule? selectedModule;
+        IModule? selectedModule;
+        string? folder;
 
         public MainWindowViewModel(IEnumerable<IModule> modules)
         {
@@ -25,6 +26,19 @@ namespace DAW
 
         public List<IModule> Modules { get; }
         public ObservableCollection<FileInfo> Files { get; } = new ObservableCollection<FileInfo>();
+
+        public string? Folder 
+        {
+            get => folder;
+            set
+            {
+                if (folder != value)
+                {
+                    folder = value;
+                    OnPropertyChanged("Folder");
+                }
+            }
+        }
 
         public IModule? SelectedModule
         {

@@ -13,5 +13,6 @@ namespace DAW
         UserControl UserInterface { get; }
         void Deactivate();
         void SetFile(string filename);
+        void SetFolder(string folder);
     }
 }
