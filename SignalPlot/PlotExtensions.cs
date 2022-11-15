@@ -36,7 +36,7 @@ namespace SignalPlot
             int backgroundcolor, int color, int selectedColor,
             List<LinesDefinition> verticalLines,
             List<LinesDefinition> horizontalLines,
-            SampleInterval? selectedInterval)
+            IntRange? selectedInterval)
         {
             List<PlotLine> result = new List<PlotLine>();
 

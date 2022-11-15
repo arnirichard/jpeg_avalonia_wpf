@@ -9,9 +9,9 @@ namespace DAW.Utils
 {
     public static class Gaps
     {
-        public static List<SampleInterval> FindGaps(float[] signal)
+        public static List<IntRange> FindGaps(float[] signal)
         {
-            List<SampleInterval> result = new List<SampleInterval>();
+            List<IntRange> result = new List<IntRange>();
 
 
 

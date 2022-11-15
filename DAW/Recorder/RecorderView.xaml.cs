@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -69,9 +70,7 @@ namespace DAW.Recorder
                 if (vm.IsRecording)
                     vm.StopRecording();
                 else
-                {
                     vm.StartRecording(signalVM);
-                }
             }
         }
 
@@ -128,6 +127,8 @@ namespace DAW.Recorder
                         record.SignalPlotData.Y[i] *= factor;
                     }
                     record.SignalChanged();
+
+                    CreateWave.WriteSingleChannelWave(record.File.FullName, record.Format, record.SignalPlotData.Y);
                 }
             }
         }
@@ -140,7 +141,18 @@ namespace DAW.Recorder
 
         private void Trim_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is FrameworkElement fe &&
+                fe.DataContext is SignalViewModel record &&
+                DataContext is RecorderViewModel vm)
+            {
+                Plot? plot = fe.FindName("signalPlot") as Plot;
 
+                if(plot != null && 
+                    plot.SelectedInterval != null)
+                {
+                    vm.TrimSignal(record, plot.SelectedInterval.Value);
+                }
+            }
         }
     }
 }

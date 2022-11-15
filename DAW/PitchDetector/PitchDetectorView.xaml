@@ -45,7 +45,7 @@
                                Text="{Binding ElementName=pitchPlot, Path=CurrentValue, StringFormat='Pitch {0:0.00}Hz'}"/>
                     <TextBlock Margin="10,0" x:Name="periodTextBlock"/>
                 </WrapPanel>
-                <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedIntervalLength, StringFormat='Selected interval {0} samples'}"/>
+                <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedInterval.Length, StringFormat='Selected interval {0} samples'}"/>
             </StackPanel>
 
             <StackPanel Grid.Column="1">
@@ -59,6 +59,7 @@
 
         <signalplot:Plot x:Name="pitchPlot" Grid.Row="2" UnitX="s" UnitY="Hz" DataContext="{Binding PitchPlotData}" Margin="0,0,10,0"
                          Interval="{Binding ElementName=signalPlot, Path=Interval, Mode=TwoWay}"
+                         SelectedInterval="{Binding ElementName=signalPlot, Path=SelectedInterval, Mode=TwoWay}"
                          CurrentIndex="{Binding ElementName=signalPlot, Path=CurrentIndex, Mode=TwoWay}"/>
 
     </Grid>

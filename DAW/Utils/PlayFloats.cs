@@ -11,7 +11,7 @@ namespace DAW.Utils
 {
     internal class PlayFloats
     {
-        public static void Play(float[] samples, int sampleRate, SampleInterval? selectedInterval = null)
+        public static void Play(float[] samples, int sampleRate, IntRange? selectedInterval = null)
         {
             IWaveProvider provider = new RawSourceWaveStream(
             new MemoryStream(Get32BitSamplesWaveData(samples, selectedInterval)),
@@ -22,7 +22,7 @@ namespace DAW.Utils
             waveOut.Play();
         }
 
-        public static byte[] Get16BitSamplesWaveData(float[] samples, SampleInterval? selectedInterval)
+        public static byte[] Get16BitSamplesWaveData(float[] samples, IntRange? selectedInterval = null)
         {
             int startIndex = selectedInterval?.Start ?? 0;
             int len = Math.Min(selectedInterval?.Length ?? samples.Length, samples.Length - startIndex);
@@ -43,7 +43,7 @@ namespace DAW.Utils
             return pcm;
         }
 
-        public static byte[] Get32BitSamplesWaveData(float[] samples, SampleInterval? selectedInterval)
+        public static byte[] Get32BitSamplesWaveData(float[] samples, IntRange? selectedInterval = null)
         {
             int startIndex = selectedInterval?.Start ?? 0;
             int len = Math.Min(selectedInterval?.Length ?? samples.Length, samples.Length - startIndex);

@@ -102,7 +102,6 @@
                             </Button>
 
                             <Button Height="25" Margin="3" Click="Normalize_Click" Background="White">
-
                                 <iconPacks:PackIconPixelartIcons Kind="ArrowBarUp"  VerticalAlignment="Center" HorizontalAlignment="Center" />
                             </Button>
 

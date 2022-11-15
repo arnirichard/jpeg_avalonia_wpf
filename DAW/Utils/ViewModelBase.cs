@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DAW.Utils
 {
-    class ViewModelBase : INotifyPropertyChanged
+    public class ViewModelBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 

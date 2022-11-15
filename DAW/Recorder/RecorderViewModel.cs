@@ -154,7 +154,10 @@ namespace DAW.Recorder
                 int index = Records.IndexOf(completedRecording);
                 if(index > -1)
                 {
-                    Records[index] = CreateSignalVM(completedRecording, samples, true);
+                    completedRecording = Records[index] = completedRecording.SetNewLength(samples, true);
+                    CreateWave.WriteSingleChannelWave(completedRecording.File.FullName,
+                            completedRecording.Format,
+                            completedRecording.SignalPlotData.Y);
                 }
             }
         }
@@ -171,29 +174,12 @@ namespace DAW.Recorder
 
             if (index > -1)
             {
-                recordingSignalVM = Records[index] = CreateSignalVM(signalViewModel, signalViewModel.Format.SampleRate * 5, false);
+                recordingSignalVM = Records[index] = signalViewModel.SetNewLength(signalViewModel.Format.SampleRate * 5, false);
             }
             else
             {
                 recordingSignalVM = signalViewModel;
             }
-        }
-
-        SignalViewModel CreateSignalVM(SignalViewModel copyFrom, int newLength, bool copy)
-        {
-            SignalViewModel result = new SignalViewModel(copyFrom.File,
-                    new PlotData(new float[newLength], -1, 1, 0, 5),
-                    new PlotData(new float[newLength], -1, 1, 0, 5),
-                    copyFrom.Format);
-
-            if (copy)
-            {
-                int copyLength = Math.Min(newLength, copyFrom.SignalPlotData.Y.Length);
-                Array.Copy(copyFrom.SignalPlotData.Y, result.SignalPlotData.Y, copyLength);
-                Array.Copy(copyFrom.PitchPlotData.Y, result.PitchPlotData.Y, copyLength);
-            }
-
-            return result;
         }
 
         public WaveFormat Format => SampleTypeIndex == 0
@@ -312,6 +298,17 @@ namespace DAW.Recorder
                             Format);
                     Records.Add(vs);
                 }
+            }
+        }
+
+        internal void TrimSignal(SignalViewModel record, IntRange interval)
+        {
+            SignalViewModel newRecord = record.Trim(interval.Start, interval.Length);
+            CreateWave.WriteSingleChannelWave(newRecord.File.FullName, newRecord.Format, newRecord.SignalPlotData.Y);
+            var index = Records.IndexOf(record);
+            if(index > -1)
+            {
+                Records[index] = newRecord;
             }
         }
     }

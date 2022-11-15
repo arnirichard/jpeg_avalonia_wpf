@@ -20,23 +20,21 @@ namespace SignalPlot
         }
     }
 
-    public struct SampleInterval
+    public struct IntRange
     {
         public int Start { get; }
-        public int Length { get; }
-
-        public int End => Start + Length;
-
-        public SampleInterval()
+        public int End { get; }
+        public int Length => End - Start;
+        public IntRange()
         {
             Start = 0;
-            Length = 0;
+            End = 0;
         }
 
-        public SampleInterval(int start, int length)
+        public IntRange(int start, int length)
         {
-            Start = start; 
-            Length = length;
+            Start = start;
+            End = start+length;
         }
     }
 }
