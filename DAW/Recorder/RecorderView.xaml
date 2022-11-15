@@ -110,7 +110,6 @@
                                 <iconPacks:PackIconUnicons Kind="ArrowsMerge" />
                             </Button>
                         </WrapPanel>
-
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

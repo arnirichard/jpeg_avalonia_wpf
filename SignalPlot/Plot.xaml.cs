@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,23 +48,14 @@ namespace SignalPlot
         public static readonly DependencyProperty BackgroundColorProperty =
             DependencyProperty.Register("BackgroundColor", typeof(int), typeof(Plot), new PropertyMetadata(White));
 
-        public int IndexFrom
+        public SampleInterval Interval
         {
-            get { return (int)GetValue(IndexFromProperty); }
-            set { SetValue(IndexFromProperty, value); }
+            get { return (SampleInterval)GetValue(IntervalProperty); }
+            set { SetValue(IntervalProperty, value); }
         }
 
-        public static readonly DependencyProperty IndexFromProperty =
-            DependencyProperty.Register("IndexFrom", typeof(int), typeof(Plot), new PropertyMetadata(0, PropertyChanged));
-
-        public int IndexTo
-        {
-            get { return (int)GetValue(IndexToProperty); }
-            set { SetValue(IndexToProperty, value); }
-        }
-
-        public static readonly DependencyProperty IndexToProperty =
-            DependencyProperty.Register("IndexTo", typeof(int), typeof(Plot), new PropertyMetadata(0, PropertyChanged));
+        public static readonly DependencyProperty IntervalProperty =
+            DependencyProperty.Register("Interval", typeof(SampleInterval), typeof(Plot), new PropertyMetadata(new SampleInterval(), PropertyChanged));
 
         public int? CurrentIndex
         {
@@ -80,7 +72,10 @@ namespace SignalPlot
             if (d is Plot plot)
             {
                 d.SetCurrentValue(CurrentValueProperty, plot.GetCurrentValue());
-                d.SetCurrentValue(CurrentXProperty, plot.GetX(plot.CurrentIndex));
+                int index = plot.CurrentIndex ?? -1;
+                d.SetCurrentValue(CurrentXProperty, index > -1
+                    ? plot.GetXRange(new SampleInterval(index, index))?.Start
+                    : null);
             }
         }
 
@@ -102,50 +97,25 @@ namespace SignalPlot
         public static readonly DependencyProperty CurrentXProperty =
             DependencyProperty.Register("CurrentX", typeof(float?), typeof(Plot), new PropertyMetadata(null));
 
-        public float? FromX
+        public FloatRange? XRange
         {
-            get { return (float?)GetValue(FromXProperty); }
-            set { SetValue(FromXProperty, value); }
+            get { return (FloatRange?)GetValue(XRangeProperty); }
+            set { SetValue(XRangeProperty, value); }
         }
 
-        public static readonly DependencyProperty FromXProperty =
-            DependencyProperty.Register("FromX", typeof(float?), typeof(Plot), new PropertyMetadata(0f));
+        // Using a DependencyProperty as the backing store for XRange.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty XRangeProperty =
+            DependencyProperty.Register("XRange", typeof(FloatRange?), typeof(Plot), new PropertyMetadata(null));
 
-        public float? ToX
+
+        public SampleInterval? SelectedInterval
         {
-            get { return (float?)GetValue(ToXProperty); }
-            set { SetValue(ToXProperty, value); }
+            get { return (SampleInterval?)GetValue(SelectedIntervalProperty); }
+            set { SetValue(SelectedIntervalProperty, value); }
         }
 
-        public static readonly DependencyProperty ToXProperty =
-            DependencyProperty.Register("ToX", typeof(float?), typeof(Plot), new PropertyMetadata(0f));
-
-        public int? SelectedStartIndex
-        {
-            get { return (int?)GetValue(SelectedStartIndexProperty); }
-            set { SetValue(SelectedStartIndexProperty, value); }
-        }
-
-        public static readonly DependencyProperty SelectedStartIndexProperty =
-            DependencyProperty.Register("SelectedStartIndex", typeof(int?), typeof(Plot), new PropertyMetadata());
-
-        public int? SelectedEndIndex
-        {
-            get { return (int?)GetValue(SelectedEndIndexProperty); }
-            set { SetValue(SelectedEndIndexProperty, value); }
-        }
-
-        public static readonly DependencyProperty SelectedEndIndexProperty =
-            DependencyProperty.Register("SelectedEndIndex", typeof(int?), typeof(Plot), new PropertyMetadata(PropertyChanged));
-
-        public int? SelectedIntervalLength
-        {
-            get { return (int?)GetValue(SelectedIntervalLengthProperty); }
-            set { SetValue(SelectedIntervalLengthProperty, value); }
-        }
-
-        public static readonly DependencyProperty SelectedIntervalLengthProperty =
-            DependencyProperty.Register("SelectedIntervalLength", typeof(int?), typeof(Plot), new PropertyMetadata(null));
+        public static readonly DependencyProperty SelectedIntervalProperty =
+            DependencyProperty.Register("SelectedInterval", typeof(SampleInterval?), typeof(Plot), new PropertyMetadata(null, PropertyChanged));
 
         public string? UnitX { get; set; }
         public string? UnitY { get; set; }
@@ -158,18 +128,8 @@ namespace SignalPlot
             if (d is Plot plot)
             {
                 plot.RefreshPlot();
-                d.SetCurrentValue(FromXProperty, plot.GetX(plot.IndexFrom));
-                d.SetCurrentValue(ToXProperty, plot.GetX(plot.IndexTo));
-                d.SetCurrentValue(SelectedIntervalLengthProperty, plot.GetSelectedIntervalLength());
+                d.SetCurrentValue(XRangeProperty, plot.GetXRange(plot.Interval));
             }
-        }
-
-        int? GetSelectedIntervalLength()
-        {
-            if(SelectedStartIndex != null && SelectedEndIndex != null)
-                return Math.Abs((int)SelectedEndIndex - (int)SelectedStartIndex);
-
-            return null;
         }
 
         public Plot()
@@ -189,15 +149,16 @@ namespace SignalPlot
             return null;
         }
 
-        float? GetX(int? index)
+        FloatRange? GetXRange(SampleInterval interval)
         {
-            if (DataContext is PlotData plotData &&
-                index != null &&
-                index >= 0 &&
-                index <= plotData.Y.Length)
+            if (DataContext is PlotData plotData)
             {
-                float ratio = (int)index / (float)plotData.Y.Length;
-                return plotData.MinX*(1-ratio)+plotData.MaxX*ratio;
+                float ratio1 = interval.Start/ (float)plotData.Y.Length;
+                float ratio2 = (interval.Start+interval.Length) / (float)plotData.Y.Length;
+
+                return new FloatRange(plotData.MinX * (1 - ratio1) + plotData.MaxX * ratio1,
+                    plotData.MinX * (1 - ratio2) + plotData.MaxX * ratio2);
+
             }
             return null;
         }
@@ -211,8 +172,8 @@ namespace SignalPlot
         {
             if (DataContext is PlotData plotData)
             {
-                int indexFrom = IndexFrom;
-                int indexTo = IndexTo;
+                int indexFrom = Interval.Start;
+                int indexTo = Interval.End;
                 double range = indexTo - indexFrom;
                 double pos = indexFrom + e.GetPosition(image).X / image.ActualWidth * range;
 
@@ -229,8 +190,7 @@ namespace SignalPlot
                 if (indexTo > plotData.Y.Length)
                     indexTo = plotData.Y.Length;
 
-                IndexFrom = indexFrom;
-                IndexTo = indexTo;
+                Interval = new SampleInterval(indexFrom, indexTo - indexFrom);
             }
         }
 
@@ -238,9 +198,8 @@ namespace SignalPlot
         {
             if (DataContext is PlotData plotData)
             {
-                IndexFrom = 0;
-                IndexTo = plotData.Y.Length;
-                SelectedEndIndex = null;
+                Interval = new SampleInterval(0, plotData.Y.Length);
+                SelectedInterval = null;
             }
             RefreshPlot();
         }
@@ -263,16 +222,16 @@ namespace SignalPlot
 
             if (DataContext is PlotData plotData)
             {
-                float xRangeFrom = IndexFrom /(float) plotData.Y.Length * (plotData.MaxX- plotData.MinX);
-                float xRangeTo = IndexTo / (float)plotData.Y.Length * (plotData.MaxX - plotData.MinX);
+                float xRangeFrom = Interval.Start /(float) plotData.Y.Length * (plotData.MaxX- plotData.MinX);
+                float xRangeTo = Interval.End / (float)plotData.Y.Length * (plotData.MaxX - plotData.MinX);
 
                 List<PlotLine> plotLines = writeableBitmap.PlotSignal(plotData.Y,
-                    IndexFrom, Math.Min(IndexTo - IndexFrom, plotData.Y.Length-IndexFrom),
+                    Interval.Start, Math.Min(Interval.Length, plotData.Y.Length- Interval.Start),
                     xRangeFrom, xRangeTo,
                     plotData.MinY, plotData.MaxY,
                     BackgroundColor, SignalColor, SelectedIntervalColor,
                     VerticalLines, HorizontalLines,
-                    SelectedStartIndex, SelectedEndIndex);
+                    SelectedInterval);
 
                 verticalLabels.Children.Clear();
                 horizontalLabels.Children.Clear();
@@ -337,7 +296,7 @@ namespace SignalPlot
             
             if(DataContext is PlotData plotData)
             {
-                int? currentSample = (int)(x / image.ActualWidth * (IndexTo - IndexFrom)) + IndexFrom;
+                int? currentSample = (int)(x / image.ActualWidth * Interval.Length) + Interval.Start;
                 if (currentSample < 0)
                     currentSample = 0;
                 else if (currentSample > plotData.Y.Length)
@@ -352,12 +311,13 @@ namespace SignalPlot
                         if (plotSelectSamplePressed == null)
                         {
                             plotSelectSamplePressed = CurrentIndex;
-                            SelectedStartIndex = plotSelectSamplePressed;
-                            SelectedEndIndex = plotSelectSamplePressed;
+                            SelectedInterval = new SampleInterval(plotSelectSamplePressed.Value, 0);
                         }
-                        else
+                        else if(SelectedInterval != null)
                         {
-                            SelectedEndIndex = CurrentIndex;
+                            int start = Math.Min(plotSelectSamplePressed.Value, CurrentIndex.Value);
+                            SelectedInterval = new SampleInterval(start,
+                                 Math.Max(plotSelectSamplePressed.Value, CurrentIndex.Value) - start);
                         }
                     }
                     else
@@ -376,13 +336,13 @@ namespace SignalPlot
 
                             if (plotMoveStartPoint.HasValue)
                             {
-                                plotMoveSamplePressed = IndexFrom;
+                                plotMoveSamplePressed = Interval.Start;
                             }
                         }
                         else if (plotMoveSamplePressed != null)
                         {
-                            double shift = (plotMoveStartPoint.Value.X - x) / image.ActualWidth * (IndexTo - IndexFrom);
-                            int diff = IndexTo - IndexFrom;
+                            double shift = (plotMoveStartPoint.Value.X - x) / image.ActualWidth * Interval.Length;
+                            int diff = Interval.Length;
                             int sampleFrom = (int)(plotMoveSamplePressed.Value + shift);
                             if (sampleFrom < 0)
                                 sampleFrom = 0;
@@ -392,8 +352,7 @@ namespace SignalPlot
                                 sampleTo = plotData.Y.Length;
                                 sampleFrom = sampleTo - diff;
                             }
-                            IndexFrom = sampleFrom;
-                            IndexTo = sampleTo;
+                            Interval = new SampleInterval(sampleFrom, sampleTo- sampleFrom);
                         }
                     }
                 }
@@ -402,21 +361,18 @@ namespace SignalPlot
                     plotMoveStartPoint = null;
                     plotSelectSamplePressed = null;
                 }
-            }
-
-
-            
+            }   
         }
 
         private void image_MouseLeave(object sender, MouseEventArgs e)
         {
-            if(plotSelectSamplePressed != null)
+            if(plotSelectSamplePressed != null && SelectedInterval != null)
             {
                 double x = e.GetPosition(image).X;
                 if (x < 0)
-                    SelectedEndIndex = IndexFrom;
+                    SelectedInterval = new SampleInterval(Interval.Start, SelectedInterval.Value.End);
                 if (x > image.ActualWidth)
-                    SelectedEndIndex = IndexTo;
+                    SelectedInterval = new SampleInterval(SelectedInterval.Value.Start, Interval.End);
             }
         }
 
@@ -428,22 +384,20 @@ namespace SignalPlot
 
                 if(x < 50)
                 {
-                    plotSelectSamplePressed = IndexFrom;
-                    SelectedStartIndex = IndexFrom;
-                    SelectedEndIndex = IndexFrom;
+                    plotSelectSamplePressed = Interval.Start;
+                    SelectedInterval = new SampleInterval(Interval.Start, Interval.Start);
                 }
                 else if(x > image.ActualWidth-50)
                 {
-                    plotSelectSamplePressed = IndexTo;
-                    SelectedStartIndex = IndexTo;
-                    SelectedEndIndex = IndexTo;
+                    plotSelectSamplePressed = Interval.End;
+                    SelectedInterval = new SampleInterval(Interval.End, Interval.End);
                 }
             }
         }
 
         private void image_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            SelectedStartIndex = SelectedEndIndex = null;
+            SelectedInterval = null;
         }
     }
 }

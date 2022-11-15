@@ -71,15 +71,14 @@ namespace DAW.PitchDetector
         {
             if (DataContext is SignalViewModel vm && 
                 vm.SignalPlotData?.Y.Length > 0 &&
-                signalPlot.SelectedStartIndex != null &&
-                signalPlot.SelectedEndIndex != null)
+                signalPlot.SelectedInterval != null)
             {
-                int fromIndex = Math.Min(signalPlot.SelectedStartIndex.Value, signalPlot.SelectedEndIndex.Value);
-                int length = Math.Abs(signalPlot.SelectedStartIndex.Value - signalPlot.SelectedEndIndex.Value);
+                int fromIndex = Math.Min(signalPlot.SelectedInterval.Value.Start, signalPlot.SelectedInterval.Value.End);
+                int length = Math.Abs(signalPlot.SelectedInterval.Value.Length);
 
                 if (fromIndex >= 0 && fromIndex+length <= vm.SignalPlotData.Y.Length)
                 {
-                    PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, fromIndex, length);
+                    PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, signalPlot.SelectedInterval);
                 }
             }
         }

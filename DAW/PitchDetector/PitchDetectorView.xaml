@@ -30,10 +30,10 @@
                     <TextBlock Margin="5,0" Text="{Binding Format.Channels, StringFormat='Channels {0}'}"/>
                 </WrapPanel>
                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBlock Text="{Binding ElementName=signalPlot, Path=IndexFrom, StringFormat='Range {0}'}"/>
-                    <TextBlock Text="{Binding ElementName=signalPlot, Path=IndexTo, StringFormat='-{0}'}"/>
-                    <TextBlock Text="{Binding ElementName=signalPlot, Path=FromX, StringFormat='Time {0:0.000}'}" Margin="10,0,0,0"/>
-                    <TextBlock Text="{Binding ElementName=signalPlot, Path=ToX, StringFormat='-{0:0.000}s'}"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=Interval.Start, StringFormat='Range {0}'}"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=Interval.End, StringFormat='-{0}'}"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=XRange.Value.Start, StringFormat='Time {0:0.000}'}" Margin="10,0,0,0"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=XRange.Value.End, StringFormat='-{0:0.000}s'}"/>
                 </WrapPanel>
                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <TextBlock Text="{Binding ElementName=signalPlot, Path=CurrentIndex, StringFormat='Sample {0}'}"/>
@@ -58,8 +58,7 @@
         <signalplot:Plot x:Name="signalPlot" Grid.Row="1" UnitX="s" DataContext="{Binding SignalPlotData}" Margin="0,0,10,0"/>
 
         <signalplot:Plot x:Name="pitchPlot" Grid.Row="2" UnitX="s" UnitY="Hz" DataContext="{Binding PitchPlotData}" Margin="0,0,10,0"
-                         IndexFrom="{Binding ElementName=signalPlot, Path=IndexFrom, Mode=TwoWay}"
-                         IndexTo="{Binding ElementName=signalPlot, Path=IndexTo, Mode=TwoWay}"
+                         Interval="{Binding ElementName=signalPlot, Path=Interval, Mode=TwoWay}"
                          CurrentIndex="{Binding ElementName=signalPlot, Path=CurrentIndex, Mode=TwoWay}"/>
 
     </Grid>

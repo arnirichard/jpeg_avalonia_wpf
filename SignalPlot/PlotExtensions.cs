@@ -36,16 +36,16 @@ namespace SignalPlot
             int backgroundcolor, int color, int selectedColor,
             List<LinesDefinition> verticalLines,
             List<LinesDefinition> horizontalLines,
-            int? selectedIndexFrom = null, int? selectedIndexTo = null)
+            SampleInterval? selectedInterval)
         {
             List<PlotLine> result = new List<PlotLine>();
 
             writeableBitmap.PaintColor(backgroundcolor);
 
-            if(selectedIndexFrom != null && selectedIndexTo != null)
+            if(selectedInterval != null && selectedInterval.Value.Length > 0)
             {
-                int posStart = (int)(writeableBitmap.PixelWidth * (selectedIndexFrom - indexFrom) / length);
-                int posEnd = (int)(writeableBitmap.PixelWidth * (selectedIndexTo - indexFrom) / length);
+                int posStart = (int)(writeableBitmap.PixelWidth * (selectedInterval.Value.Start - indexFrom) / length);
+                int posEnd = (int)(writeableBitmap.PixelWidth * (selectedInterval.Value.End- indexFrom)/ length);
                 writeableBitmap.PaintVerticalSegment(selectedColor, posStart, posEnd - posStart);
             }
 

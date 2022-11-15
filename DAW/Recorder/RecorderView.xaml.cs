@@ -53,9 +53,9 @@ namespace DAW.Recorder
             {
                 Plot? plot = fe.FindName("signalPlot") as Plot;
 
-                if(plot != null && plot.SelectedStartIndex != null && plot.SelectedIntervalLength != null)
+                if(plot != null && plot.SelectedInterval!= null)
                 {
-                    PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, plot.SelectedStartIndex, plot.SelectedIntervalLength);
+                    PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, plot.SelectedInterval);
                 }
             }
         }

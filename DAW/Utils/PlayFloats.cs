@@ -1,4 +1,5 @@
 ﻿using NAudio.Wave;
+using SignalPlot;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,10 +11,10 @@ namespace DAW.Utils
 {
     internal class PlayFloats
     {
-        public static void Play(float[] samples, int sampleRate, int? offset = null, int? length = null)
+        public static void Play(float[] samples, int sampleRate, SampleInterval? selectedInterval = null)
         {
             IWaveProvider provider = new RawSourceWaveStream(
-            new MemoryStream(Get32BitSamplesWaveData(samples, offset, length)),
+            new MemoryStream(Get32BitSamplesWaveData(samples, selectedInterval)),
             new WaveFormat(sampleRate, 32, 1));
 
             WaveOut waveOut = new WaveOut();
@@ -21,10 +22,10 @@ namespace DAW.Utils
             waveOut.Play();
         }
 
-        public static byte[] Get16BitSamplesWaveData(float[] samples, int? offset = null, int? length = null)
+        public static byte[] Get16BitSamplesWaveData(float[] samples, SampleInterval? selectedInterval)
         {
-            int startIndex = offset ?? 0;
-            int len = Math.Min(length ?? samples.Length, samples.Length - startIndex);
+            int startIndex = selectedInterval?.Start ?? 0;
+            int len = Math.Min(selectedInterval?.Length ?? samples.Length, samples.Length - startIndex);
 
             var pcm = new byte[len * 2];
             int sampleIndex = startIndex, pcmIndex = 0;
@@ -42,10 +43,10 @@ namespace DAW.Utils
             return pcm;
         }
 
-        public static byte[] Get32BitSamplesWaveData(float[] samples, int? offset = null, int? length = null)
+        public static byte[] Get32BitSamplesWaveData(float[] samples, SampleInterval? selectedInterval)
         {
-            int startIndex = offset ?? 0;
-            int len = Math.Min(length ?? samples.Length, samples.Length - startIndex);
+            int startIndex = selectedInterval?.Start ?? 0;
+            int len = Math.Min(selectedInterval?.Length ?? samples.Length, samples.Length - startIndex);
 
             var pcm = new byte[len * 4];
             int sampleIndex = startIndex, pcmIndex = 0;
