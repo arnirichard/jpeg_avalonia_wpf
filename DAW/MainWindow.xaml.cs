@@ -24,7 +24,11 @@ namespace DAW
             var modules = ReflectionHelper.CreateAllInstancesOf<IModule>();
             viewModel = new MainWindowViewModel(modules);
             DataContext = viewModel;
-            Closing += (s, args) => viewModel.SelectedModule.Deactivate();
+            Closing += (s, args) =>
+            {
+                foreach(var m in viewModel.Modules)
+                    m.Deactivate();
+            };
         }
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
@@ -57,6 +61,8 @@ namespace DAW
             {
                 viewModel.SelectedModule?.SetFile(fi.FullName);
             }
+
+            fileList.SelectedItem = null;
         }
 
         private void Module_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

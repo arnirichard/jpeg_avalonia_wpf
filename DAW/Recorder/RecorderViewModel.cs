@@ -1,5 +1,7 @@
 ﻿using DAW.PitchDetector;
+using DAW.Tasks;
 using DAW.Utils;
+using Microsoft.VisualBasic;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using SignalPlot;
@@ -8,11 +10,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
+//using System.Windows.Forms;
 
 namespace DAW.Recorder
 {
@@ -24,7 +29,13 @@ namespace DAW.Recorder
         MMDevice? device;
         private WasapiCapture? capture;
         public string? Folder;
-        
+
+        SignalViewModel? recordingSignalVM;
+        int recordingIndex = 0;
+        JobHandler recordingHandler = new JobHandler(1);
+
+        public bool IsRecording => recordingSignalVM != null;
+        public ObservableCollection<SignalViewModel> Records { get; set; } = new ObservableCollection<SignalViewModel>();
 
         public IEnumerable<MMDevice> CaptureDevices { get; }
         public MMDevice? SelectedDevice
@@ -37,7 +48,7 @@ namespace DAW.Recorder
                     device = value;
                     OnPropertyChanged("SelectedDevice");
                     if (SelectedDevice != null)
-                        CreateCapture();
+                        StartCapture();
                 }
             }
         }
@@ -55,7 +66,7 @@ namespace DAW.Recorder
                     BitDepth = sampleTypeIndex == 1 ? 16 : 32;
                     OnPropertyChanged("IsBitDepthConfigurable");
                     if (SelectedDevice != null)
-                        CreateCapture();
+                        StartCapture();
                 }
             }
         }
@@ -69,7 +80,7 @@ namespace DAW.Recorder
                     sampleRate = value;
                     OnPropertyChanged("SampleRate");
                     if (SelectedDevice != null)
-                        CreateCapture();
+                        StartCapture();
                 }
             }
         }
@@ -83,19 +94,17 @@ namespace DAW.Recorder
                     bitDepth = value;
                     OnPropertyChanged("BitDepth");
                     if (SelectedDevice != null)
-                        CreateCapture();
+                        StartCapture();
                 }
             }
         }
-
-        public ObservableCollection<PitchDetectorViewModel> Records { get; set; } = new ObservableCollection<PitchDetectorViewModel>();
 
         public RecorderViewModel()
         {
             var enumerator = new MMDeviceEnumerator();
             CaptureDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active).ToArray();
             var defaultDevice = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Console);
-            if(defaultDevice != null)
+            if (defaultDevice != null)
             {
                 SetDefault(defaultDevice);
                 SelectedDevice = CaptureDevices.FirstOrDefault(c => c.ID == defaultDevice.ID);
@@ -112,7 +121,7 @@ namespace DAW.Recorder
             }
         }
 
-        private void CreateCapture()
+        private void StartCapture()
         {
             StopCapture();
 
@@ -133,25 +142,136 @@ namespace DAW.Recorder
             }
         }
 
+        public void StopRecording()
+        {
+            if (recordingSignalVM != null)
+            {
+                SignalViewModel completedRecording = recordingSignalVM;
+                int samples = recordingIndex;
+                recordingSignalVM = null;
+                OnPropertyChanged("IsRecording");
+                
+                int index = Records.IndexOf(completedRecording);
+                if(index > -1)
+                {
+                    Records[index] = CreateSignalVM(completedRecording, samples, true);
+                }
+            }
+        }
+
+        void RunOnUIThread(Action action)
+        {
+            Application.Current.Dispatcher.Invoke(action);
+        }
+
+        public void StartRecording(SignalViewModel signalViewModel)
+        {
+            var index = Records.IndexOf(signalViewModel);
+            recordingIndex = 0;
+
+            if (index > -1)
+            {
+                recordingSignalVM = Records[index] = CreateSignalVM(signalViewModel, signalViewModel.Format.SampleRate * 5, false);
+            }
+            else
+            {
+                recordingSignalVM = signalViewModel;
+            }
+        }
+
+        SignalViewModel CreateSignalVM(SignalViewModel copyFrom, int newLength, bool copy)
+        {
+            SignalViewModel result = new SignalViewModel(copyFrom.File,
+                    new PlotData(new float[newLength], -1, 1, 0, 5),
+                    new PlotData(new float[newLength], -1, 1, 0, 5),
+                    copyFrom.Format);
+
+            if (copy)
+            {
+                int copyLength = Math.Min(newLength, copyFrom.SignalPlotData.Y.Length);
+                Array.Copy(copyFrom.SignalPlotData.Y, result.SignalPlotData.Y, copyLength);
+                Array.Copy(copyFrom.PitchPlotData.Y, result.PitchPlotData.Y, copyLength);
+            }
+
+            return result;
+        }
+
         public WaveFormat Format => SampleTypeIndex == 0
                     ? WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, 1)
                     : new WaveFormat(SampleRate, BitDepth, 1);
 
         private void CaptureOnDataAvailable(object? sender, WaveInEventArgs waveInEventArgs)
         {
-            ThreadPool.QueueUserWorkItem(delegate
-            {
-                try
+            if (recordingSignalVM != null)
+                recordingHandler.AddJob(delegate
                 {
+                    try
+                    {
+                        SignalViewModel? recData = recordingSignalVM;
 
-                }
-                catch { }
-            });
+                        if (recData == null)
+                            return;
+
+                        if(recData != null && 
+                            recData.Format.Channels == 1 &&
+                            recordingIndex < recData.SignalPlotData.Y.Length)
+                        {
+                            byte[] bytes = waveInEventArgs.Buffer;
+                            int samples = bytes.Length / recData.Format.BitsPerSample * 4;
+                            PlotData? newPlotData = null;
+                            if (recordingIndex + samples > recData.SignalPlotData.Y.Length)
+                            {
+                                newPlotData = new PlotData(new float[recData.SignalPlotData.Y.Length+5*recData.Format.SampleRate], -1, 1, 0, 5);
+                                Array.Copy(recData.SignalPlotData.Y, newPlotData.Y, recordingIndex);
+                            }
+
+                            float[] floats = recData.SignalPlotData.Y;
+
+                            if (recordingIndex < floats.Length)
+                            {
+                                int offset = 0;
+                                for (int i = 0; i < samples; i++)
+                                {
+                                    if (recData.Format.BitsPerSample == 16)
+                                    {
+                                        floats[recordingIndex++] = BitConverter.ToInt16(bytes, offset) / 32768f;
+                                        offset += 2;
+                                    }
+                                    else if (recData.Format.BitsPerSample == 24)
+                                    {
+                                        floats[recordingIndex++] = (((sbyte)bytes[offset + 2] << 16) | (bytes[offset + 1] << 8) | bytes[offset]) / 8388608f;
+                                        offset += 3;
+                                    }
+                                    else if (recData.Format.BitsPerSample == 32 && recData.Format.Encoding == WaveFormatEncoding.IeeeFloat)
+                                    {
+                                        floats[recordingIndex++] = BitConverter.ToSingle(bytes, offset);
+                                        offset += 4;
+                                    }
+                                    else if (recData.Format.BitsPerSample == 32)
+                                    {
+                                        floats[recordingIndex++] = BitConverter.ToInt32(bytes, offset) / (Int32.MaxValue + 1f);
+                                        offset += 4;
+                                    }
+                                    else
+                                    {
+                                        throw new InvalidOperationException("Unsupported bit depth");
+                                    }
+                                }
+
+                                recData.SignalChanged(newPlotData);
+                            }
+                        }
+                    }
+                    catch 
+                    {
+                        StopRecording();
+                    }
+                });
         }
 
         internal void Deactivate()
         {
-            
+            StopCapture();
         }
 
         void StopCapture()
@@ -175,7 +295,7 @@ namespace DAW.Recorder
                     AudioData? audioData = AudioData.ReadSamples(filename);
                     if (audioData != null)
                     {
-                        PitchDetectorViewModel vs = new PitchDetectorViewModel(new FileInfo(filename),
+                        SignalViewModel vs = new SignalViewModel(new FileInfo(filename),
                             new PlotData(audioData!.ChannelData[0], -1f, 1f, 0f, audioData.ChannelData[0].Length / (float)audioData.Format.SampleRate),
                             CreatePitchPlotData.GetPitchPlotData(audioData!.ChannelData[0], audioData.Format.SampleRate),
                             audioData.Format);
@@ -186,7 +306,7 @@ namespace DAW.Recorder
                 {
                     int seconds = 0;
                     float[] signal = new float[SampleRate * seconds];
-                    PitchDetectorViewModel vs = new PitchDetectorViewModel(new FileInfo(filename),
+                    SignalViewModel vs = new SignalViewModel(new FileInfo(filename),
                             new PlotData(signal, -1f, 1f, 0f, seconds),
                             CreatePitchPlotData.GetPitchPlotData(new float[signal.Length], SampleRate),
                             Format);

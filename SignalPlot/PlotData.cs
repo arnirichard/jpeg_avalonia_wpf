@@ -22,5 +22,10 @@ namespace SignalPlot
             MaxX = maxX;
             MinX = minX;
         }
+
+        public PlotData Clone()
+        {
+            return new PlotData(Y, MinY, MaxY, MinX, MaxX);
+        }
     }
 }

@@ -54,14 +54,14 @@ namespace DAW.PitchDetector
         private void OnCurrentValueChanged(object? sender, EventArgs e)
         {
             float? val = pitchPlot.CurrentValue;
-            periodTextBlock.Text = val > 0 && DataContext is PitchDetectorViewModel vm && vm.Format != null
+            periodTextBlock.Text = val > 0 && DataContext is SignalViewModel vm && vm.Format != null
                     ? "Period: " + ((int)Math.Round(vm.Format.SampleRate / (float)val))
                     : "";
         }
 
         private void Play_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is PitchDetectorViewModel vm && vm.SignalPlotData?.Y.Length > 0)
+            if (DataContext is SignalViewModel vm && vm.SignalPlotData?.Y.Length > 0)
             {
                 PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate);
             }
@@ -69,7 +69,7 @@ namespace DAW.PitchDetector
 
         private void PlaySelected_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is PitchDetectorViewModel vm && 
+            if (DataContext is SignalViewModel vm && 
                 vm.SignalPlotData?.Y.Length > 0 &&
                 signalPlot.SelectedStartIndex != null &&
                 signalPlot.SelectedEndIndex != null)
@@ -83,7 +83,5 @@ namespace DAW.PitchDetector
                 }
             }
         }
-
-        
     }
 }

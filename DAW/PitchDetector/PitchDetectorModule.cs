@@ -31,7 +31,7 @@ namespace DAW.PitchDetector
                 AudioData? audioData = AudioData.ReadSamples(filename);
                 if(audioData != null)
                 {
-                    PitchDetectorViewModel vs = new PitchDetectorViewModel(new FileInfo(filename),
+                    SignalViewModel vs = new SignalViewModel(new FileInfo(filename),
                         new PlotData(audioData!.ChannelData[0], -1f, 1f, 0f, audioData.ChannelData[0].Length/(float)audioData.Format.SampleRate),
                         CreatePitchPlotData.GetPitchPlotData(audioData!.ChannelData[0], audioData.Format.SampleRate),
                         audioData.Format);

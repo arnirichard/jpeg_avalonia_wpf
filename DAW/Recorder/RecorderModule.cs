@@ -24,6 +24,7 @@ namespace DAW.Recorder
         public void Deactivate()
         {
             viewModel.Deactivate();
+            view = null;
         }
 
         public void SetFile(string filename)

@@ -21,12 +21,13 @@ namespace SignalPlot
     public partial class Plot : UserControl
     {
         public static int Red = int.Parse("FF0000", System.Globalization.NumberStyles.HexNumber);
+        public static int Orange = int.Parse("FF6A00", System.Globalization.NumberStyles.HexNumber);
         public static int Black = int.Parse("000000", System.Globalization.NumberStyles.HexNumber);
         public static int White = int.Parse("FFFFFF", System.Globalization.NumberStyles.HexNumber);
         public static int Beige = int.Parse("DDDDDD", System.Globalization.NumberStyles.HexNumber);
         public static int Blue = int.Parse("0026FF", System.Globalization.NumberStyles.HexNumber);
         
-        public static int SelectedIntervalColor = int.Parse("AAFF0000", System.Globalization.NumberStyles.HexNumber);
+        public static int SelectedIntervalColor = Orange;
 
         public int SignalColor
         {
@@ -328,13 +329,20 @@ namespace SignalPlot
         private void image_MouseMove(object sender, MouseEventArgs e)
         {
             double x = e.GetPosition(image).X;
+
+             if (x < 0)
+                x = 0;
+            if (x > image.ActualWidth)
+                x = image.ActualWidth;
             
             if(DataContext is PlotData plotData)
             {
                 int? currentSample = (int)(x / image.ActualWidth * (IndexTo - IndexFrom)) + IndexFrom;
-                if (currentSample < 0 || currentSample >= plotData.Y.Length)
-                    currentSample = null;
-                if(currentSample != CurrentIndex)
+                if (currentSample < 0)
+                    currentSample = 0;
+                else if (currentSample > plotData.Y.Length)
+                    currentSample = plotData.Y.Length;
+                if (currentSample != CurrentIndex)
                     CurrentIndex = currentSample;
 
                 if (e.LeftButton == MouseButtonState.Pressed)
@@ -398,6 +406,44 @@ namespace SignalPlot
 
 
             
+        }
+
+        private void image_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if(plotSelectSamplePressed != null)
+            {
+                double x = e.GetPosition(image).X;
+                if (x < 0)
+                    SelectedEndIndex = IndexFrom;
+                if (x > image.ActualWidth)
+                    SelectedEndIndex = IndexTo;
+            }
+        }
+
+        private void image_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed && Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                double x = e.GetPosition(image).X;
+
+                if(x < 50)
+                {
+                    plotSelectSamplePressed = IndexFrom;
+                    SelectedStartIndex = IndexFrom;
+                    SelectedEndIndex = IndexFrom;
+                }
+                else if(x > image.ActualWidth-50)
+                {
+                    plotSelectSamplePressed = IndexTo;
+                    SelectedStartIndex = IndexTo;
+                    SelectedEndIndex = IndexTo;
+                }
+            }
+        }
+
+        private void image_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            SelectedStartIndex = SelectedEndIndex = null;
         }
     }
 }

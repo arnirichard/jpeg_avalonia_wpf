@@ -18,11 +18,15 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Column="1" Grid.Row="0" BorderBrush="Black" BorderThickness="1"
-                Margin="0, 0, 0, 0" SizeChanged="image_SizeChanged">
+                SizeChanged="image_SizeChanged">
             <Grid x:Name="grid">
                 <Image Name="image"
                     MouseWheel="image_MouseWheel" 
-                    MouseMove="image_MouseMove"/>
+                    MouseMove="image_MouseMove" 
+                    MouseLeave="image_MouseLeave"
+                    MouseEnter="image_MouseEnter"
+                       MouseRightButtonDown="image_MouseRightButtonDown"
+                />
             </Grid>
         </Border>
 
