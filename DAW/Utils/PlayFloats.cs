@@ -14,8 +14,8 @@ namespace DAW.Utils
         public static void Play(float[] samples, int sampleRate, IntRange? selectedInterval = null)
         {
             IWaveProvider provider = new RawSourceWaveStream(
-            new MemoryStream(Get32BitSamplesWaveData(samples, selectedInterval)),
-            new WaveFormat(sampleRate, 32, 1));
+                new MemoryStream(Get32BitSamplesWaveData(samples, selectedInterval)),
+                new WaveFormat(sampleRate, 32, 1));
 
             WaveOut waveOut = new WaveOut();
             waveOut.Init(provider);

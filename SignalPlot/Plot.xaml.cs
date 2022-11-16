@@ -66,6 +66,14 @@ namespace SignalPlot
         public static readonly DependencyProperty CurrentIndexProperty =
             DependencyProperty.Register("CurrentIndex", typeof(int?), typeof(Plot), new PropertyMetadata(null, CurrentIndexChanged));
 
+        public float MaxPeak
+        {
+            get { return (float)GetValue(MaxPeakProperty); }
+            set { SetValue(MaxPeakProperty, value); }
+        }
+
+        public static readonly DependencyProperty MaxPeakProperty =
+            DependencyProperty.Register("MaxPeak", typeof(float), typeof(Plot), new PropertyMetadata(0f));
 
         static void CurrentIndexChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -74,7 +82,7 @@ namespace SignalPlot
                 d.SetCurrentValue(CurrentValueProperty, plot.GetCurrentValue());
                 int index = plot.CurrentIndex ?? -1;
                 d.SetCurrentValue(CurrentXProperty, index > -1
-                    ? plot.GetXRange(new IntRange(index, index))?.Start
+                    ? plot.GetXRange(new IntRange(index, index)).Start
                     : null);
             }
         }
@@ -97,16 +105,14 @@ namespace SignalPlot
         public static readonly DependencyProperty CurrentXProperty =
             DependencyProperty.Register("CurrentX", typeof(float?), typeof(Plot), new PropertyMetadata(null));
 
-        public FloatRange? XRange
+        public FloatRange XRange
         {
-            get { return (FloatRange?)GetValue(XRangeProperty); }
+            get { return (FloatRange)GetValue(XRangeProperty); }
             set { SetValue(XRangeProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for XRange.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty XRangeProperty =
-            DependencyProperty.Register("XRange", typeof(FloatRange?), typeof(Plot), new PropertyMetadata(null));
-
+            DependencyProperty.Register("XRange", typeof(FloatRange), typeof(Plot), new PropertyMetadata(null));
 
         public IntRange? SelectedInterval
         {
@@ -117,6 +123,16 @@ namespace SignalPlot
         public static readonly DependencyProperty SelectedIntervalProperty =
             DependencyProperty.Register("SelectedInterval", typeof(IntRange?), typeof(Plot), new PropertyMetadata(null, PropertyChanged));
 
+        public float? SelectedMaxPeak
+        {
+            get { return (float?)GetValue(SelectedMaxPeakProperty); }
+            set { SetValue(SelectedMaxPeakProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SelectedMaxPeak.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SelectedMaxPeakProperty =
+            DependencyProperty.Register("SelectedMaxPeak", typeof(float?), typeof(Plot), new PropertyMetadata(null));
+
         public string? UnitX { get; set; }
         public string? UnitY { get; set; }
 
@@ -125,10 +141,14 @@ namespace SignalPlot
 
         static void PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is Plot plot)
+            if (d is Plot plot && plot.DataContext is PlotData plotData)
             {
                 plot.RefreshPlot();
+                d.SetCurrentValue(MaxPeakProperty, plotData.Y.GetMaxPeak(plot.Interval.Start, plot.Interval.Length));
                 d.SetCurrentValue(XRangeProperty, plot.GetXRange(plot.Interval));
+                d.SetCurrentValue(SelectedMaxPeakProperty, plot.SelectedInterval == null
+                    ? null
+                    : plotData.Y.GetMaxPeak(plot.SelectedInterval.Value.Start, plot.SelectedInterval.Value.Length));
             }
         }
 
@@ -149,7 +169,7 @@ namespace SignalPlot
             return null;
         }
 
-        FloatRange? GetXRange(IntRange interval)
+        FloatRange GetXRange(IntRange interval)
         {
             if (DataContext is PlotData plotData)
             {
@@ -160,7 +180,7 @@ namespace SignalPlot
                     plotData.MinX * (1 - ratio2) + plotData.MaxX * ratio2);
 
             }
-            return null;
+            return new FloatRange(0,0);
         }
 
         private void image_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -200,6 +220,7 @@ namespace SignalPlot
             {
                 Interval = new IntRange(0, plotData.Y.Length);
                 SelectedInterval = null;
+                MaxPeak = plotData.MaxPeak;
             }
             RefreshPlot();
         }
@@ -211,7 +232,7 @@ namespace SignalPlot
 
         void RefreshPlot()
         {
-            if (!IsLoaded || grid.ActualHeight == 0)
+            if (!IsLoaded || grid.ActualHeight == 0 || grid.ActualWidth == 0)
                 return;
 
             WriteableBitmap writeableBitmap = image.Source is WriteableBitmap wb &&
@@ -239,23 +260,24 @@ namespace SignalPlot
 
                 foreach (PlotLine plotLine in plotLines)
                 {
-                    unit = plotLine.Vertical ? UnitY : UnitX;
+                    unit = plotLine.Vertical ? UnitX : UnitY;
 
                     if (!string.IsNullOrEmpty(unit))
                     {
-                        unit = (plotLine.Vertical ? "\n" : " ") + unit;
+                        unit = (plotLine.Vertical ? " " : "\n") + unit;
                     }
                     TextBlock textBlock = new TextBlock()
                     {
                         Text = plotLine.Value.ToString("0.###") +  unit,
                         TextAlignment= TextAlignment.Center,
+                        VerticalAlignment= VerticalAlignment.Center,
                         Foreground = new SolidColorBrush(Colors.Black)
                     };
 
-                    if(plotLine.Vertical) 
+                    if(!plotLine.Vertical) 
                     {
                         Canvas.SetRight(textBlock, 5);
-                        Canvas.SetTop(textBlock, plotLine.Position);
+                        Canvas.SetTop(textBlock, plotLine.Position-15);
                         verticalLabels.Children.Add(textBlock);
                     }
                     else
@@ -269,7 +291,7 @@ namespace SignalPlot
                 if (VerticalLines.Any())
                     horizontalLabels.Height = 30;
                 if(HorizontalLines.Any())
-                    verticalLabels.Height = 40;
+                    verticalLabels.Width = 40;
             }
             else
             {

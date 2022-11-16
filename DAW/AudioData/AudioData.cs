@@ -31,8 +31,11 @@ namespace DAW
 
             AudioFileReader audioFileReader = new AudioFileReader(fileName);
             long numberOfSamples = audioFileReader.Length / audioFileReader.WaveFormat.BitsPerSample * 8;
+
+
             float[] data = new float[numberOfSamples];
-            audioFileReader.Read(data, 0, data.Length);
+            if(data.Length > 0)
+                audioFileReader.Read(data, 0, data.Length);
             float[][] audioData = new float[audioFileReader.WaveFormat.Channels][];
             float[] mono;
 

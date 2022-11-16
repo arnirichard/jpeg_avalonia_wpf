@@ -1,4 +1,7 @@
-﻿using System;
+﻿using DAW.Utils;
+using NAudio.CoreAudioApi;
+using NAudio.Wave;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,5 +17,7 @@ namespace DAW
         void Deactivate();
         void SetFile(string filename);
         void SetFolder(string folder);
+        void SetPlayer(IPlayer player);
+        void OnCaptureSamplesAvailable(float[] samples, WaveFormat format);
     }
 }

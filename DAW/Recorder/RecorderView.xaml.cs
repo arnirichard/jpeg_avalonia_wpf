@@ -1,6 +1,7 @@
 ﻿using DAW.PitchDetector;
 using DAW.Utils;
 using NAudio.CoreAudioApi;
+using NAudio.Gui;
 using NAudio.Wave;
 using SignalPlot;
 using System;
@@ -24,9 +25,6 @@ using System.Windows.Navigation;
 
 namespace DAW.Recorder
 {
-    /// <summary>
-    /// Interaction logic for RecorderView.xaml
-    /// </summary>
     public partial class RecorderView : UserControl
     {      
         public RecorderView()
@@ -34,29 +32,29 @@ namespace DAW.Recorder
             InitializeComponent();
         }
 
-        private void deviceCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            
-        }
-
         private void Play_Click(object sender, RoutedEventArgs e)
         {
-            if(sender is FrameworkElement fe && fe.DataContext is SignalViewModel vm)
+            if(sender is FrameworkElement fe && 
+                fe.DataContext is SignalViewModel vm &&
+                DataContext is RecorderViewModel rvm)
             {
-                PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate);
+                //PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate);
+                rvm.Player?.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, null);
             }
         }
 
         private void PlaySelected_Click(object sender, RoutedEventArgs e)
         {
             if (sender is FrameworkElement fe && 
-                fe.DataContext is SignalViewModel vm)
+                fe.DataContext is SignalViewModel vm &&
+                DataContext is RecorderViewModel rvm)
             {
                 Plot? plot = fe.FindName("signalPlot") as Plot;
 
                 if(plot != null && plot.SelectedInterval!= null)
                 {
-                    PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, plot.SelectedInterval);
+                    rvm.Player?.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, plot.SelectedInterval);
+                    //PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, plot.SelectedInterval);
                 }
             }
         }
@@ -108,28 +106,35 @@ namespace DAW.Recorder
 
         private void Normalize_Click(object sender, RoutedEventArgs e)
         {
-            float factor;
-            if(float.TryParse(normalization.Text, out factor) &&
-                sender is FrameworkElement fe &&
-                fe.DataContext is SignalViewModel record)
+            try
             {
-                float max = 0;
-                for(int i = 0; i < record.SignalPlotData.Y.Length; i++)
+                float factor;
+                if (float.TryParse(normalization.Text, out factor) &&
+                    sender is FrameworkElement fe &&
+                    fe.DataContext is SignalViewModel record)
                 {
-                    if (Math.Abs(record.SignalPlotData.Y[i]) > max)
-                        max = Math.Abs(record.SignalPlotData.Y[i]);
-                }
-                if (max > 0)
-                {
-                    factor = factor / max;
+                    float max = 0;
                     for (int i = 0; i < record.SignalPlotData.Y.Length; i++)
                     {
-                        record.SignalPlotData.Y[i] *= factor;
+                        if (Math.Abs(record.SignalPlotData.Y[i]) > max)
+                            max = Math.Abs(record.SignalPlotData.Y[i]);
                     }
-                    record.SignalChanged();
+                    if (max > 0)
+                    {
+                        factor = factor / max;
+                        for (int i = 0; i < record.SignalPlotData.Y.Length; i++)
+                        {
+                            record.SignalPlotData.Y[i] *= factor;
+                        }
+                        record.SignalChanged();
 
-                    CreateWave.WriteSingleChannelWave(record.File.FullName, record.Format, record.SignalPlotData.Y);
+                        CreateWave.WriteSingleChannelWave(record.File.FullName, record.Format, record.SignalPlotData.Y);
+                    }
                 }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
             }
         }
 

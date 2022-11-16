@@ -23,21 +23,16 @@
         </Grid.ColumnDefinitions>
 
         <WrapPanel>
-            <ComboBox Name="deviceCombo" Width="300" Margin="5" 
-                  ItemsSource="{Binding CaptureDevices}"
-                  SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
-                  SelectionChanged="deviceCombo_SelectionChanged"/>
-
-            <TextBlock VerticalAlignment="Center">Sample Rate</TextBlock>
+            <!--<TextBlock VerticalAlignment="Center">Sample Rate</TextBlock>
             <TextBox Height="23" Margin="10,3" TextWrapping="Wrap" Text="{Binding SampleRate, Mode=TwoWay}" Width="80" />
             <TextBlock VerticalAlignment="Center">Bit Depth</TextBlock>
-            <TextBox Height="23" Margin="10,3" TextWrapping="Wrap" Text="{Binding BitDepth, Mode=OneWay}" Width="30"/>
+            <TextBox Height="23" Margin="10,3" TextWrapping="Wrap" Text="{Binding BitDepth, Mode=OneWay}" Width="30"/>-->
             <!--<TextBox Height="23" Margin="119,96,0,0" TextWrapping="Wrap" 
                      Text="{Binding ChannelCount, Mode=TwoWay}"  Width="120"/>-->
-            <ComboBox SelectedIndex="{Binding SampleTypeIndex, Mode=TwoWay}" VerticalAlignment="Top" Width="120" Height="22">
+            <!--<ComboBox SelectedIndex="{Binding SampleTypeIndex, Mode=TwoWay}" VerticalAlignment="Top" Width="120" Height="22">
                 <TextBlock><Run Text="IEEE Float"/></TextBlock>
                 <TextBlock><Run Text="PCM"/></TextBlock>
-            </ComboBox>
+            </ComboBox>-->
             <TextBlock VerticalAlignment="Center">Normalization</TextBlock>
             <TextBox x:Name="normalization" Height="23" Margin="10,3" TextWrapping="Wrap" Text="0.9" Width="30" PreviewTextInput="NumberValidationTextBox"/>
 

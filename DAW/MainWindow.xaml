@@ -5,47 +5,61 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DAW"
         mc:Ignorable="d"
-        Title="DAW" Height="1100" Width="1500" >
+        Title="DAW" Height="1100" Width="1500">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="180" />
+            <ColumnDefinition Width="250" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        
-        <ListBox Grid.Column="0"
+
+        <StackPanel Orientation="Vertical">
+
+            <Border Background="LightBlue">
+                <TextBlock>Playback Device</TextBlock>
+            </Border>
+
+            <ComboBox 
+                ItemsSource="{Binding PlaybackDevices}"
+                SelectedItem="{Binding SelectedPlaybackDevice, Mode=TwoWay}"
+            />
+
+            <Border Background="LightBlue">
+                <TextBlock>Capture Device</TextBlock>
+            </Border>
+
+            <ComboBox 
+                  ItemsSource="{Binding CaptureDevices}"
+                  SelectedItem="{Binding SelectedCaptureDevice, Mode=TwoWay}"
+            />
+
+            <ListBox Grid.Column="0"
                  ItemsSource="{Binding Modules}" 
                  SelectionChanged="Module_SelectionChanged"
                  SelectedItem="{Binding SelectedModule, Mode=TwoWay}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}" />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        
-        <ContentPresenter x:Name="contentPresenter" Grid.Column="1" Grid.RowSpan="10"
-                          Content="{Binding UserInterface}" />
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
 
-        <Button Grid.Row="1" Click="OpenFolder_Click">Select folder</Button>
+            <Button Grid.Row="1" Click="OpenFolder_Click">Select folder</Button>
 
-        <TextBlock Grid.Row="2" Text="{Binding Folder}"/>
+            <TextBlock Grid.Row="2" Text="{Binding Folder}"/>
 
-        <ListBox x:Name="fileList"
+            <ListBox x:Name="fileList"
             Grid.Row="3"
                  ItemsSource="{Binding Files}" 
                  SelectionChanged="Files_SelectionChanged">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}" />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        <ContentPresenter x:Name="contentPresenter" Grid.Column="1" Grid.RowSpan="10"
+                          Content="{Binding UserInterface}" />
     </Grid>
 </Window>

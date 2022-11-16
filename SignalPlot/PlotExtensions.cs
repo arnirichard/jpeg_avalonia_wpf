@@ -148,7 +148,7 @@ namespace SignalPlot
                                 linesDefinition.Solid ? writeableBitmap.PixelHeight : 8,
                                 linesDefinition.Solid ? 0 : 4))
                         {
-                            result.Add(new PlotLine(false, pos, val, linesDefinition.Solid));
+                            result.Add(new PlotLine(true, pos, val, linesDefinition.Solid));
                             points.Add(pos);
                         }
                     }
@@ -188,7 +188,7 @@ namespace SignalPlot
                             linesDefinition.Solid ? writeableBitmap.PixelWidth : 8,
                             linesDefinition.Solid ? 0 : 4))
                         {
-                            result.Add(new PlotLine(true, pos, val, linesDefinition.Solid));
+                            result.Add(new PlotLine(false, pos, val, linesDefinition.Solid));
                             points.Add(pos);
                         }
                     }

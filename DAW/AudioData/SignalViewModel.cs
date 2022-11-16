@@ -34,15 +34,17 @@ namespace DAW.PitchDetector
             Format = waveFormat;
         }
 
-        public void StopRecording()
+        public void SetRecording(bool recording)
         {
-            IsRecording = false;
+            IsRecording = recording;
             OnPropertyChanged("IsRecording");
         }
 
-        public void SignalChanged(PlotData? newPlotData = null)
+        public void SignalChanged(PlotData? plotData = null)
         {
-            SignalPlotData = newPlotData ?? SignalPlotData.Clone();
+            SignalPlotData = plotData != null && plotData != SignalPlotData
+                ? plotData
+                : SignalPlotData.Clone();
             OnPropertyChanged("SignalPlotData");
         }
 

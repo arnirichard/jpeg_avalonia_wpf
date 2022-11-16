@@ -1,4 +1,5 @@
 ﻿using DAW.Utils;
+using NAudio.Wave;
 using PitchDetector;
 using SignalPlot;
 using System;
@@ -16,6 +17,7 @@ namespace DAW.PitchDetector
         public string Name => "Pitch Detector";
 
         PitchDetectorView? view;
+        IPlayer? player;
 
         public UserControl UserInterface => view ?? (view = new PitchDetectorView());
 
@@ -41,6 +43,16 @@ namespace DAW.PitchDetector
         }
 
         public void SetFolder(string folder)
+        {
+            
+        }
+
+        public void SetPlayer(IPlayer player)
+        {
+            this.player = player;
+        }
+
+        public void OnCaptureSamplesAvailable(float[] samples, WaveFormat format)
         {
             
         }

@@ -23,17 +23,16 @@ namespace DAW
 
             var modules = ReflectionHelper.CreateAllInstancesOf<IModule>();
             viewModel = new MainWindowViewModel(modules);
+            
             DataContext = viewModel;
             Closing += (s, args) =>
             {
-                foreach(var m in viewModel.Modules)
-                    m.Deactivate();
+                viewModel.Deactivate();
             };
         }
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
-
             System.Windows.Forms.FolderBrowserDialog openFileDlg = new System.Windows.Forms.FolderBrowserDialog();
             var result = openFileDlg.ShowDialog();
             if (result.ToString() != string.Empty)
@@ -57,19 +56,33 @@ namespace DAW
 
         private void Files_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if(fileList.SelectedItem is FileInfo fi)
+            try
             {
-                viewModel.SelectedModule?.SetFile(fi.FullName);
-            }
+                if (fileList.SelectedItem is FileInfo fi)
+                {
+                    viewModel.SelectedModule?.SetFile(fi.FullName);
+                }
 
-            fileList.SelectedItem = null;
+                fileList.SelectedItem = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
 
         private void Module_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (fileList.SelectedItem is FileInfo fi)
+            try
             {
-                viewModel.SelectedModule?.SetFile(fi.FullName);
+                if (fileList.SelectedItem is FileInfo fi)
+                {
+                    viewModel.SelectedModule?.SetFile(fi.FullName);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
             }
         }
     }

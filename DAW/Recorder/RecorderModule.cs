@@ -1,6 +1,8 @@
 ﻿using DAW.PitchDetector;
 using DAW.Utils;
+using NAudio.CoreAudioApi;
 using NAudio.Gui;
+using NAudio.Wave;
 using SignalPlot;
 using System;
 using System.Collections.Generic;
@@ -17,24 +19,43 @@ namespace DAW.Recorder
         public string Name => "Recorder";
 
         RecorderView? view;
-        RecorderViewModel viewModel = new RecorderViewModel();
+        RecorderViewModel? viewModel;
+        IPlayer? player;
+        public UserControl UserInterface => view ?? (view = new RecorderView() 
+        {
+            DataContext = viewModel = new RecorderViewModel(player) 
+        });
 
-        public UserControl UserInterface => view ?? (view = new RecorderView() { DataContext = viewModel });
+        public RecorderModule() 
+        { 
+        }
 
         public void Deactivate()
         {
-            viewModel.Deactivate();
             view = null;
+            viewModel = null;
         }
 
         public void SetFile(string filename)
         {
-            viewModel.AddFile(filename);
+            viewModel?.AddFile(filename);
         }
 
         public void SetFolder(string folder)
         {
-            viewModel.Folder = folder;
+            if(viewModel!= null)
+                viewModel.Folder = folder;
+        }
+
+        public void SetPlayer(IPlayer player)
+        {
+            this.player = player;
+            viewModel?.SetPlayer(player);
+        }
+
+        public void OnCaptureSamplesAvailable(float[] samples, WaveFormat format)
+        {
+            viewModel?.OnCaptureSamplesAvailable(samples, format);
         }
     }
 }

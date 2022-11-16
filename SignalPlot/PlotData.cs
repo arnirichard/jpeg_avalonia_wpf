@@ -13,6 +13,7 @@ namespace SignalPlot
         public float MaxY { get; private set; }
         public float MinX { get; private set; }
         public float MaxX { get; private set; }
+        public float MaxPeak { get; private set; }
 
         public PlotData(float[] y, float minY, float maxY, float minX, float maxX)
         {
@@ -21,6 +22,7 @@ namespace SignalPlot
             MaxY = maxY;
             MaxX = maxX;
             MinX = minX;
+            MaxPeak = y.GetMaxPeak();
         }
 
         public PlotData Clone()
