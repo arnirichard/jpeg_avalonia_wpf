@@ -24,32 +24,39 @@ namespace SignalPlot
         {
             List<PlotLine> result = new List<PlotLine>();
 
-            writeableBitmap.PaintColor(backgroundcolor);
-
-            if(selectedInterval != null && selectedInterval.Value.Length > 0)
-            {
-                int posStart = (int)(writeableBitmap.PixelWidth * (selectedInterval.Value.Start - indexFrom) / length);
-                int posEnd = (int)(writeableBitmap.PixelWidth * (selectedInterval.Value.End- indexFrom)/ length);
-                writeableBitmap.PaintVerticalSegment(selectedColor, posStart, posEnd - posStart);
-            }
-
-            if (writeableBitmap.Width < 2 || length <= 0)
-                return result;
-
-            HashSet<int> points = new();
-
-            foreach(var line in verticalLines)
-                result.AddRange(writeableBitmap.PaintVerticalLines(line, xRange, points));
-
-            foreach (var line in horizontalLines)
-                result.AddRange(writeableBitmap.PaintHorizontalLines(line, yRange, points));
-
             try
             {
-                int height = (int)writeableBitmap.Height;
-                double width = (int)writeableBitmap.Width;
-                double sample = indexFrom;
                 writeableBitmap.Lock();
+
+                writeableBitmap.PaintColor(backgroundcolor);
+
+                if (writeableBitmap.Width < 2 || length <= 0)
+                    return result;
+
+                // Paint selected interval
+                if (selectedInterval != null && selectedInterval.Value.Length > 0)
+                {
+                    int posStart = writeableBitmap.PixelWidth * (selectedInterval.Value.Start - indexFrom) / length;
+                    int posEnd = writeableBitmap.PixelWidth * (selectedInterval.Value.End- indexFrom)/ length;
+                    writeableBitmap.PaintVerticalSegment(selectedColor, posStart, posEnd - posStart);
+                }
+
+                // Paint selected interval
+                HashSet<int> points = new(); // Keeps track of which points already have been painted
+
+                foreach(var line in verticalLines)
+                    result.AddRange(writeableBitmap.PaintVerticalLines(line, xRange, points));
+
+                points.Clear();
+
+                foreach (var line in horizontalLines)
+                    result.AddRange(writeableBitmap.PaintHorizontalLines(line, yRange, points));
+
+                // Paint data
+            
+                int height = writeableBitmap.PixelHeight;
+                double width = writeableBitmap.PixelWidth;
+                double sample = indexFrom;
                 double deltaSample = (length - 1) / (writeableBitmap.Width - 1);
 
                 IntPtr pBackBuffer = writeableBitmap.BackBuffer;
@@ -80,7 +87,7 @@ namespace SignalPlot
                             *((int*)pBackBuffer) = color;
                             prevRow = row;
                         }
-                        else //if (row != prevRow)
+                        else 
                         {
                             sign = Math.Sign(row - prevRow);
                             while (prevRow != row)
@@ -106,7 +113,7 @@ namespace SignalPlot
             return result;
         }
 
-        public static List<PlotLine> PaintVerticalLines(this WriteableBitmap writeableBitmap, 
+        internal static List<PlotLine> PaintVerticalLines(this WriteableBitmap writeableBitmap, 
             LinesDefinition linesDefinition, FloatRange range, HashSet<int> points)
         {
             List<PlotLine> result = new();
@@ -147,7 +154,7 @@ namespace SignalPlot
             return result;
         }
 
-        public static List<PlotLine> PaintHorizontalLines(this WriteableBitmap writeableBitmap, 
+        internal static List<PlotLine> PaintHorizontalLines(this WriteableBitmap writeableBitmap, 
             LinesDefinition linesDefinition, FloatRange range, HashSet<int> points)
         {
             List<PlotLine> result = new();
@@ -184,7 +191,7 @@ namespace SignalPlot
             return result;
         }
 
-        public static void PaintColor(this WriteableBitmap writeableBitmap, int color)
+        internal static void PaintColor(this WriteableBitmap writeableBitmap, int color)
         {
             try
             {
@@ -211,7 +218,7 @@ namespace SignalPlot
             }
         }
 
-        public static bool PaintVerticalLine(this WriteableBitmap writeableBitmap, int color, int x,
+        internal static bool PaintVerticalLine(this WriteableBitmap writeableBitmap, int color, int x,
             int solid = int.MaxValue, int gaps = 0)
         {
             if (x < 0 || x >= writeableBitmap.PixelWidth)
@@ -261,7 +268,7 @@ namespace SignalPlot
             return true;
         }
 
-        public static bool PaintHorizontalLine(this WriteableBitmap writeableBitmap, int color, int y,
+        internal static bool PaintHorizontalLine(this WriteableBitmap writeableBitmap, int color, int y,
             int solid = int.MaxValue, int gaps = 0)
         {
             if (y < 0 || y >= writeableBitmap.PixelHeight)
@@ -312,7 +319,7 @@ namespace SignalPlot
             return true;
         }
 
-        public static bool PaintVerticalSegment(this WriteableBitmap writeableBitmap, int color, int fromX, int width)
+        internal static bool PaintVerticalSegment(this WriteableBitmap writeableBitmap, int color, int fromX, int width)
         {
             int startX = fromX + (width < 0 ? width : 0);
             int endX = startX + Math.Abs(width);

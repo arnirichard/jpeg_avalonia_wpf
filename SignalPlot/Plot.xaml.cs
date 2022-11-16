@@ -32,6 +32,7 @@ namespace SignalPlot
         public static int SignalColor = Blue;
         public static int BackgroundColor = White;
 
+        // Visible index range of Y
         public IntRange Interval
         {
             get { return (IntRange)GetValue(IntervalProperty); }
@@ -62,28 +63,7 @@ namespace SignalPlot
         public static readonly DependencyProperty CurrentXProperty =
             DependencyProperty.Register("CurrentX", typeof(float?), typeof(Plot), new PropertyMetadata(null));
 
-        // 
-        public float AbsPeak
-        {
-            get { return (float)GetValue(AbsPeakProperty); }
-            set { SetValue(AbsPeakProperty, value); }
-        }
-
-        public static readonly DependencyProperty AbsPeakProperty =
-            DependencyProperty.Register("AbsPeak", typeof(float), typeof(Plot), new PropertyMetadata(0f));
-
-        static void CurrentIndexChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is Plot plot)
-            {
-                d.SetCurrentValue(CurrentValueProperty, plot.GetCurrentValue());
-                int index = plot.CurrentIndex ?? -1;
-                d.SetCurrentValue(CurrentXProperty, index > -1
-                    ? plot.GetXRange(new IntRange(index, index)).Start
-                    : null);
-            }
-        }
-
+        // Y[CurrentIndex]
         public float? CurrentValue
         {
             get { return (float?)GetValue(CurrentValueProperty); }
@@ -93,6 +73,17 @@ namespace SignalPlot
         public static readonly DependencyProperty CurrentValueProperty =
             DependencyProperty.Register("CurrentValue", typeof(float?), typeof(Plot), new PropertyMetadata(null));
 
+        // Abs peak of visible data
+        public float AbsPeak
+        {
+            get { return (float)GetValue(AbsPeakProperty); }
+            set { SetValue(AbsPeakProperty, value); }
+        }
+
+        public static readonly DependencyProperty AbsPeakProperty =
+            DependencyProperty.Register("AbsPeak", typeof(float), typeof(Plot), new PropertyMetadata(0f));
+
+        // Visible X-range
         public FloatRange XRange
         {
             get { return (FloatRange)GetValue(XRangeProperty); }
@@ -126,6 +117,18 @@ namespace SignalPlot
 
         public readonly List<LinesDefinition> VerticalLines = new();
         public readonly List<LinesDefinition> HorizontalLines = new();
+
+        static void CurrentIndexChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is Plot plot)
+            {
+                d.SetCurrentValue(CurrentValueProperty, plot.GetCurrentValue());
+                int index = plot.CurrentIndex ?? -1;
+                d.SetCurrentValue(CurrentXProperty, index > -1
+                    ? plot.GetXRange(new IntRange(index, index)).Start
+                    : null);
+            }
+        }
 
         static void PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

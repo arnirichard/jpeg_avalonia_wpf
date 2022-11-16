@@ -15,7 +15,8 @@ namespace SignalPlot
         public float[]? X { get; private set; }
         public object[]? Data { get; set; }
 
-        public PlotData(float[] y, FloatRange yRange, FloatRange xRange, float[]? x = null, object[]? data = null)
+        public PlotData(float[] y, FloatRange yRange, FloatRange xRange, 
+            float[]? x = null, object[]? data = null)
         {
             Y = y;
             YRange = yRange;
