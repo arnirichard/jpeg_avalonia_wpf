@@ -34,7 +34,7 @@ namespace DAW.PitchDetector
                 if(audioData != null)
                 {
                     SignalViewModel vs = new SignalViewModel(new FileInfo(filename),
-                        new PlotData(audioData!.ChannelData[0], -1f, 1f, 0f, audioData.ChannelData[0].Length/(float)audioData.Format.SampleRate),
+                        new PlotData(audioData!.ChannelData[0], new FloatRange(-1, 1),new FloatRange(0, audioData.ChannelData[0].Length/(float)audioData.Format.SampleRate)),
                         CreatePitchPlotData.GetPitchPlotData(audioData!.ChannelData[0], audioData.Format.SampleRate),
                         audioData.Format);
                     view.DataContext = vs;

@@ -10,29 +10,13 @@ using System.Windows.Media.Media3D;
 
 namespace SignalPlot
 {
-    public class PlotLine
-    {
-        public bool Vertical { get; private set; }
-        public int Position { get; private set; }
-        public float Value { get; private set; }
-        public bool Solid { get; private set; }
-
-        public PlotLine(bool vertical, int position, float value, bool solid)
-        {
-            Vertical = vertical;
-            Position = position;
-            Value = value;
-            Solid = solid;
-        }
-    }
-
     public static class PlotExtensions
     {
         public static List<PlotLine> PlotSignal(this WriteableBitmap writeableBitmap,
             float[] values, 
             int indexFrom, int length,
-            float xRangeFrom, float xRangeTo,
-            float valueRangeFrom, float valueRangeTo,
+            FloatRange xRange,
+            FloatRange yRange,
             int backgroundcolor, int color, int selectedColor,
             List<LinesDefinition> verticalLines,
             List<LinesDefinition> horizontalLines,
@@ -55,10 +39,10 @@ namespace SignalPlot
             HashSet<int> points = new();
 
             foreach(var line in verticalLines)
-                result.AddRange(writeableBitmap.PaintVerticalLines(line, xRangeFrom, xRangeTo, points));
+                result.AddRange(writeableBitmap.PaintVerticalLines(line, xRange, points));
 
             foreach (var line in horizontalLines)
-                result.AddRange(writeableBitmap.PaintHorizontalLines(line, valueRangeFrom, valueRangeTo, points));
+                result.AddRange(writeableBitmap.PaintHorizontalLines(line, yRange, points));
 
             try
             {
@@ -74,16 +58,16 @@ namespace SignalPlot
                 {
                     float yvalue;
                     int row;
-                    float range = valueRangeTo - valueRangeFrom;
+                    float range = yRange.Length;
                     int sign;
                     yvalue = values[(int)sample];
-                    int prevRow = (int)(height - height * (yvalue - valueRangeFrom) / range);
+                    int prevRow = (int)(height - height * (yvalue - yRange.Start) / range);
                     pBackBuffer += prevRow * writeableBitmap.BackBufferStride;
 
                     for (int i = 1; i < width; i++)
                     {
                         yvalue = values[(int)sample];
-                        row = (int)(height - height * (yvalue - valueRangeFrom) / range);
+                        row = (int)(height - height * (yvalue - yRange.Start) / range);
 
                         if (row < 0 || row >= writeableBitmap.PixelHeight)
                         {
@@ -123,24 +107,24 @@ namespace SignalPlot
         }
 
         public static List<PlotLine> PaintVerticalLines(this WriteableBitmap writeableBitmap, 
-            LinesDefinition linesDefinition, float rangeFrom, float rangeTo, HashSet<int> points)
+            LinesDefinition linesDefinition, FloatRange range, HashSet<int> points)
         {
             List<PlotLine> result = new();
 
             var spacing = writeableBitmap.PixelWidth *
-                (linesDefinition.Interval > 0 ? linesDefinition.Interval : rangeTo-rangeFrom)
-                / (rangeTo - rangeFrom);
+                (linesDefinition.Interval > 0 ? linesDefinition.Interval : range.Length)
+                / range.Length;
 
-            if (rangeTo > rangeFrom && spacing >= linesDefinition.MinPointsSpacing)
+            if (range.Length > 0 && spacing >= linesDefinition.MinPointsSpacing)
             {
-                float val = linesDefinition.Value + linesDefinition.Interval * (int)((linesDefinition.Value - rangeFrom) / linesDefinition.Interval);
+                float val = linesDefinition.Value + linesDefinition.Interval * (int)((linesDefinition.Value - range.Start) / linesDefinition.Interval);
                 int pos;
 
-                while (val < rangeTo)
+                while (val < range.End)
                 {
-                    if (val > rangeFrom)
+                    if (val > range.Start)
                     {
-                        pos = (int)(writeableBitmap.PixelWidth * (val - rangeFrom) / (rangeTo - rangeFrom));
+                        pos = (int)(writeableBitmap.PixelWidth * (val - range.Start) / range.Length);
 
                         if (!points.Contains(pos) &&
                             writeableBitmap.PaintVerticalLine(linesDefinition.Color,
@@ -164,24 +148,24 @@ namespace SignalPlot
         }
 
         public static List<PlotLine> PaintHorizontalLines(this WriteableBitmap writeableBitmap, 
-            LinesDefinition linesDefinition, float rangeFrom, float rangeTo, HashSet<int> points)
+            LinesDefinition linesDefinition, FloatRange range, HashSet<int> points)
         {
             List<PlotLine> result = new();
 
             var spacing = writeableBitmap.PixelHeight *
-                (linesDefinition.Interval > 0 ? linesDefinition.Interval : rangeTo - rangeFrom)
-                / (rangeTo - rangeFrom);
+                (linesDefinition.Interval > 0 ? linesDefinition.Interval : range.Length)
+                / range.Length;
 
-            if (rangeTo > rangeFrom && spacing >= linesDefinition.MinPointsSpacing)
+            if (range.Length > 0 && spacing >= linesDefinition.MinPointsSpacing)
             {
-                float val = linesDefinition.Value - linesDefinition.Interval * (int)((linesDefinition.Value - rangeFrom) / linesDefinition.Interval);
+                float val = linesDefinition.Value - linesDefinition.Interval * (int)((linesDefinition.Value - range.Start) / linesDefinition.Interval);
                 int pos;
 
-                while (val < rangeTo)
+                while (val < range.End)
                 {
-                    if (val > rangeFrom)
+                    if (val > range.Start)
                     {
-                        pos = (int)(writeableBitmap.PixelHeight * (rangeTo - val) / (rangeTo - rangeFrom));
+                        pos = (int)(writeableBitmap.PixelHeight * (range.End - val) / range.Length);
                         if(!points.Contains(pos) &&
                             writeableBitmap.PaintHorizontalLine(linesDefinition.Color,
                             pos,

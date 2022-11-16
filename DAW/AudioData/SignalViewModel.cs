@@ -51,8 +51,8 @@ namespace DAW.PitchDetector
         public SignalViewModel SetNewLength(int newLength, bool copy)
         {
             SignalViewModel result = new SignalViewModel(File,
-                    new PlotData(new float[newLength], -1, 1, 0, 5),
-                    new PlotData(new float[newLength], -1, 1, 0, 5),
+                    new PlotData(new float[newLength], new FloatRange(- 1, 1), new FloatRange(0, 5)),
+                    new PlotData(new float[newLength], new FloatRange(80, 300), new FloatRange(0, 5)),
                     Format);
 
             if (copy)
@@ -67,16 +67,16 @@ namespace DAW.PitchDetector
 
         public SignalViewModel Trim(int offset, int length)
         {
-            int copyLength = Math.Min(length, SignalPlotData.Y.Length);
+            int newLength = Math.Min(length, SignalPlotData.Y.Length);
 
             SignalViewModel result = new SignalViewModel(File,
-                    new PlotData(new float[copyLength], -1, 1, 0, 5),
-                    new PlotData(new float[copyLength], -1, 1, 0, 5),
+                    new PlotData(new float[newLength], new FloatRange(-1, 1), new FloatRange(0, 5)),
+                    new PlotData(new float[newLength], new FloatRange(80, 300), new FloatRange(0, 5)),
                     Format);
 
             
-            Array.Copy(SignalPlotData.Y, offset, result.SignalPlotData.Y, 0, copyLength);
-            Array.Copy(SignalPlotData.Y, offset, result.SignalPlotData.Y, 0, copyLength);
+            Array.Copy(SignalPlotData.Y, offset, result.SignalPlotData.Y, 0, newLength);
+            Array.Copy(SignalPlotData.Y, offset, result.SignalPlotData.Y, 0, newLength);
 
             return result;
         }

@@ -23,23 +23,8 @@
         </Grid.ColumnDefinitions>
 
         <WrapPanel>
-            <!--<TextBlock VerticalAlignment="Center">Sample Rate</TextBlock>
-            <TextBox Height="23" Margin="10,3" TextWrapping="Wrap" Text="{Binding SampleRate, Mode=TwoWay}" Width="80" />
-            <TextBlock VerticalAlignment="Center">Bit Depth</TextBlock>
-            <TextBox Height="23" Margin="10,3" TextWrapping="Wrap" Text="{Binding BitDepth, Mode=OneWay}" Width="30"/>-->
-            <!--<TextBox Height="23" Margin="119,96,0,0" TextWrapping="Wrap" 
-                     Text="{Binding ChannelCount, Mode=TwoWay}"  Width="120"/>-->
-            <!--<ComboBox SelectedIndex="{Binding SampleTypeIndex, Mode=TwoWay}" VerticalAlignment="Top" Width="120" Height="22">
-                <TextBlock><Run Text="IEEE Float"/></TextBlock>
-                <TextBlock><Run Text="PCM"/></TextBlock>
-            </ComboBox>-->
             <TextBlock VerticalAlignment="Center">Normalization</TextBlock>
             <TextBox x:Name="normalization" Height="23" Margin="10,3" TextWrapping="Wrap" Text="0.9" Width="30" PreviewTextInput="NumberValidationTextBox"/>
-
-            <!--<ComboBox HorizontalAlignment="Left" Margin="119,13,0,0" Grid.Row="1" SelectedIndex="{Binding ShareModeIndex, Mode=TwoWay}" VerticalAlignment="Top" Width="120" Height="22">
-                <TextBlock><Run Text="Shared"/></TextBlock>
-                <TextBlock><Run Text="Exclusive"/></TextBlock>
-            </ComboBox>-->
         </WrapPanel>
 
         <TextBox x:Name="recordingList" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

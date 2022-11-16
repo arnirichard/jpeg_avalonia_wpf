@@ -9,25 +9,21 @@ namespace SignalPlot
     public class PlotData
     {
         public float[] Y { get; private set; }
-        public float MinY { get; private set; }
-        public float MaxY { get; private set; }
-        public float MinX { get; private set; }
-        public float MaxX { get; private set; }
+        public FloatRange YRange { get; private set; }
+        public FloatRange XRange { get; private set; }
         public float MaxPeak { get; private set; }
 
-        public PlotData(float[] y, float minY, float maxY, float minX, float maxX)
+        public PlotData(float[] y, FloatRange yRange, FloatRange xRange)
         {
             Y = y;
-            MinY = minY;
-            MaxY = maxY;
-            MaxX = maxX;
-            MinX = minX;
-            MaxPeak = y.GetMaxPeak();
+            YRange = yRange;
+            XRange = xRange;
+            MaxPeak = y.GetAbsPeak();
         }
 
         public PlotData Clone()
         {
-            return new PlotData(Y, MinY, MaxY, MinX, MaxX);
+            return new PlotData(Y, YRange, XRange);
         }
     }
 }

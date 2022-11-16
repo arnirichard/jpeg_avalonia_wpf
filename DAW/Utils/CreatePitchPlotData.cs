@@ -113,8 +113,8 @@ namespace DAW.Utils
             }
 
             return new PlotData(pitch,
-                80, 300,
-                0, pitch.Length / (float)sampleRate);
+                new FloatRange(80, 300),
+                new FloatRange(0, pitch.Length / (float)sampleRate));
         }
     }
 }

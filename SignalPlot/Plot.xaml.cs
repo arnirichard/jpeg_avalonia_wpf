@@ -144,11 +144,11 @@ namespace SignalPlot
             if (d is Plot plot && plot.DataContext is PlotData plotData)
             {
                 plot.RefreshPlot();
-                d.SetCurrentValue(MaxPeakProperty, plotData.Y.GetMaxPeak(plot.Interval.Start, plot.Interval.Length));
+                d.SetCurrentValue(MaxPeakProperty, plotData.Y.GetAbsPeak(plot.Interval.Start, plot.Interval.Length));
                 d.SetCurrentValue(XRangeProperty, plot.GetXRange(plot.Interval));
                 d.SetCurrentValue(SelectedMaxPeakProperty, plot.SelectedInterval == null
                     ? null
-                    : plotData.Y.GetMaxPeak(plot.SelectedInterval.Value.Start, plot.SelectedInterval.Value.Length));
+                    : plotData.Y.GetAbsPeak(plot.SelectedInterval.Value.Start, plot.SelectedInterval.Value.Length));
             }
         }
 
@@ -176,8 +176,8 @@ namespace SignalPlot
                 float ratio1 = interval.Start/ (float)plotData.Y.Length;
                 float ratio2 = (interval.Start+interval.Length) / (float)plotData.Y.Length;
 
-                return new FloatRange(plotData.MinX * (1 - ratio1) + plotData.MaxX * ratio1,
-                    plotData.MinX * (1 - ratio2) + plotData.MaxX * ratio2);
+                return new FloatRange(plotData.XRange.Start * (1 - ratio1) + plotData.XRange.End * ratio1,
+                    plotData.XRange.Start * (1 - ratio2) + plotData.XRange.End * ratio2);
 
             }
             return new FloatRange(0,0);
@@ -243,13 +243,13 @@ namespace SignalPlot
 
             if (DataContext is PlotData plotData)
             {
-                float xRangeFrom = Interval.Start /(float) plotData.Y.Length * (plotData.MaxX- plotData.MinX);
-                float xRangeTo = Interval.End / (float)plotData.Y.Length * (plotData.MaxX - plotData.MinX);
+                float xRangeFrom = Interval.Start /(float) plotData.Y.Length * plotData.XRange.Length;
+                float xRangeTo = Interval.End / (float)plotData.Y.Length * plotData.XRange.Length;
 
                 List<PlotLine> plotLines = writeableBitmap.PlotSignal(plotData.Y,
                     Interval.Start, Math.Min(Interval.Length, plotData.Y.Length- Interval.Start),
-                    xRangeFrom, xRangeTo,
-                    plotData.MinY, plotData.MaxY,
+                    new FloatRange(xRangeFrom, xRangeTo),
+                    plotData.YRange,
                     BackgroundColor, SignalColor, SelectedIntervalColor,
                     VerticalLines, HorizontalLines,
                     SelectedInterval);

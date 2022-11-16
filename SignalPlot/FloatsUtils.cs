@@ -8,7 +8,7 @@ namespace SignalPlot
 {
     public static class FloatsUtils
     {
-        public static float GetMaxPeak(this float[] floats, int? offset = null, int? count = null)
+        public static float GetAbsPeak(this float[] floats, int? offset = null, int? count = null)
         {
             float peak = 0;
             int start = offset ?? 0;

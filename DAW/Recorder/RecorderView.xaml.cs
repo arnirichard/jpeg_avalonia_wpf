@@ -38,7 +38,6 @@ namespace DAW.Recorder
                 fe.DataContext is SignalViewModel vm &&
                 DataContext is RecorderViewModel rvm)
             {
-                //PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate);
                 rvm.Player?.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, null);
             }
         }

@@ -23,7 +23,6 @@ namespace PitchDetector
         public double RelativeIncrease => SumS2 > 0 ? SumS1 / SumS2 : 1;
         public double SameSignRatio => Count > 0 ? CountSameSign / (double)Count : int.MaxValue;
         public double RatioSameSign => Count > 0 ? CountSameSign / (double)Count : int.MaxValue;
-
         public double deviation => Count > 0 ? SumAbsDeltaDiff / RatioSameSign / Count: double.MaxValue; 
 
         public PeriodFit(int period, int sample, int sampleRate)

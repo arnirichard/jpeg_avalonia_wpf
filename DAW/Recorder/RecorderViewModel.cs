@@ -62,11 +62,6 @@ namespace DAW.Recorder
             }
         }
 
-        void RunOnUIThread(Action action)
-        {
-            Application.Current.Dispatcher.Invoke(action);
-        }
-
         public void StartRecording(SignalViewModel signalViewModel)
         {
             WaveFormat? format = captureFormat;
@@ -104,7 +99,9 @@ namespace DAW.Recorder
 
                         if (recordingIndex + samples.Length > recData.SignalPlotData.Y.Length)
                         {
-                            plotData = new PlotData(new float[recData.SignalPlotData.Y.Length + 5 * recData.Format.SampleRate], -1, 1, 0, 5);
+                            plotData = new PlotData(new float[recData.SignalPlotData.Y.Length + 5 * recData.Format.SampleRate], 
+                                    new FloatRange(-1, 1), 
+                                    new FloatRange(0, 5));
                             Array.Copy(recData.SignalPlotData.Y, plotData.Y, recordingIndex);
                         }
 
@@ -141,7 +138,9 @@ namespace DAW.Recorder
                     if (audioData != null)
                     {
                         SignalViewModel vs = new SignalViewModel(new FileInfo(filename),
-                            new PlotData(audioData!.ChannelData[0], -1f, 1f, 0f, audioData.ChannelData[0].Length / (float)audioData.Format.SampleRate),
+                            new PlotData(audioData!.ChannelData[0], 
+                                new FloatRange(-1, 1), 
+                                new FloatRange(0, audioData.ChannelData[0].Length / (float)audioData.Format.SampleRate)),
                             CreatePitchPlotData.GetPitchPlotData(audioData!.ChannelData[0], audioData.Format.SampleRate),
                             audioData.Format);
                         Records.Add(vs);
@@ -152,7 +151,7 @@ namespace DAW.Recorder
                     int seconds = 0;
                     float[] signal = new float[48000 * seconds];
                     SignalViewModel vs = new SignalViewModel(new FileInfo(filename),
-                            new PlotData(signal, -1f, 1f, 0f, seconds),
+                            new PlotData(signal, new FloatRange(-1, 1), new FloatRange(0, seconds)),
                             CreatePitchPlotData.GetPitchPlotData(new float[signal.Length], 48000),
                             captureFormat);
                     Records.Add(vs);
