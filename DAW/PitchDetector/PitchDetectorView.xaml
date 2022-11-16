@@ -40,7 +40,7 @@
                     <TextBlock Text="{Binding ElementName=signalPlot, Path=Interval.End, StringFormat='-{0}'}"/>
                     <TextBlock Text="{Binding ElementName=signalPlot, Path=XRange.Start, StringFormat='Time {0:0.000}'}" Margin="10,0,0,0"/>
                     <TextBlock Text="{Binding ElementName=signalPlot, Path=XRange.End, StringFormat='-{0:0.000}s'}"/>
-                    <TextBlock Text="{Binding ElementName=signalPlot, Path=MaxPeak, StringFormat='Peak {0}'}" Margin="10,0,0,0"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=AbsPeak, StringFormat='Peak {0}'}" Margin="10,0,0,0"/>
                 </WrapPanel>
                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <TextBlock Text="{Binding ElementName=signalPlot, Path=CurrentIndex, StringFormat='Sample {0}'}"/>
@@ -55,7 +55,7 @@
                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" 
                            Visibility="{Binding ElementName=signalPlot,Path=SelectedInterval, Converter={StaticResource NullToVis}}">
                     <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedInterval.Length, StringFormat='Selected interval {0} samples'}"/>
-                    <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedMaxPeak, StringFormat='Peak {0}'}" Margin="10,0,0,0"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedAbsPeak, StringFormat='Peak {0}'}" Margin="10,0,0,0"/>
                 </WrapPanel>
                 
             </StackPanel>

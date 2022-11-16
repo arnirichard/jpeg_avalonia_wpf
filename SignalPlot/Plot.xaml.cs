@@ -29,24 +29,8 @@ namespace SignalPlot
         public static int Blue = int.Parse("0026FF", System.Globalization.NumberStyles.HexNumber);
         
         public static int SelectedIntervalColor = Orange;
-
-        public int SignalColor
-        {
-            get { return (int)GetValue(SignalColorProperty); }
-            set { SetValue(SignalColorProperty, value); }
-        }
-
-        public static readonly DependencyProperty SignalColorProperty =
-            DependencyProperty.Register("SignalColor", typeof(int), typeof(Plot), new PropertyMetadata(Blue));
-
-        public int BackgroundColor
-        {
-            get { return (int)GetValue(BackgroundColorProperty); }
-            set { SetValue(BackgroundColorProperty, value); }
-        }
-
-        public static readonly DependencyProperty BackgroundColorProperty =
-            DependencyProperty.Register("BackgroundColor", typeof(int), typeof(Plot), new PropertyMetadata(White));
+        public static int SignalColor = Blue;
+        public static int BackgroundColor = White;
 
         public IntRange Interval
         {
@@ -57,6 +41,9 @@ namespace SignalPlot
         public static readonly DependencyProperty IntervalProperty =
             DependencyProperty.Register("Interval", typeof(IntRange), typeof(Plot), new PropertyMetadata(new IntRange(), PropertyChanged));
 
+        /// <summary>
+        /// Index of PlotData.Y where mouse was located last time
+        /// </summary>
         public int? CurrentIndex
         {
             get { return (int?)GetValue(CurrentIndexProperty); }
@@ -66,14 +53,24 @@ namespace SignalPlot
         public static readonly DependencyProperty CurrentIndexProperty =
             DependencyProperty.Register("CurrentIndex", typeof(int?), typeof(Plot), new PropertyMetadata(null, CurrentIndexChanged));
 
-        public float MaxPeak
+        public float? CurrentX
         {
-            get { return (float)GetValue(MaxPeakProperty); }
-            set { SetValue(MaxPeakProperty, value); }
+            get { return (float?)GetValue(CurrentXProperty); }
+            set { SetValue(CurrentXProperty, value); }
         }
 
-        public static readonly DependencyProperty MaxPeakProperty =
-            DependencyProperty.Register("MaxPeak", typeof(float), typeof(Plot), new PropertyMetadata(0f));
+        public static readonly DependencyProperty CurrentXProperty =
+            DependencyProperty.Register("CurrentX", typeof(float?), typeof(Plot), new PropertyMetadata(null));
+
+        // 
+        public float AbsPeak
+        {
+            get { return (float)GetValue(AbsPeakProperty); }
+            set { SetValue(AbsPeakProperty, value); }
+        }
+
+        public static readonly DependencyProperty AbsPeakProperty =
+            DependencyProperty.Register("AbsPeak", typeof(float), typeof(Plot), new PropertyMetadata(0f));
 
         static void CurrentIndexChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -96,15 +93,6 @@ namespace SignalPlot
         public static readonly DependencyProperty CurrentValueProperty =
             DependencyProperty.Register("CurrentValue", typeof(float?), typeof(Plot), new PropertyMetadata(null));
 
-        public float? CurrentX
-        {
-            get { return (float?)GetValue(CurrentXProperty); }
-            set { SetValue(CurrentXProperty, value); }
-        }
-
-        public static readonly DependencyProperty CurrentXProperty =
-            DependencyProperty.Register("CurrentX", typeof(float?), typeof(Plot), new PropertyMetadata(null));
-
         public FloatRange XRange
         {
             get { return (FloatRange)GetValue(XRangeProperty); }
@@ -123,15 +111,15 @@ namespace SignalPlot
         public static readonly DependencyProperty SelectedIntervalProperty =
             DependencyProperty.Register("SelectedInterval", typeof(IntRange?), typeof(Plot), new PropertyMetadata(null, PropertyChanged));
 
-        public float? SelectedMaxPeak
+        public float? SelectedAbsPeak
         {
-            get { return (float?)GetValue(SelectedMaxPeakProperty); }
-            set { SetValue(SelectedMaxPeakProperty, value); }
+            get { return (float?)GetValue(SelectedAbsPeakProperty); }
+            set { SetValue(SelectedAbsPeakProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for SelectedMaxPeak.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty SelectedMaxPeakProperty =
-            DependencyProperty.Register("SelectedMaxPeak", typeof(float?), typeof(Plot), new PropertyMetadata(null));
+        public static readonly DependencyProperty SelectedAbsPeakProperty =
+            DependencyProperty.Register("SelectedAbsPeak", typeof(float?), typeof(Plot), new PropertyMetadata(null));
 
         public string? UnitX { get; set; }
         public string? UnitY { get; set; }
@@ -144,9 +132,9 @@ namespace SignalPlot
             if (d is Plot plot && plot.DataContext is PlotData plotData)
             {
                 plot.RefreshPlot();
-                d.SetCurrentValue(MaxPeakProperty, plotData.Y.GetAbsPeak(plot.Interval.Start, plot.Interval.Length));
+                d.SetCurrentValue(AbsPeakProperty, plotData.Y.GetAbsPeak(plot.Interval.Start, plot.Interval.Length));
                 d.SetCurrentValue(XRangeProperty, plot.GetXRange(plot.Interval));
-                d.SetCurrentValue(SelectedMaxPeakProperty, plot.SelectedInterval == null
+                d.SetCurrentValue(SelectedAbsPeakProperty, plot.SelectedInterval == null
                     ? null
                     : plotData.Y.GetAbsPeak(plot.SelectedInterval.Value.Start, plot.SelectedInterval.Value.Length));
             }
@@ -220,7 +208,7 @@ namespace SignalPlot
             {
                 Interval = new IntRange(0, plotData.Y.Length);
                 SelectedInterval = null;
-                MaxPeak = plotData.MaxPeak;
+                AbsPeak = plotData.AbsPeak;
             }
             RefreshPlot();
         }
