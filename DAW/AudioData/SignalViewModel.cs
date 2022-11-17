@@ -37,6 +37,12 @@ namespace DAW.PitchDetector
             PitchDetailData = pitchDataPlotData;
         }
 
+        public void SetWaveFormat(WaveFormat waveFormat)
+        {
+            Format = waveFormat;
+            OnPropertyChanged("Format");
+        }
+
         public void SetRecording(bool recording)
         {
             IsRecording = recording;

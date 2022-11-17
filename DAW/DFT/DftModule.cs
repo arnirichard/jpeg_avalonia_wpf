@@ -1,4 +1,5 @@
-﻿using DAW.Utils;
+﻿using DAW.PitchDetector;
+using DAW.Utils;
 using NAudio.Wave;
 using PitchDetector;
 using SignalPlot;
@@ -10,28 +11,29 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
-namespace DAW.PitchDetector
+namespace DAW.DFT
 {
-    internal class PitchDetectorModule : IModule
+    class DftModule : IModule
     {
-        public string Name => "Pitch Detector";
+        public string Name => "DFT";
 
-        PitchDetectorView? view;
+        DftView? view;
         IPlayer? player;
+        DftViewModel viewModel = new DftViewModel();
 
-        public UserControl UserInterface => view ?? (view = new PitchDetectorView(player));
+        public UserControl UserInterface => view ?? (view = new DftView() { DataContext = viewModel });
 
         public void Deactivate()
         {
-            
+
         }
 
         public void SetFile(string filename)
         {
-            if(File.Exists(filename) && view != null)
+            if (File.Exists(filename) && view != null)
             {
                 AudioData? audioData = AudioData.ReadSamples(filename);
-                if(audioData != null)
+                if (audioData != null)
                 {
                     PitchTracker pitchTracker = new PitchTracker(audioData.Format.SampleRate / 300, audioData.Format.SampleRate / 80, audioData.Format.SampleRate);
                     float[] samples = audioData.ChannelData[0];
@@ -43,7 +45,7 @@ namespace DAW.PitchDetector
 
                     SignalViewModel vs = new SignalViewModel(new FileInfo(filename), audioData.Format,
                         new PlotData(audioData!.ChannelData[0], new FloatRange(-1, 1),
-                        new FloatRange(0, audioData.ChannelData[0].Length/(float)audioData.Format.SampleRate)),
+                        new FloatRange(0, audioData.ChannelData[0].Length / (float)audioData.Format.SampleRate)),
                         CreatePitchPlotData.GetPitchPlotData(pitchTracker),
                         GetPitchData(pitchTracker));
                     view.DataContext = vs;
@@ -54,7 +56,7 @@ namespace DAW.PitchDetector
         PlotData GetPitchData(PitchTracker pitchTracker)
         {
             float[] y = pitchTracker.Data.PeriodFits.Select(p => (float)p.Period).ToArray();
-            float[] x = pitchTracker.Data.PeriodFits.Select(p => (float)p.Sample/ pitchTracker.SampleRate).ToArray();
+            float[] x = pitchTracker.Data.PeriodFits.Select(p => (float)p.Sample / pitchTracker.SampleRate).ToArray();
 
             return new PlotData(y,
                 new FloatRange(y.Min() - 5, y.Max() + 5),
@@ -64,18 +66,18 @@ namespace DAW.PitchDetector
 
         public void SetFolder(string folder)
         {
-            
+
         }
 
         public void SetPlayer(IPlayer player)
         {
             this.player = player;
-            view?.SetPlayer(player);
+            viewModel.SetPlayer(player);
         }
 
         public void OnCaptureSamplesAvailable(float[] samples, WaveFormat format)
         {
-            
+
         }
     }
 }

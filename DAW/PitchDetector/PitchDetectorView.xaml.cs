@@ -23,10 +23,13 @@ namespace DAW.PitchDetector
 {
     public partial class PitchDetectorView : UserControl
     {
-        public PitchDetectorView()
+        public IPlayer? Player { get; private set; }
+
+        public PitchDetectorView(IPlayer? player)
         {
             InitializeComponent();
 
+            Player = player;
             List<LinesDefinition> verticalLines = new List<LinesDefinition>()
             {
                 new LinesDefinition(0, 0.1f, false, Plot.Beige, 50),
@@ -54,6 +57,11 @@ namespace DAW.PitchDetector
             pd.AddValueChanged(pitchPlot, OnCurrentValueChanged);
         }
 
+        internal void SetPlayer(IPlayer player)
+        {
+            Player = player;
+        }
+
         private void OnCurrentValueChanged(object? sender, EventArgs e)
         {
             float? val = pitchPlot.CurrentDataPoint?.Y;
@@ -64,9 +72,10 @@ namespace DAW.PitchDetector
 
         private void Play_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is SignalViewModel vm && vm.SignalPlotData?.Y.Length > 0)
+            if (DataContext is SignalViewModel vm && 
+                vm.SignalPlotData?.Y.Length > 0)
             {
-                PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate);
+                Player?.Play(vm.SignalPlotData.Y, vm.Format.SampleRate);
             }
         }
 
@@ -81,7 +90,7 @@ namespace DAW.PitchDetector
 
                 if (fromIndex >= 0 && fromIndex+length <= vm.SignalPlotData.Y.Length)
                 {
-                    PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, signalPlot.SelectedInterval);
+                    Player?.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, signalPlot.SelectedInterval);
                 }
             }
         }

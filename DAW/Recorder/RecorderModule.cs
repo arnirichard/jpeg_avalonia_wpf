@@ -21,6 +21,7 @@ namespace DAW.Recorder
         RecorderView? view;
         RecorderViewModel? viewModel;
         IPlayer? player;
+
         public UserControl UserInterface => view ?? (view = new RecorderView() 
         {
             DataContext = viewModel = new RecorderViewModel(player) 

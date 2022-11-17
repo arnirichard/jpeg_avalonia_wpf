@@ -6,10 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using DAW.Tasks;
 using DAW.Utils;
 using NAudio.CoreAudioApi;
+using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
 using SignalPlot;
 using static System.Windows.Forms.DataFormats;
@@ -33,16 +35,16 @@ namespace DAW
         }
     }
 
-    class MainWindowViewModel : ViewModelBase, IPlayer
+    class MainWindowViewModel : ViewModelBase, IPlayer, IMMNotificationClient
     {
         IModule? selectedModule;
         string? folder;
         List<IModule>? moduleList;
         AudioDevice? captureDevice, playbackDevice;
-        DevicesChangedImpl devicesChangedImpl;
         WasapiCapture? capture;
         WaveFormat? captureFormat;
         JobHandler recordingHandler = new JobHandler(1);
+        MMDeviceEnumerator? deviceEnumerator;
 
         public MainWindowViewModel(IEnumerable<IModule> modules)
         {
@@ -58,7 +60,7 @@ namespace DAW
             {
                 SelectedModule = Modules[0];
             }
-            devicesChangedImpl = new DevicesChangedImpl(this);
+            deviceEnumerator?.RegisterEndpointNotificationCallback(this);
         }
 
         public List<IModule> Modules { get; }
@@ -120,58 +122,6 @@ namespace DAW
             }
         }
 
-        //public int ShareModeIndex { get; set; }
-
-        //public int SampleTypeIndex
-        //{
-        //    get => sampleTypeIndex;
-        //    set
-        //    {
-        //        if (sampleTypeIndex != value)
-        //        {
-        //            sampleTypeIndex = value;
-        //            OnPropertyChanged("SampleTypeIndex");
-        //            BitDepth = sampleTypeIndex == 1 ? 16 : 32;
-        //            OnPropertyChanged("IsBitDepthConfigurable");
-        //            if (SelectedDevice != null)
-        //                StartCapture();
-        //        }
-        //    }
-        //}
-        //public int SampleRate
-        //{
-        //    get => sampleRate;
-        //    set
-        //    {
-        //        if (sampleRate != value)
-        //        {
-        //            sampleRate = value;
-        //            OnPropertyChanged("SampleRate");
-        //            if (SelectedDevice != null)
-        //                StartCapture();
-        //        }
-        //    }
-        //}
-
-        //public int BitDepth
-        //{
-        //    get => bitDepth;
-        //    set
-        //    {
-        //        if (bitDepth != value)
-        //        {
-        //            bitDepth = value;
-        //            OnPropertyChanged("BitDepth");
-        //            if (SelectedDevice != null)
-        //                StartCapture();
-        //        }
-        //    }
-        //}
-
-        //public WaveFormat Format => SampleTypeIndex == 0
-        //            ? WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, 1)
-        //            : new WaveFormat(SampleRate, BitDepth, 1);
-
         public UserControl? UserInterface => SelectedModule?.UserInterface;
 
         public void Play(float[] samples, int sampleRate, IntRange? range)
@@ -182,7 +132,6 @@ namespace DAW
                     new MemoryStream(PlayFloats.Get32BitSamplesWaveData(samples, range)),
                     new WaveFormat(sampleRate, 32, 1));
 
-
                 WasapiOut wasapiOut = new WasapiOut(playbackDevice.Device, AudioClientShareMode.Shared, false, 0);
                 wasapiOut.Init(provider);
                 wasapiOut.Play();
@@ -191,24 +140,24 @@ namespace DAW
 
         void SetDevices()
         {
-            var enumerator = new MMDeviceEnumerator();
+            deviceEnumerator = new MMDeviceEnumerator();
             PlaybackDevices.Clear();
             CaptureDevices.Clear();
-            foreach (var d in enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
+            foreach (var d in deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
                 PlaybackDevices.Add(new AudioDevice(d));
-            foreach (var d in enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active))
+            foreach (var d in deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active))
                 CaptureDevices.Add(new AudioDevice(d));
 
             if (playbackDevice == null || !PlaybackDevices.Any(d => d.Device.ID == playbackDevice.Device.ID))
             {
-                var defaultDevice = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
+                var defaultDevice = deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
                 if (defaultDevice != null)
                     SelectedPlaybackDevice = PlaybackDevices.FirstOrDefault(c => c.Device.ID == defaultDevice.ID);
             }
 
             if (captureDevice == null || !CaptureDevices.Any(d => d.Device.ID == captureDevice.Device.ID))
             {
-                var defaultDevice = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Console);
+                var defaultDevice = deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Console);
                 if (defaultDevice != null)
                     SelectedCaptureDevice = CaptureDevices.FirstOrDefault(c => c.Device.ID == defaultDevice.ID);
             }
@@ -296,44 +245,47 @@ namespace DAW
 
         internal void Deactivate()
         {
+              deviceEnumerator?.UnregisterEndpointNotificationCallback(this);
             StopCapture();
             foreach (var m in Modules)
                 m.Deactivate();
         }
 
-        class DevicesChangedImpl : NAudio.CoreAudioApi.Interfaces.IMMNotificationClient
+        void UpdateDevicesUiThread()
         {
-            public MainWindowViewModel vm;
-
-            public DevicesChangedImpl(MainWindowViewModel vm)
+            Application.Current.Dispatcher.Invoke(new Action(() =>
             {
-                this.vm = vm;
-            }
+                try
+                {
+                    SetDevices();
+                }
+                catch { }
+            }));
+        }
 
-            public void OnDefaultDeviceChanged(DataFlow flow, Role role, string defaultDeviceId)
-            {
-                vm.SetDevices();
-            }
+        public void OnDeviceStateChanged(string deviceId, DeviceState newState)
+        {
+            UpdateDevicesUiThread();
+        }
 
-            public void OnDeviceAdded(string pwstrDeviceId)
-            {
-                vm.SetDevices();
-            }
+        public void OnDeviceAdded(string pwstrDeviceId)
+        {
+            UpdateDevicesUiThread();
+        }
 
-            public void OnDeviceRemoved(string deviceId)
-            {
-                vm.SetDevices();
-            }
+        public void OnDeviceRemoved(string deviceId)
+        {
+            UpdateDevicesUiThread();
+        }
 
-            public void OnDeviceStateChanged(string deviceId, DeviceState newState)
-            {
-                vm.SetDevices();
-            }
+        public void OnDefaultDeviceChanged(DataFlow flow, Role role, string defaultDeviceId)
+        {
+            UpdateDevicesUiThread();
+        }
 
-            public void OnPropertyValueChanged(string pwstrDeviceId, PropertyKey key)
-            {
-                vm.SetDevices();
-            }
+        public void OnPropertyValueChanged(string pwstrDeviceId, PropertyKey key)
+        {
+            
         }
     }
 }

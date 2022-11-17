@@ -190,7 +190,7 @@ namespace SignalPlot
 
         void UpdateValues()
         {
-            if (DataContext is PlotData plotData)
+            if (DataContext is PlotData plotData && plotData.Y.Length > 0)
             {
                 SetCurrentValue(AbsPeakProperty, plotData.Y.GetAbsPeak(Interval.Start, Interval.Length));
                 SetCurrentValue(IntervalProperty, GetIntRange(XRange));

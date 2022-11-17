@@ -18,13 +18,12 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Windows;
-//using System.Windows.Forms;
+
 
 namespace DAW.Recorder
 {
     internal class RecorderViewModel : ViewModelBase
     {
-        MMDevice? device;
         public string? Folder;
 
         SignalViewModel? recordingSignalVM;
@@ -70,6 +69,7 @@ namespace DAW.Recorder
             if (format != null)
             {
                 var index = Records.IndexOf(signalViewModel);
+                signalViewModel.SetWaveFormat(format);
                 recordingIndex = 0;
 
                 if (index > -1)
@@ -80,7 +80,7 @@ namespace DAW.Recorder
                 {
                     recordingSignalVM = signalViewModel;
                 }
-                recordingSignalVM.SetRecording(true);
+                recordingSignalVM?.SetRecording(true);
             }
         }
 
@@ -181,7 +181,7 @@ namespace DAW.Recorder
 
         internal void SetPlayer(IPlayer player)
         {
-            Player = player;   
+            Player = player;
         }
     }
 }

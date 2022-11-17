@@ -11,16 +11,16 @@ namespace DAW.Utils
 {
     internal class PlayFloats
     {
-        public static void Play(float[] samples, int sampleRate, IntRange? selectedInterval = null)
-        {
-            IWaveProvider provider = new RawSourceWaveStream(
-                new MemoryStream(Get32BitSamplesWaveData(samples, selectedInterval)),
-                new WaveFormat(sampleRate, 32, 1));
+        //public static void Play(float[] samples, int sampleRate, IntRange? selectedInterval = null)
+        //{
+        //    IWaveProvider provider = new RawSourceWaveStream(
+        //        new MemoryStream(Get32BitSamplesWaveData(samples, selectedInterval)),
+        //        new WaveFormat(sampleRate, 32, 1));
 
-            WaveOut waveOut = new WaveOut();
-            waveOut.Init(provider);
-            waveOut.Play();
-        }
+        //    WaveOut waveOut = new WaveOut();
+        //    waveOut.Init(provider);
+        //    waveOut.Play();
+        //}
 
         public static byte[] Get16BitSamplesWaveData(float[] samples, IntRange? selectedInterval = null)
         {
