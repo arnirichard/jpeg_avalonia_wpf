@@ -14,7 +14,7 @@ namespace SignalPlot
     {
         public static List<PlotLine> PlotSignal(this WriteableBitmap writeableBitmap,
             float[] values, 
-            int indexFrom, int length,
+            IntRange interval,
             FloatRange xRange,
             FloatRange yRange,
             int backgroundcolor, int color, int selectedColor,
@@ -30,14 +30,14 @@ namespace SignalPlot
 
                 writeableBitmap.PaintColor(backgroundcolor);
 
-                if (writeableBitmap.Width < 2 || length <= 0)
+                if (writeableBitmap.Width < 2 || interval.Length <= 0)
                     return result;
 
                 // Paint selected interval
                 if (selectedInterval != null && selectedInterval.Value.Length > 0)
                 {
-                    int posStart = writeableBitmap.PixelWidth * (selectedInterval.Value.Start - indexFrom) / length;
-                    int posEnd = writeableBitmap.PixelWidth * (selectedInterval.Value.End- indexFrom)/ length;
+                    int posStart = writeableBitmap.PixelWidth * (selectedInterval.Value.Start - interval.Start) / interval.Length;
+                    int posEnd = writeableBitmap.PixelWidth * (selectedInterval.Value.End- interval.Start) / interval.Length;
                     writeableBitmap.PaintVerticalSegment(selectedColor, posStart, posEnd - posStart);
                 }
 
@@ -56,8 +56,8 @@ namespace SignalPlot
             
                 int height = writeableBitmap.PixelHeight;
                 double width = writeableBitmap.PixelWidth;
-                double sample = indexFrom;
-                double deltaSample = (length - 1) / (writeableBitmap.Width - 1);
+                double sample = interval.Start;
+                double deltaSample = (interval.Length - 1) / (writeableBitmap.Width - 1);
 
                 IntPtr pBackBuffer = writeableBitmap.BackBuffer;
 

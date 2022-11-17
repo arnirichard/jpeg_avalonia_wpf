@@ -209,74 +209,6 @@ namespace SignalPlot
             RefreshPlot();
         }
 
-        void RefreshPlot()
-        {
-            if (!IsLoaded || grid.ActualHeight == 0 || grid.ActualWidth == 0 || Interval.Length <= 0)
-                return;
-
-            WriteableBitmap writeableBitmap = image.Source is WriteableBitmap wb &&
-                (int)grid.ActualHeight == wb.PixelHeight &&
-                (int)grid.ActualWidth == wb.PixelWidth
-                    ? wb
-                    : new WriteableBitmap((int)grid.ActualWidth, (int)grid.ActualHeight, 96, 96, PixelFormats.Bgr32, null);
-
-            if (DataContext is PlotData plotData)
-            {
-                List<PlotLine> plotLines = writeableBitmap.PlotSignal(plotData.Y,
-                    Interval.Start, Math.Min(Interval.Length, plotData.Y.Length- Interval.Start),
-                    XRange,
-                    plotData.YRange,
-                    BackgroundColor, SignalColor, SelectedIntervalColor,
-                    VerticalLines, HorizontalLines,
-                    SelectedInterval);
-
-                verticalLabels.Children.Clear();
-                horizontalLabels.Children.Clear();
-                string? unit;
-
-                foreach (PlotLine plotLine in plotLines)
-                {
-                    unit = plotLine.Vertical ? UnitX : UnitY;
-
-                    if (!string.IsNullOrEmpty(unit))
-                    {
-                        unit = (plotLine.Vertical ? " " : "\n") + unit;
-                    }
-                    TextBlock textBlock = new TextBlock()
-                    {
-                        Text = plotLine.Value.ToString("0.###") +  unit,
-                        TextAlignment= TextAlignment.Center,
-                        VerticalAlignment= VerticalAlignment.Center,
-                        Foreground = new SolidColorBrush(Colors.Black)
-                    };
-
-                    if(!plotLine.Vertical) 
-                    {
-                        Canvas.SetRight(textBlock, 5);
-                        Canvas.SetTop(textBlock, plotLine.Position-15);
-                        verticalLabels.Children.Add(textBlock);
-                    }
-                    else
-                    {
-                        Canvas.SetLeft(textBlock, plotLine.Position-10);
-                        Canvas.SetTop(textBlock, 3);
-                        horizontalLabels.Children.Add(textBlock);
-                    }
-                }
-
-                if (VerticalLines.Any())
-                    horizontalLabels.Height = 30;
-                if(HorizontalLines.Any())
-                    verticalLabels.Width = 40;
-            }
-            else
-            {
-                writeableBitmap.PaintColor(BackgroundColor);
-            }
-
-            image.Source = writeableBitmap;
-        }
-
         private void image_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             RefreshPlot();
@@ -358,7 +290,7 @@ namespace SignalPlot
                             float end = start + XRange.Length;
                             if (end > plotData.XRange.End)
                             {
-                                start = end - Math.Min(end - plotData.XRange.End, plotData.XRange.Length);
+                                start = plotData.XRange.End - Math.Min(end - plotData.XRange.End, plotData.XRange.Length);
                                 end = plotData.XRange.End;
                             }
                             plotMoveXPressed = x;
@@ -413,6 +345,74 @@ namespace SignalPlot
         {
             plotMoveXPressed = null;
             plotSelectXPressed = null;
+        }
+
+        void RefreshPlot()
+        {
+            if (!IsLoaded || grid.ActualHeight == 0 || grid.ActualWidth == 0 || Interval.Length <= 0)
+                return;
+
+            WriteableBitmap writeableBitmap = image.Source is WriteableBitmap wb &&
+                (int)grid.ActualHeight == wb.PixelHeight &&
+                (int)grid.ActualWidth == wb.PixelWidth
+                    ? wb
+                    : new WriteableBitmap((int)grid.ActualWidth, (int)grid.ActualHeight, 96, 96, PixelFormats.Bgr32, null);
+
+            if (DataContext is PlotData plotData)
+            {
+                List<PlotLine> plotLines = writeableBitmap.PlotSignal(plotData.Y,
+                    Interval,
+                    XRange,
+                    plotData.YRange,
+                    BackgroundColor, SignalColor, SelectedIntervalColor,
+                    VerticalLines, HorizontalLines,
+                    SelectedInterval);
+
+                verticalLabels.Children.Clear();
+                horizontalLabels.Children.Clear();
+                string? unit;
+
+                foreach (PlotLine plotLine in plotLines)
+                {
+                    unit = plotLine.Vertical ? UnitX : UnitY;
+
+                    if (!string.IsNullOrEmpty(unit))
+                    {
+                        unit = (plotLine.Vertical ? " " : "\n") + unit;
+                    }
+                    TextBlock textBlock = new TextBlock()
+                    {
+                        Text = plotLine.Value.ToString("0.###") + unit,
+                        TextAlignment = TextAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Foreground = new SolidColorBrush(Colors.Black)
+                    };
+
+                    if (!plotLine.Vertical)
+                    {
+                        Canvas.SetRight(textBlock, 5);
+                        Canvas.SetTop(textBlock, plotLine.Position - 15);
+                        verticalLabels.Children.Add(textBlock);
+                    }
+                    else
+                    {
+                        Canvas.SetLeft(textBlock, plotLine.Position - 10);
+                        Canvas.SetTop(textBlock, 3);
+                        horizontalLabels.Children.Add(textBlock);
+                    }
+                }
+
+                if (VerticalLines.Any())
+                    horizontalLabels.Height = 30;
+                if (HorizontalLines.Any())
+                    verticalLabels.Width = 40;
+            }
+            else
+            {
+                writeableBitmap.PaintColor(BackgroundColor);
+            }
+
+            image.Source = writeableBitmap;
         }
     }
 }
