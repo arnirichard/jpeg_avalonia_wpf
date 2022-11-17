@@ -23,6 +23,7 @@
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
+                <ColumnDefinition Width="Auto" MaxWidth="200"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
@@ -55,13 +56,16 @@
                 </WrapPanel>
                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" 
                            Visibility="{Binding ElementName=signalPlot,Path=SelectedInterval, Converter={StaticResource NullToVis}}">
-                    <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedInterval.Value.Length, StringFormat='Selected interval {0} samples'}"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedInterval.Length, StringFormat='Selected interval {0} samples'}"/>
                     <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedAbsPeak, StringFormat='Peak {0}'}" Margin="10,0,0,0"/>
                 </WrapPanel>
                 
             </StackPanel>
 
-            <StackPanel Grid.Column="1">
+            <TextBlock Grid.Column="1" MaxWidth="200"
+                       Text="{Binding ElementName=pitchDataPlot, Path=CurrentDataPoint.Data}" TextWrapping="Wrap"/>
+
+            <StackPanel Grid.Column="2">
                 <Button Click="Play_Click" Margin="20,10" Width="100">Play</Button>
                 <Button Click="PlaySelected_Click" Margin="20,10" Width="100">Play Selected</Button>
             </StackPanel>
@@ -75,8 +79,7 @@
                          SelectedXRange="{Binding ElementName=signalPlot, Path=SelectedXRange, Mode=TwoWay}"
                          CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=TwoWay}"/>
 
-        <signalplot:Plot x:Name="pitchDataPlot" Grid.Row="3" UnitX="s" UnitY="Hz" DataContext="{Binding PitchDataPlotData}" Margin="0,0,10,0"
-                         Visibility="{Binding PitchDataPlotData, Converter={StaticResource NullToVis}}"
+        <signalplot:Plot x:Name="pitchDataPlot" Grid.Row="3" UnitX="s" UnitY="" DataContext="{Binding PitchDetailData}" Margin="0,0,10,0"
                          XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
                          SelectedXRange="{Binding ElementName=signalPlot, Path=SelectedXRange, Mode=TwoWay}"
                          CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=TwoWay}"/>

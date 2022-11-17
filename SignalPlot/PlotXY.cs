@@ -68,6 +68,21 @@ namespace SignalPlot
                                 pBackBuffer = writeableBitmap.BackBuffer + 4 * xpos +
                                     writeableBitmap.BackBufferStride * ypos;
                                 *((int*)pBackBuffer) = color;
+                                if(ypos > 1)
+                                {
+                                    pBackBuffer -= writeableBitmap.BackBufferStride;
+                                    *((int*)pBackBuffer) = color;
+                                }
+                                if (ypos > 2)
+                                {
+                                    pBackBuffer -= writeableBitmap.BackBufferStride;
+                                    *((int*)pBackBuffer) = color;
+                                }
+                                if (ypos > 3)
+                                {
+                                    pBackBuffer -= writeableBitmap.BackBufferStride;
+                                    *((int*)pBackBuffer) = color;
+                                }
                             }
                         }
                     }

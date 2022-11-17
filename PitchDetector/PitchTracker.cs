@@ -13,6 +13,7 @@ namespace PitchDetector
 
         public readonly int SampleRate;
         public readonly PitchTrackerDataNew Data;
+        public int TotalSamples => Data.TotalSamples;
 
         public PitchTracker(int minPeriod, int maxPeriod, int sampleRate)
         {

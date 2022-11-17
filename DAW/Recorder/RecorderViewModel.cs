@@ -4,6 +4,7 @@ using DAW.Utils;
 using Microsoft.VisualBasic;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using PitchDetector;
 using SignalPlot;
 using System;
 using System.Collections.Generic;
@@ -137,21 +138,31 @@ namespace DAW.Recorder
                     AudioData? audioData = AudioData.ReadSamples(filename);
                     if (audioData != null)
                     {
+                        PitchTracker pitchTracker = new PitchTracker(audioData.Format.SampleRate / 300, audioData.Format.SampleRate / 80, audioData.Format.SampleRate);
+                        float[] samples = audioData.ChannelData[0];
+
+                        for (int i = 0; i < samples.Length; i++)
+                        {
+                            pitchTracker.AddSample(samples[i]);
+                        }
+
                         SignalViewModel vs = new SignalViewModel(new FileInfo(filename), audioData.Format,
                             new PlotData(audioData!.ChannelData[0], 
                                 new FloatRange(-1, 1), 
                                 new FloatRange(0, audioData.ChannelData[0].Length / (float)audioData.Format.SampleRate)),
-                            CreatePitchPlotData.GetPitchPlotData(audioData!.ChannelData[0], audioData.Format.SampleRate));
+                            CreatePitchPlotData.GetPitchPlotData(pitchTracker));
                         Records.Add(vs);
                     }
                 }
                 else if(captureFormat != null)
                 {
                     int seconds = 0;
-                    float[] signal = new float[48000 * seconds];
+                    float[] signal = new float[captureFormat.SampleRate * seconds];
+                    PlotData pitchData = new PlotData(new float[signal.Length],
+                        new FloatRange(-1, 1), new FloatRange(80, 300));
                     SignalViewModel vs = new SignalViewModel(new FileInfo(filename), captureFormat,
                             new PlotData(signal, new FloatRange(-1, 1), new FloatRange(0, seconds)),
-                            CreatePitchPlotData.GetPitchPlotData(new float[signal.Length], 48000));
+                            pitchData);
                     Records.Add(vs);
                 }
             }

@@ -11,7 +11,7 @@ namespace PitchDetector
         const int CrossingHistoryLength = 30;
 
         float[] signal;
-        int totalSamples = 0;
+        internal int TotalSamples = 0;
         public List<PeriodFit> PeriodFits = new List<PeriodFit>();
         PeriodFit? lastValidPeriodicFit = null;
         int SampleRate;
@@ -45,7 +45,7 @@ namespace PitchDetector
         {
             // Update signal
             signal[sampleIndex % signal.Length] = sample;
-            totalSamples++;
+            TotalSamples++;
 
             if (sample >= 0 != lastSample >= 0)
             {
@@ -57,7 +57,7 @@ namespace PitchDetector
                 else
                     sampleHistory[++crossingSampleNoHistoryLastIndexDown % CrossingHistoryLength] = sampleIndex;
 
-                if (totalSamples > signal.Length)
+                if (TotalSamples > signal.Length)
                 {
                     PeriodFit? periodFit = DetectPeriodicity.TestForPeriodicity(sampleHistory,
                         (sampleHistory == crossingSampleNoHistoriesUp ? crossingSampleNoHistoryLastIndexUp : crossingSampleNoHistoryLastIndexDown) % CrossingHistoryLength,
@@ -65,9 +65,12 @@ namespace PitchDetector
                     if (periodFit != null)
                     {
                         periodFit.IsValid = IsValidPeridicFit(periodFit, lastValidPeriodicFit);
-                        PeriodFits.Add(periodFit);
+
                         if (periodFit.IsValid)
+                        {
+                            PeriodFits.Add(periodFit);
                             lastValidPeriodicFit = periodFit;
+                        }
                     }
                 }
             }
@@ -93,6 +96,9 @@ namespace PitchDetector
 
         private bool IsValidPeridicFit(PeriodFit periodFit, PeriodFit? last)
         {
+            if (periodFit.SomeMeasure > 1 && periodFit.SameSignRatio < 0.8)
+                return false;
+
             if (last == null)
                 return true;
 
@@ -103,9 +109,9 @@ namespace PitchDetector
 
 
             if (Math.Abs(periodFit.Period - last.Period) < 4)
-                return periodFit.deviation < last.deviation * 10;
+                return periodFit.Deviation < last.Deviation * 10;
 
-            return periodFit.deviation < last.deviation * 1.5;
+            return periodFit.Deviation < last.Deviation * 1.5;
         }
     }
 }

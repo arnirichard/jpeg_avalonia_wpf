@@ -23,7 +23,9 @@ namespace PitchDetector
         public double RelativeIncrease => SumS2 > 0 ? SumS1 / SumS2 : 1;
         public double SameSignRatio => Count > 0 ? CountSameSign / (double)Count : int.MaxValue;
         public double RatioSameSign => Count > 0 ? CountSameSign / (double)Count : int.MaxValue;
-        public double deviation => Count > 0 ? SumAbsDeltaDiff / RatioSameSign / Count: double.MaxValue; 
+        public double Deviation => Count > 0 ? SumAbsDeltaDiff / RatioSameSign / Count: double.MaxValue;
+
+        public double SomeMeasure => SumS1 > 0 ? SumAbsDeltaDiff / SumS1 : 0;
 
         public PeriodFit(int period, int sample, int sampleRate)
         {
@@ -35,7 +37,9 @@ namespace PitchDetector
 
         public override string ToString()
         {
-            return "IsValid:"+ (IsValid ? "true" : "FALSE")+" Freq: "+Pitch.ToString("N1") +", Sample:"+ Sample +" Period: "+Period + ", Measure: "+ deviation.ToString("N5") + ",SS:"+SameSignRatio.ToString("N2");
+            return "Freq: "+Pitch.ToString("N1") +", Sample:"+ Sample
+                +" Period: "+Period + ", Measure: "+ Deviation.ToString("N5") + ",SS:"+SameSignRatio.ToString("N2")+
+                " SomeMeasure: "+ SomeMeasure.ToString("N2");
         }
     }
 }

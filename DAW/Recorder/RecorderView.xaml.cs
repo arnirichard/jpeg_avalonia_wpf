@@ -53,7 +53,6 @@ namespace DAW.Recorder
                 if(plot != null && plot.SelectedInterval!= null)
                 {
                     rvm.Player?.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, plot.SelectedInterval);
-                    //PlayFloats.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, plot.SelectedInterval);
                 }
             }
         }

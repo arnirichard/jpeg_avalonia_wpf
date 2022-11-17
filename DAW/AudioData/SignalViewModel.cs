@@ -16,7 +16,7 @@ namespace DAW.PitchDetector
         public FileInfo File { get; private set; }
         public PlotData SignalPlotData { get; private set; }
         public PlotData? PitchPlotData { get; private set; }
-        public PlotData? PitchDataPlotData { get; private set; }
+        public PlotData? PitchDetailData { get; private set; }
         public WaveFormat Format { get; private set; }
         public bool IsRecording { get; private set; }
 
@@ -34,7 +34,7 @@ namespace DAW.PitchDetector
             SignalPlotData = signalPlotData;
             PitchPlotData = pitchPlotData;
             Format = waveFormat;
-            PitchDataPlotData = pitchDataPlotData;
+            PitchDetailData = pitchDataPlotData;
         }
 
         public void SetRecording(bool recording)

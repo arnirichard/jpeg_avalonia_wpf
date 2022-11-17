@@ -91,7 +91,7 @@ namespace PitchDetector
                     f = 1;
                 }
 
-                double last = periodFit.deviation;
+                double last = periodFit.Deviation;
 
                 for (int j = 1; j < 3; j++)
                 {
@@ -103,10 +103,10 @@ namespace PitchDetector
                     if (result == null || IsBetter(periodFitNext, result, f: f))
                         result = periodFitNext;
 
-                    if (periodFitNext.deviation > last)
+                    if (periodFitNext.Deviation > last)
                         break;
 
-                    last = periodFitNext.deviation;
+                    last = periodFitNext.Deviation;
                 }
 
                 for (int j = 1; j < 3; j++)
@@ -119,10 +119,10 @@ namespace PitchDetector
                     if (result == null || IsBetter(periodFitNext, result, f: f))
                         result = periodFitNext;
 
-                    if (periodFitNext.deviation > last)
+                    if (periodFitNext.Deviation > last)
                         break;
 
-                    last = periodFitNext.deviation;
+                    last = periodFitNext.Deviation;
                 }
             }
             else if (result != null && result.Period / 2 >= minPeriod)
@@ -209,7 +209,7 @@ namespace PitchDetector
                 f /= 3;
             }
 
-            return periodFit.deviation * f <= than.deviation;
+            return periodFit.Deviation * f <= than.Deviation;
 
         }
     }

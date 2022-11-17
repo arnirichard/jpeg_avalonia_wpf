@@ -164,8 +164,10 @@ namespace SignalPlot
                     float ratio1 = (xRange.Start - plotData.XRange.Start) / plotData.XRange.Length;
                     ratio1 = Math.Min(Math.Max(ratio1, 0), 1);
                     float ratio2 = (xRange.End - plotData.XRange.Start) / plotData.XRange.Length;
-                    ratio2 = Math.Min(Math.Max(ratio2, 0), 1);
+                    ratio2 = Math.Min(Math.Max(ratio2, 0), 1); 
                     int start = (int)(plotData.Y.Length * ratio1);
+                    if (start >= plotData.Y.Length)
+                        start = plotData.Y.Length - 1;
 
                     return new IntRange(
                         start,
@@ -224,7 +226,6 @@ namespace SignalPlot
                     start = plotData.XRange.Start;
                 if (end > plotData.XRange.End)
                     end = plotData.XRange.End;
-
                 XRange = new FloatRange(start , end);
             }
 
@@ -262,11 +263,11 @@ namespace SignalPlot
                         else if(SelectedXRange != null)
                         {
                             SelectedXRange = new FloatRange(
-                                Math.Min(SelectedXRange.Value.Start, currentX),
-                                Math.Max(SelectedXRange.Value.End, currentX));
+                                Math.Min(plotSelectXPressed.Value, currentX),
+                                Math.Max(plotSelectXPressed.Value, currentX));
                         }
                     }
-                    else
+                    else if(XRange.Length < plotData.XRange.Length)
                     {
                         plotSelectXPressed = null;
 
@@ -277,16 +278,22 @@ namespace SignalPlot
                         else if (plotMoveXPressed != null)
                         {
                             float shift = (float)((x - plotMoveXPressed.Value)/image.ActualWidth*XRange.Length);
+                            if (shift == 0)
+                                return;
                             float start = XRange.Start - shift;
                             if (start < 0)
                                 start = 0;
+                            
                             float end = start + XRange.Length;
                             if (end > plotData.XRange.End)
                             {
-                                start = plotData.XRange.End - Math.Min(end - plotData.XRange.End, plotData.XRange.Length);
+                                start -= plotData.XRange.End-end;
                                 end = plotData.XRange.End;
+                                if (start < 0)
+                                    start = 0;
                             }
                             plotMoveXPressed = x;
+
                             XRange = new FloatRange(start, end);
                         }
                     }
@@ -342,7 +349,7 @@ namespace SignalPlot
 
         void RefreshPlot()
         {
-            if (!IsLoaded || grid.ActualHeight == 0 || grid.ActualWidth == 0 || Interval.Length <= 0)
+            if (!IsLoaded || grid.ActualHeight == 0 || grid.ActualWidth == 0 || XRange.Length <= 0)
                 return;
 
             WriteableBitmap writeableBitmap = image.Source is WriteableBitmap wb &&

@@ -47,6 +47,9 @@ namespace DAW.PitchDetector
                 new LinesDefinition(0, 10, false, Plot.Beige, 50),
             });
 
+            pitchDataPlot.VerticalLines.AddRange(verticalLines);
+            pitchDataPlot.HorizontalLines.Add(new LinesDefinition(0, 10, false, Plot.Beige));
+
             var pd = DependencyPropertyDescriptor.FromProperty(Plot.CurrentDataPointProperty, typeof(Plot));
             pd.AddValueChanged(pitchPlot, OnCurrentValueChanged);
         }

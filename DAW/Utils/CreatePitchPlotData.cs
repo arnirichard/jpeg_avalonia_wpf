@@ -10,15 +10,8 @@ namespace DAW.Utils
 {
     internal static class CreatePitchPlotData
     {
-        public static PlotData GetPitchPlotData(float[] samples, int sampleRate)
+        public static PlotData GetPitchPlotData(PitchTracker pitchTracker) // float[] samples, int sampleRate)
         {
-            PitchTracker pitchTracker = new PitchTracker(sampleRate / 300, sampleRate / 80, sampleRate);
-
-            for (int i = 0; i < samples.Length; i++)
-            {
-                pitchTracker.AddSample(samples[i]);
-            }
-
             PitchTrackerDataNew data = pitchTracker.Data;
 
             PeriodFit[] validPerioFits = data.PeriodFits.Where(p => p.IsValid).ToArray();
@@ -53,7 +46,7 @@ namespace DAW.Utils
                 }
             }
 
-            float[] pitch = new float[samples.Length];
+            float[] pitch = new float[pitchTracker.TotalSamples];
             int lastIndex = int.MinValue;
             float lastFreq = 0;
             //float freq;
@@ -64,7 +57,7 @@ namespace DAW.Utils
 
             Array.Clear(pitch);
 
-            int lastPeriod = (int)(sampleRate / minPitch);
+            int lastPeriod = (int)(pitchTracker.SampleRate / minPitch);
             float freq;
             int freqsIndex = 0;
             float[] freqs = new float[50];
@@ -114,7 +107,7 @@ namespace DAW.Utils
 
             return new PlotData(pitch,
                 new FloatRange(80, 300),
-                new FloatRange(0, pitch.Length / (float)sampleRate));
+                new FloatRange(0, pitch.Length / (float)pitchTracker.SampleRate));
         }
     }
 }

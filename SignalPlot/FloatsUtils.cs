@@ -57,9 +57,12 @@ namespace SignalPlot
                 }
             }
 
-            return Math.Abs(values[indFrom]-search) < Math.Abs(values[indTo] - search)
-                ? indFrom
-                : indTo;
+            int ind1 = indFrom;
+            int ind2 = indTo == indFrom ? indFrom : indFrom+ 1;
+
+            return Math.Abs(values[ind1] -search) < Math.Abs(values[ind2] - search)
+                ? ind1
+                : ind2;
         }
     }
 }
