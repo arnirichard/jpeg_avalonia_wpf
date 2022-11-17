@@ -137,12 +137,11 @@ namespace DAW.Recorder
                     AudioData? audioData = AudioData.ReadSamples(filename);
                     if (audioData != null)
                     {
-                        SignalViewModel vs = new SignalViewModel(new FileInfo(filename),
+                        SignalViewModel vs = new SignalViewModel(new FileInfo(filename), audioData.Format,
                             new PlotData(audioData!.ChannelData[0], 
                                 new FloatRange(-1, 1), 
                                 new FloatRange(0, audioData.ChannelData[0].Length / (float)audioData.Format.SampleRate)),
-                            CreatePitchPlotData.GetPitchPlotData(audioData!.ChannelData[0], audioData.Format.SampleRate),
-                            audioData.Format);
+                            CreatePitchPlotData.GetPitchPlotData(audioData!.ChannelData[0], audioData.Format.SampleRate));
                         Records.Add(vs);
                     }
                 }
@@ -150,10 +149,9 @@ namespace DAW.Recorder
                 {
                     int seconds = 0;
                     float[] signal = new float[48000 * seconds];
-                    SignalViewModel vs = new SignalViewModel(new FileInfo(filename),
+                    SignalViewModel vs = new SignalViewModel(new FileInfo(filename), captureFormat,
                             new PlotData(signal, new FloatRange(-1, 1), new FloatRange(0, seconds)),
-                            CreatePitchPlotData.GetPitchPlotData(new float[signal.Length], 48000),
-                            captureFormat);
+                            CreatePitchPlotData.GetPitchPlotData(new float[signal.Length], 48000));
                     Records.Add(vs);
                 }
             }

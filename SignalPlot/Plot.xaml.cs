@@ -162,7 +162,9 @@ namespace SignalPlot
                 if (plotData.X == null)
                 {
                     float ratio1 = (xRange.Start - plotData.XRange.Start) / plotData.XRange.Length;
+                    ratio1 = Math.Min(Math.Max(ratio1, 0), 1);
                     float ratio2 = (xRange.End - plotData.XRange.Start) / plotData.XRange.Length;
+                    ratio2 = Math.Min(Math.Max(ratio2, 0), 1);
                     int start = (int)(plotData.Y.Length * ratio1);
 
                     return new IntRange(

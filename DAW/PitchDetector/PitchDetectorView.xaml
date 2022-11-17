@@ -16,6 +16,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <Grid Visibility="{Binding File, Converter={StaticResource NullToVis}, FallbackValue=Hidden}">
@@ -54,7 +55,7 @@
                 </WrapPanel>
                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" 
                            Visibility="{Binding ElementName=signalPlot,Path=SelectedInterval, Converter={StaticResource NullToVis}}">
-                    <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedInterval.Length, StringFormat='Selected interval {0} samples'}"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedInterval.Value.Length, StringFormat='Selected interval {0} samples'}"/>
                     <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedAbsPeak, StringFormat='Peak {0}'}" Margin="10,0,0,0"/>
                 </WrapPanel>
                 
@@ -70,6 +71,12 @@
         <signalplot:Plot x:Name="signalPlot" Grid.Row="1" UnitX="s" DataContext="{Binding SignalPlotData}" Margin="0,0,10,0"/>
 
         <signalplot:Plot x:Name="pitchPlot" Grid.Row="2" UnitX="s" UnitY="Hz" DataContext="{Binding PitchPlotData}" Margin="0,0,10,0"
+                         XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
+                         SelectedXRange="{Binding ElementName=signalPlot, Path=SelectedXRange, Mode=TwoWay}"
+                         CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=TwoWay}"/>
+
+        <signalplot:Plot x:Name="pitchDataPlot" Grid.Row="3" UnitX="s" UnitY="Hz" DataContext="{Binding PitchDataPlotData}" Margin="0,0,10,0"
+                         Visibility="{Binding PitchDataPlotData, Converter={StaticResource NullToVis}}"
                          XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
                          SelectedXRange="{Binding ElementName=signalPlot, Path=SelectedXRange, Mode=TwoWay}"
                          CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=TwoWay}"/>

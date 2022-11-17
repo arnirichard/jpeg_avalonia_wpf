@@ -15,7 +15,8 @@ namespace DAW.PitchDetector
     {
         public FileInfo File { get; private set; }
         public PlotData SignalPlotData { get; private set; }
-        public PlotData PitchPlotData { get; private set; }
+        public PlotData? PitchPlotData { get; private set; }
+        public PlotData? PitchDataPlotData { get; private set; }
         public WaveFormat Format { get; private set; }
         public bool IsRecording { get; private set; }
 
@@ -25,13 +26,15 @@ namespace DAW.PitchDetector
             ? Samples.Value / (double)Format.SampleRate
             : null;
 
-        public SignalViewModel(FileInfo file, PlotData signalPlotData, 
-            PlotData pitchPlotData, WaveFormat waveFormat)
+        public SignalViewModel(FileInfo file, WaveFormat waveFormat, 
+            PlotData signalPlotData, 
+            PlotData? pitchPlotData = null, PlotData? pitchDataPlotData = null)
         {
             File = file;
             SignalPlotData = signalPlotData;
             PitchPlotData = pitchPlotData;
             Format = waveFormat;
+            PitchDataPlotData = pitchDataPlotData;
         }
 
         public void SetRecording(bool recording)
@@ -50,16 +53,20 @@ namespace DAW.PitchDetector
 
         public SignalViewModel SetNewLength(int newLength, bool copy)
         {
-            SignalViewModel result = new SignalViewModel(File,
+            PlotData? newPitchData = PitchPlotData != null
+                ? new PlotData(new float[newLength], new FloatRange(80, 300), new FloatRange(0, 5))
+                : null;
+
+            SignalViewModel result = new SignalViewModel(File, Format,
                     new PlotData(new float[newLength], new FloatRange(- 1, 1), new FloatRange(0, 5)),
-                    new PlotData(new float[newLength], new FloatRange(80, 300), new FloatRange(0, 5)),
-                    Format);
+                    newPitchData);
 
             if (copy)
             {
                 int copyLength = Math.Min(newLength, SignalPlotData.Y.Length);
                 Array.Copy(SignalPlotData.Y, result.SignalPlotData.Y, copyLength);
-                Array.Copy(PitchPlotData.Y, result.PitchPlotData.Y, copyLength);
+                if(PitchPlotData != null)
+                    Array.Copy(PitchPlotData.Y, result.PitchPlotData.Y, copyLength);
             }
 
             return result;
@@ -69,11 +76,13 @@ namespace DAW.PitchDetector
         {
             int newLength = Math.Min(length, SignalPlotData.Y.Length);
 
-            SignalViewModel result = new SignalViewModel(File,
-                    new PlotData(new float[newLength], new FloatRange(-1, 1), new FloatRange(0, 5)),
-                    new PlotData(new float[newLength], new FloatRange(80, 300), new FloatRange(0, 5)),
-                    Format);
+            PlotData? newPitchData = PitchPlotData != null
+                ? new PlotData(new float[newLength], new FloatRange(80, 300), new FloatRange(0, 5))
+                : null;
 
+            SignalViewModel result = new SignalViewModel(File, Format,
+                    new PlotData(new float[newLength], new FloatRange(-1, 1), new FloatRange(0, 5)),
+                    newPitchData);
             
             Array.Copy(SignalPlotData.Y, offset, result.SignalPlotData.Y, 0, newLength);
             Array.Copy(SignalPlotData.Y, offset, result.SignalPlotData.Y, 0, newLength);
