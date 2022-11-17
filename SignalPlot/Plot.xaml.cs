@@ -15,7 +15,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SignalPlot
 {
@@ -40,7 +39,7 @@ namespace SignalPlot
         }
 
         public static readonly DependencyProperty IntervalProperty =
-            DependencyProperty.Register("Interval", typeof(IntRange), typeof(Plot), new PropertyMetadata(new IntRange(), PropertyChanged));
+            DependencyProperty.Register("Interval", typeof(IntRange), typeof(Plot), new PropertyMetadata(new IntRange()));
 
         /// <summary>
         /// Index of PlotData.Y where mouse was located last time
@@ -52,7 +51,7 @@ namespace SignalPlot
         }
 
         public static readonly DependencyProperty CurrentIndexProperty =
-            DependencyProperty.Register("CurrentIndex", typeof(int?), typeof(Plot), new PropertyMetadata(null, CurrentIndexChanged));
+            DependencyProperty.Register("CurrentIndex", typeof(int?), typeof(Plot), new PropertyMetadata(null));
 
         public float? CurrentX
         {
@@ -61,7 +60,7 @@ namespace SignalPlot
         }
 
         public static readonly DependencyProperty CurrentXProperty =
-            DependencyProperty.Register("CurrentX", typeof(float?), typeof(Plot), new PropertyMetadata(null));
+            DependencyProperty.Register("CurrentX", typeof(float?), typeof(Plot), new PropertyMetadata(null, CurrentXChanged));
 
         // Y[CurrentIndex]
         public float? CurrentValue
@@ -91,7 +90,7 @@ namespace SignalPlot
         }
 
         public static readonly DependencyProperty XRangeProperty =
-            DependencyProperty.Register("XRange", typeof(FloatRange), typeof(Plot), new PropertyMetadata(null));
+            DependencyProperty.Register("XRange", typeof(FloatRange), typeof(Plot), new PropertyMetadata(new FloatRange(0, 1), PropertyChanged));
 
         public IntRange? SelectedInterval
         {
@@ -100,7 +99,16 @@ namespace SignalPlot
         }
 
         public static readonly DependencyProperty SelectedIntervalProperty =
-            DependencyProperty.Register("SelectedInterval", typeof(IntRange?), typeof(Plot), new PropertyMetadata(null, PropertyChanged));
+            DependencyProperty.Register("SelectedInterval", typeof(IntRange?), typeof(Plot), new PropertyMetadata(null));
+
+        public FloatRange? SelectedXRange
+        {
+            get { return (FloatRange?)GetValue(SelectedXRangeProperty); }
+            set { SetValue(SelectedXRangeProperty, value); }
+        }
+
+        public static readonly DependencyProperty SelectedXRangeProperty =
+            DependencyProperty.Register("SelectedXRange", typeof(FloatRange?), typeof(Plot), new PropertyMetadata(null, PropertyChanged));
 
         public float? SelectedAbsPeak
         {
@@ -108,7 +116,6 @@ namespace SignalPlot
             set { SetValue(SelectedAbsPeakProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for SelectedMaxPeak.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectedAbsPeakProperty =
             DependencyProperty.Register("SelectedAbsPeak", typeof(float?), typeof(Plot), new PropertyMetadata(null));
 
@@ -118,28 +125,22 @@ namespace SignalPlot
         public readonly List<LinesDefinition> VerticalLines = new();
         public readonly List<LinesDefinition> HorizontalLines = new();
 
-        static void CurrentIndexChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        static void CurrentXChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is Plot plot)
             {
-                d.SetCurrentValue(CurrentValueProperty, plot.GetCurrentValue());
-                int index = plot.CurrentIndex ?? -1;
-                d.SetCurrentValue(CurrentXProperty, index > -1
-                    ? plot.GetXRange(new IntRange(index, index)).Start
+                d.SetCurrentValue(CurrentIndexProperty, plot.CurrentX != null
+                    ? plot.GetIntRange(new FloatRange(plot.CurrentX.Value, plot.CurrentX.Value)).Start
                     : null);
+                d.SetCurrentValue(CurrentValueProperty, plot.GetCurrentValue());
             }
         }
 
         static void PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is Plot plot && plot.DataContext is PlotData plotData)
+            if (d is Plot plot)
             {
-                plot.RefreshPlot();
-                d.SetCurrentValue(AbsPeakProperty, plotData.Y.GetAbsPeak(plot.Interval.Start, plot.Interval.Length));
-                d.SetCurrentValue(XRangeProperty, plot.GetXRange(plot.Interval));
-                d.SetCurrentValue(SelectedAbsPeakProperty, plot.SelectedInterval == null
-                    ? null
-                    : plotData.Y.GetAbsPeak(plot.SelectedInterval.Value.Start, plot.SelectedInterval.Value.Length));
+                plot.UpdateValues();
             }
         }
 
@@ -160,60 +161,47 @@ namespace SignalPlot
             return null;
         }
 
-        FloatRange GetXRange(IntRange interval)
+        IntRange GetIntRange(FloatRange xRange)
         {
-            if (DataContext is PlotData plotData)
+            if (DataContext is PlotData plotData && plotData.XRange.Length > 0)
             {
-                float ratio1 = interval.Start/ (float)plotData.Y.Length;
-                float ratio2 = (interval.Start+interval.Length) / (float)plotData.Y.Length;
+                if (plotData.X == null)
+                {
+                    float ratio1 = (xRange.Start - plotData.XRange.Start) / plotData.XRange.Length;
+                    float ratio2 = (xRange.End - plotData.XRange.Start) / plotData.XRange.Length;
+                    int start = (int)(plotData.Y.Length * ratio1);
 
-                return new FloatRange(plotData.XRange.Start * (1 - ratio1) + plotData.XRange.End * ratio1,
-                    plotData.XRange.Start * (1 - ratio2) + plotData.XRange.End * ratio2);
-
+                    return new IntRange(
+                        start,
+                        (int)(plotData.Y.Length * ratio2)-start);
+                }
             }
-            return new FloatRange(0,0);
-        }
-
-        private void image_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            RefreshPlot();
-        }
-
-        private void image_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (DataContext is PlotData plotData)
-            {
-                int indexFrom = Interval.Start;
-                int indexTo = Interval.End;
-                double range = indexTo - indexFrom;
-                double pos = indexFrom + e.GetPosition(image).X / image.ActualWidth * range;
-
-                range *= e.Delta > 0 ? 0.5 : 2;
-
-                if (range < 10)
-                    range = 10;
-
-                indexFrom = (int)(pos - range / 2);
-                if (indexFrom < 0)
-                    indexFrom = 0;
-
-                indexTo = indexFrom + (int)range;
-                if (indexTo > plotData.Y.Length)
-                    indexTo = plotData.Y.Length;
-
-                Interval = new IntRange(indexFrom, indexTo - indexFrom);
-            }
+            return new IntRange(0,0);
         }
 
         private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (DataContext is PlotData plotData)
             {
-                Interval = new IntRange(0, plotData.Y.Length);
+                XRange = plotData.XRange;
                 SelectedInterval = null;
                 AbsPeak = plotData.AbsPeak;
+                UpdateValues();
             }
-            RefreshPlot();
+        }
+
+        void UpdateValues()
+        {
+            if (DataContext is PlotData plotData)
+            {
+                SetCurrentValue(AbsPeakProperty, plotData.Y.GetAbsPeak(Interval.Start, Interval.Length));
+                SetCurrentValue(IntervalProperty, GetIntRange(XRange));
+                SetCurrentValue(SelectedIntervalProperty, SelectedXRange != null ? GetIntRange(SelectedXRange.Value) : null);
+                SetCurrentValue(SelectedAbsPeakProperty, SelectedInterval == null
+                    ? null
+                    : plotData.Y.GetAbsPeak(SelectedInterval.Value.Start, SelectedInterval.Value.Length));
+                RefreshPlot();
+            }
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -223,7 +211,7 @@ namespace SignalPlot
 
         void RefreshPlot()
         {
-            if (!IsLoaded || grid.ActualHeight == 0 || grid.ActualWidth == 0)
+            if (!IsLoaded || grid.ActualHeight == 0 || grid.ActualWidth == 0 || Interval.Length <= 0)
                 return;
 
             WriteableBitmap writeableBitmap = image.Source is WriteableBitmap wb &&
@@ -234,12 +222,9 @@ namespace SignalPlot
 
             if (DataContext is PlotData plotData)
             {
-                float xRangeFrom = Interval.Start /(float) plotData.Y.Length * plotData.XRange.Length;
-                float xRangeTo = Interval.End / (float)plotData.Y.Length * plotData.XRange.Length;
-
                 List<PlotLine> plotLines = writeableBitmap.PlotSignal(plotData.Y,
                     Interval.Start, Math.Min(Interval.Length, plotData.Y.Length- Interval.Start),
-                    new FloatRange(xRangeFrom, xRangeTo),
+                    XRange,
                     plotData.YRange,
                     BackgroundColor, SignalColor, SelectedIntervalColor,
                     VerticalLines, HorizontalLines,
@@ -292,11 +277,34 @@ namespace SignalPlot
             image.Source = writeableBitmap;
         }
 
+        private void image_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            RefreshPlot();
+        }
 
-        int? plotSelectSamplePressed;
+        private void image_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (XRange.Length > 0 && DataContext is PlotData plotData)
+            {
+                float center = (float)(XRange.Start + e.GetPosition(image).X / image.ActualWidth * XRange.Length);
+                float range = XRange.Length * (e.Delta > 0 ? 0.5f : 2f);
+                if (range < 0.002f)
+                    range = 0.002f;
+                float start = center - range / 2;
+                float end = center + range / 2;
+                if (start < plotData.XRange.Start)
+                    start = plotData.XRange.Start;
+                if (end > plotData.XRange.End)
+                    end = plotData.XRange.End;
 
-        Point? plotMoveStartPoint;
-        int? plotMoveSamplePressed;
+                XRange = new FloatRange(start , end);
+            }
+
+            plotMoveXPressed = null;
+        }
+
+        float? plotSelectXPressed;
+        double? plotMoveXPressed;
 
         private void image_MouseMove(object sender, MouseEventArgs e)
         {
@@ -304,82 +312,70 @@ namespace SignalPlot
 
              if (x < 0)
                 x = 0;
+
             if (x > image.ActualWidth)
                 x = image.ActualWidth;
             
             if(DataContext is PlotData plotData)
             {
-                int? currentSample = (int)(x / image.ActualWidth * Interval.Length) + Interval.Start;
-                if (currentSample < 0)
-                    currentSample = 0;
-                else if (currentSample > plotData.Y.Length)
-                    currentSample = plotData.Y.Length;
-                if (currentSample != CurrentIndex)
-                    CurrentIndex = currentSample;
+                float currentX = (float)(x / image.ActualWidth * XRange.Length) + XRange.Start;
+                if (currentX < 0)
+                    currentX = 0;
+                else if (currentX > plotData.Y.Length)
+                    currentX = plotData.Y.Length;
+                CurrentX = currentX;
 
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
                     if (Keyboard.IsKeyDown(Key.LeftCtrl))
                     {
-                        if (plotSelectSamplePressed == null)
+                        if (plotSelectXPressed == null)
                         {
-                            plotSelectSamplePressed = CurrentIndex;
-                            SelectedInterval = new IntRange(plotSelectSamplePressed.Value, 0);
+                            plotSelectXPressed = currentX;
+                            SelectedXRange = new FloatRange(currentX, currentX);
                         }
-                        else if(SelectedInterval != null)
+                        else if(SelectedXRange != null)
                         {
-                            int start = Math.Min(plotSelectSamplePressed.Value, CurrentIndex.Value);
-                            SelectedInterval = new IntRange(start,
-                                 Math.Max(plotSelectSamplePressed.Value, CurrentIndex.Value) - start);
+                            SelectedXRange = new FloatRange(
+                                Math.Min(SelectedXRange.Value.Start, currentX),
+                                Math.Max(SelectedXRange.Value.End, currentX));
                         }
                     }
                     else
                     {
-                        plotSelectSamplePressed = null;
+                        plotSelectXPressed = null;
 
-                        if (plotMoveStartPoint == null)
+                        if (plotMoveXPressed == null)
                         {
-                            plotMoveStartPoint = e.GetPosition(image);
-
-                            if (plotMoveStartPoint.Value.X < 0 ||
-                                plotMoveStartPoint.Value.Y < 0 ||
-                                plotMoveStartPoint.Value.X > image.ActualWidth ||
-                                plotMoveStartPoint.Value.Y > image.ActualHeight)
-                                plotMoveStartPoint = null;
-
-                            if (plotMoveStartPoint.HasValue)
-                            {
-                                plotMoveSamplePressed = Interval.Start;
-                            }
+                            plotMoveXPressed = x;
                         }
-                        else if (plotMoveSamplePressed != null)
+                        else if (plotMoveXPressed != null)
                         {
-                            double shift = (plotMoveStartPoint.Value.X - x) / image.ActualWidth * Interval.Length;
-                            int diff = Interval.Length;
-                            int sampleFrom = (int)(plotMoveSamplePressed.Value + shift);
-                            if (sampleFrom < 0)
-                                sampleFrom = 0;
-                            int sampleTo = sampleFrom + diff;
-                            if (sampleTo > plotData.Y.Length)
+                            float shift = (float)((x - plotMoveXPressed.Value)/image.ActualWidth*XRange.Length);
+                            float start = XRange.Start - shift;
+                            if (start < 0)
+                                start = 0;
+                            float end = start + XRange.Length;
+                            if (end > plotData.XRange.End)
                             {
-                                sampleTo = plotData.Y.Length;
-                                sampleFrom = sampleTo - diff;
+                                start = end - Math.Min(end - plotData.XRange.End, plotData.XRange.Length);
+                                end = plotData.XRange.End;
                             }
-                            Interval = new IntRange(sampleFrom, sampleTo- sampleFrom);
+                            plotMoveXPressed = x;
+                            XRange = new FloatRange(start, end);
                         }
                     }
                 }
                 else
                 {
-                    plotMoveStartPoint = null;
-                    plotSelectSamplePressed = null;
+                    plotSelectXPressed = null;
                 }
             }   
         }
 
         private void image_MouseLeave(object sender, MouseEventArgs e)
         {
-            if(plotSelectSamplePressed != null && SelectedInterval != null)
+            if(plotSelectXPressed != null && SelectedInterval != null)
             {
                 double x = e.GetPosition(image).X;
                 if (x < 0)
@@ -397,20 +393,26 @@ namespace SignalPlot
 
                 if(x < 50)
                 {
-                    plotSelectSamplePressed = Interval.Start;
-                    SelectedInterval = new IntRange(Interval.Start, Interval.Start);
+                    plotSelectXPressed = Interval.Start;
+                    SelectedXRange = new FloatRange(XRange.Start, XRange.Start);
                 }
                 else if(x > image.ActualWidth-50)
                 {
-                    plotSelectSamplePressed = Interval.End;
-                    SelectedInterval = new IntRange(Interval.End, Interval.End);
+                    plotSelectXPressed = Interval.End;
+                    SelectedXRange = new FloatRange(XRange.End, XRange.End);
                 }
             }
         }
 
         private void image_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            SelectedInterval = null;
+            SelectedXRange = null;
+        }
+
+        private void image_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            plotMoveXPressed = null;
+            plotSelectXPressed = null;
         }
     }
 }

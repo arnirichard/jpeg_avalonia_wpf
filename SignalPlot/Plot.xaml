@@ -22,10 +22,11 @@
             <Grid x:Name="grid">
                 <Image Name="image"
                     MouseWheel="image_MouseWheel" 
-                    MouseMove="image_MouseMove" 
+                    MouseMove="image_MouseMove"
+                       MouseUp="image_MouseUp"
                     MouseLeave="image_MouseLeave"
                     MouseEnter="image_MouseEnter"
-                       MouseRightButtonDown="image_MouseRightButtonDown"
+                    MouseRightButtonDown="image_MouseRightButtonDown"
                 />
             </Grid>
         </Border>

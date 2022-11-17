@@ -70,9 +70,9 @@
         <signalplot:Plot x:Name="signalPlot" Grid.Row="1" UnitX="s" DataContext="{Binding SignalPlotData}" Margin="0,0,10,0"/>
 
         <signalplot:Plot x:Name="pitchPlot" Grid.Row="2" UnitX="s" UnitY="Hz" DataContext="{Binding PitchPlotData}" Margin="0,0,10,0"
-                         Interval="{Binding ElementName=signalPlot, Path=Interval, Mode=TwoWay}"
-                         SelectedInterval="{Binding ElementName=signalPlot, Path=SelectedInterval, Mode=TwoWay}"
-                         CurrentIndex="{Binding ElementName=signalPlot, Path=CurrentIndex, Mode=TwoWay}"/>
+                         XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
+                         SelectedXRange="{Binding ElementName=signalPlot, Path=SelectedXRange, Mode=TwoWay}"
+                         CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=TwoWay}"/>
 
     </Grid>
 </UserControl>
