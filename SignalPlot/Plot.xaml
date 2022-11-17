@@ -23,7 +23,7 @@
                 <Image Name="image"
                     MouseWheel="image_MouseWheel" 
                     MouseMove="image_MouseMove"
-                       MouseUp="image_MouseUp"
+                    MouseUp="image_MouseUp"
                     MouseLeave="image_MouseLeave"
                     MouseEnter="image_MouseEnter"
                     MouseRightButtonDown="image_MouseRightButtonDown"

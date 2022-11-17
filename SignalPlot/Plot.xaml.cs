@@ -26,10 +26,28 @@ namespace SignalPlot
         public static int White = int.Parse("FFFFFF", System.Globalization.NumberStyles.HexNumber);
         public static int Beige = int.Parse("DDDDDD", System.Globalization.NumberStyles.HexNumber);
         public static int Blue = int.Parse("0026FF", System.Globalization.NumberStyles.HexNumber);
-        
         public static int SelectedIntervalColor = Orange;
         public static int SignalColor = Blue;
         public static int BackgroundColor = White;
+
+        // Visible X-range
+        public FloatRange XRange
+        {
+            get { return (FloatRange)GetValue(XRangeProperty); }
+            set { SetValue(XRangeProperty, value); }
+        }
+
+        public static readonly DependencyProperty XRangeProperty =
+            DependencyProperty.Register("XRange", typeof(FloatRange), typeof(Plot), new PropertyMetadata(new FloatRange(0, 1), XRangeChanged));
+
+        public float? CurrentX
+        {
+            get { return (float?)GetValue(CurrentXProperty); }
+            set { SetValue(CurrentXProperty, value); }
+        }
+
+        public static readonly DependencyProperty CurrentXProperty =
+            DependencyProperty.Register("CurrentX", typeof(float?), typeof(Plot), new PropertyMetadata(null, CurrentXChanged));
 
         // Visible index range of Y
         public IntRange Interval
@@ -41,36 +59,14 @@ namespace SignalPlot
         public static readonly DependencyProperty IntervalProperty =
             DependencyProperty.Register("Interval", typeof(IntRange), typeof(Plot), new PropertyMetadata(new IntRange()));
 
-        /// <summary>
-        /// Index of PlotData.Y where mouse was located last time
-        /// </summary>
-        public int? CurrentIndex
+        public DataPoint? CurrentDataPoint
         {
-            get { return (int?)GetValue(CurrentIndexProperty); }
-            set { SetValue(CurrentIndexProperty, value); }
+            get { return (DataPoint?)GetValue(CurrentDataPointProperty); }
+            set { SetValue(CurrentDataPointProperty, value); }
         }
 
-        public static readonly DependencyProperty CurrentIndexProperty =
-            DependencyProperty.Register("CurrentIndex", typeof(int?), typeof(Plot), new PropertyMetadata(null));
-
-        public float? CurrentX
-        {
-            get { return (float?)GetValue(CurrentXProperty); }
-            set { SetValue(CurrentXProperty, value); }
-        }
-
-        public static readonly DependencyProperty CurrentXProperty =
-            DependencyProperty.Register("CurrentX", typeof(float?), typeof(Plot), new PropertyMetadata(null, CurrentXChanged));
-
-        // Y[CurrentIndex]
-        public float? CurrentValue
-        {
-            get { return (float?)GetValue(CurrentValueProperty); }
-            set { SetValue(CurrentValueProperty, value); }
-        }
-
-        public static readonly DependencyProperty CurrentValueProperty =
-            DependencyProperty.Register("CurrentValue", typeof(float?), typeof(Plot), new PropertyMetadata(null));
+        public static readonly DependencyProperty CurrentDataPointProperty =
+            DependencyProperty.Register("CurrentDataPoint", typeof(DataPoint), typeof(Plot), new PropertyMetadata(null));
 
         // Abs peak of visible data
         public float AbsPeak
@@ -81,16 +77,6 @@ namespace SignalPlot
 
         public static readonly DependencyProperty AbsPeakProperty =
             DependencyProperty.Register("AbsPeak", typeof(float), typeof(Plot), new PropertyMetadata(0f));
-
-        // Visible X-range
-        public FloatRange XRange
-        {
-            get { return (FloatRange)GetValue(XRangeProperty); }
-            set { SetValue(XRangeProperty, value); }
-        }
-
-        public static readonly DependencyProperty XRangeProperty =
-            DependencyProperty.Register("XRange", typeof(FloatRange), typeof(Plot), new PropertyMetadata(new FloatRange(0, 1), PropertyChanged));
 
         public IntRange? SelectedInterval
         {
@@ -108,7 +94,7 @@ namespace SignalPlot
         }
 
         public static readonly DependencyProperty SelectedXRangeProperty =
-            DependencyProperty.Register("SelectedXRange", typeof(FloatRange?), typeof(Plot), new PropertyMetadata(null, PropertyChanged));
+            DependencyProperty.Register("SelectedXRange", typeof(FloatRange?), typeof(Plot), new PropertyMetadata(null, XRangeChanged));
 
         public float? SelectedAbsPeak
         {
@@ -125,18 +111,23 @@ namespace SignalPlot
         public readonly List<LinesDefinition> VerticalLines = new();
         public readonly List<LinesDefinition> HorizontalLines = new();
 
+        float? plotSelectXPressed;
+        double? plotMoveXPressed;
+
+        public Plot()
+        {
+            InitializeComponent();
+        }
+
         static void CurrentXChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is Plot plot)
             {
-                d.SetCurrentValue(CurrentIndexProperty, plot.CurrentX != null
-                    ? plot.GetIntRange(new FloatRange(plot.CurrentX.Value, plot.CurrentX.Value)).Start
-                    : null);
-                d.SetCurrentValue(CurrentValueProperty, plot.GetCurrentValue());
+                d.SetCurrentValue(CurrentDataPointProperty, plot.GetCurrentDataPoint());
             }
         }
 
-        static void PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        static void XRangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is Plot plot)
             {
@@ -144,19 +135,22 @@ namespace SignalPlot
             }
         }
 
-        public Plot()
+        DataPoint? GetCurrentDataPoint()
         {
-            InitializeComponent();
-        }
-
-        float? GetCurrentValue()
-        {
-            if(DataContext is PlotData plotData && 
-                CurrentIndex != null &&
-                CurrentIndex >= 0 &&
-                CurrentIndex < plotData.Y.Length)
+            if(DataContext is PlotData plotData)
             {
-                return plotData.Y[(int)CurrentIndex];
+                if (plotData.X == null &&
+                    CurrentX != null)
+                {
+                    int? index = GetIntRange(new FloatRange(CurrentX.Value, CurrentX.Value)).Start;
+                    if(index != null)
+                        return new DataPoint(CurrentX.Value, plotData.Y[index.Value], index.Value, plotData.Data?[index.Value]);
+                }
+                else if(plotData.X != null &&
+                    CurrentX != null)
+                {
+                    return plotData.GetDataPoint(CurrentX.Value, 0.01f);
+                }
             }
             return null;
         }
@@ -234,9 +228,6 @@ namespace SignalPlot
 
             plotMoveXPressed = null;
         }
-
-        float? plotSelectXPressed;
-        double? plotMoveXPressed;
 
         private void image_MouseMove(object sender, MouseEventArgs e)
         {
@@ -360,13 +351,16 @@ namespace SignalPlot
 
             if (DataContext is PlotData plotData)
             {
-                List<PlotLine> plotLines = writeableBitmap.PlotSignal(plotData.Y,
-                    Interval,
-                    XRange,
-                    plotData.YRange,
-                    BackgroundColor, SignalColor, SelectedIntervalColor,
-                    VerticalLines, HorizontalLines,
-                    SelectedInterval);
+                List<PlotLine> plotLines = plotData.X == null
+                    ? writeableBitmap.PlotSignal(plotData.Y,
+                        Interval,
+                        XRange, plotData.YRange,
+                        BackgroundColor, SignalColor, SelectedIntervalColor,
+                        VerticalLines, HorizontalLines,
+                        SelectedInterval)
+                    : writeableBitmap.Plot(plotData.X, plotData.Y, XRange, plotData.YRange,
+                        BackgroundColor, SignalColor, SelectedIntervalColor,
+                        VerticalLines, HorizontalLines, SelectedXRange);
 
                 verticalLabels.Children.Clear();
                 horizontalLabels.Children.Clear();

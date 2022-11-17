@@ -6,14 +6,29 @@ using System.Threading.Tasks;
 
 namespace SignalPlot
 {
+    public class DataPoint
+    {
+        public float X { get; }
+        public float Y { get; }
+        public object? Data { get; }
+        public int Index { get; }
+        public DataPoint(float x, float y, int index, object? data)
+        {
+            X = x;
+            Y = y;
+            Index = index;
+            Data = data;
+        }
+    }
+
     public class PlotData
     {
-        public float[] Y { get; private set; }
-        public FloatRange YRange { get; private set; }
-        public FloatRange XRange { get; private set; }
-        public float AbsPeak { get; private set; }
-        public float[]? X { get; private set; }
-        public object[]? Data { get; set; }
+        public float[] Y { get; }
+        public FloatRange YRange { get; }
+        public FloatRange XRange { get; }
+        public float AbsPeak { get; }
+        public float[]? X { get; }
+        public object[]? Data { get; }
 
         public PlotData(float[] y, FloatRange yRange, FloatRange xRange, 
             float[]? x = null, object[]? data = null)
@@ -29,6 +44,22 @@ namespace SignalPlot
         public PlotData Clone()
         {
             return new PlotData(Y, YRange, XRange, X);
+        }
+
+        internal DataPoint? GetDataPoint(float x, float tolerance)
+        {
+            if (x >= XRange.Start &&
+                x <= XRange.End &&
+                X?.Length > 0)
+            {
+                int index = FloatsUtils.FindClosestIndex(X, x);
+                if(index > -1 && Math.Abs(X[index] - x) <= tolerance)
+                {
+                    return new DataPoint(X[index], Y[index], index, Data?[index]);
+                }
+            }
+
+            return null;
         }
     }
 }

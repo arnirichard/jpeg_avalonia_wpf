@@ -47,13 +47,13 @@ namespace DAW.PitchDetector
                 new LinesDefinition(0, 10, false, Plot.Beige, 50),
             });
 
-            var pd = DependencyPropertyDescriptor.FromProperty(Plot.CurrentValueProperty, typeof(Plot));
+            var pd = DependencyPropertyDescriptor.FromProperty(Plot.CurrentDataPointProperty, typeof(Plot));
             pd.AddValueChanged(pitchPlot, OnCurrentValueChanged);
         }
 
         private void OnCurrentValueChanged(object? sender, EventArgs e)
         {
-            float? val = pitchPlot.CurrentValue;
+            float? val = pitchPlot.CurrentDataPoint?.Y;
             periodTextBlock.Text = val > 0 && DataContext is SignalViewModel vm && vm.Format != null
                     ? "Period: " + ((int)Math.Round(vm.Format.SampleRate / (float)val))
                     : "";
