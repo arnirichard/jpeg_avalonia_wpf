@@ -157,5 +157,22 @@ namespace DAW.Recorder
                 }
             }
         }
+
+        private void FindGaps_Click(object sender, RoutedEventArgs e)
+        {
+            float threshold;
+            
+            if (float.TryParse(this.threshold.Text, out threshold) &&
+                sender is FrameworkElement fe &&
+                fe.DataContext is SignalViewModel record)
+            {
+                Plot? plot = fe.FindName("signalPlot") as Plot;
+
+                if (plot != null)
+                {
+                    plot.Gaps = Gaps.FindGaps(record.SignalPlotData.Y, threshold);
+                }
+            }
+        }
     }
 }

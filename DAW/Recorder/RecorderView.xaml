@@ -23,15 +23,15 @@
         </Grid.ColumnDefinitions>
 
         <WrapPanel>
-            <TextBlock VerticalAlignment="Center">Normalization</TextBlock>
             <TextBox x:Name="normalization" Height="23" Margin="10,3" TextWrapping="Wrap" Text="0.9" Width="30" PreviewTextInput="NumberValidationTextBox"/>
+            <TextBlock VerticalAlignment="Center">Silence Threshold</TextBlock>
+            <TextBox x:Name="threshold" Height="23" Margin="10,3" TextWrapping="Wrap" Text="0.02" Width="60" PreviewTextInput="NumberValidationTextBox"/>
         </WrapPanel>
 
         <TextBox x:Name="recordingList" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                  MaxLines="1000" TextWrapping="Wrap" AcceptsReturn="True" 
-                 PreviewKeyDown="TextBox_KeyDown">
-            
-        </TextBox>
+            MaxLines="1000" TextWrapping="Wrap" AcceptsReturn="True" 
+            PreviewKeyDown="TextBox_KeyDown"
+        />
 
         <ItemsControl x:Name="files" Grid.Row="1" ItemsSource="{Binding Records}">
             <ItemsControl.Template>
@@ -87,6 +87,10 @@
 
                             <Button Height="25" Margin="3" Click="Trim_Click" Background="White">
                                 <iconPacks:PackIconUnicons Kind="ArrowsMerge" />
+                            </Button>
+
+                            <Button Height="25" Margin="3" Click="FindGaps_Click" Background="White">
+                                <iconPacks:PackIconBootstrapIcons Kind="Activity" />
                             </Button>
                         </WrapPanel>
                     </Grid>

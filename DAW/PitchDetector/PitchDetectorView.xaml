@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:DAW.PitchDetector"
              xmlns:converters="clr-namespace:DAW.Converters"
              xmlns:signalplot="clr-namespace:SignalPlot;assembly=SignalPlot"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d" >
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -17,6 +18,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <Grid Visibility="{Binding File, Converter={StaticResource NullToVis}, FallbackValue=Hidden}">
@@ -25,10 +27,10 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto" MaxWidth="200"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto" MinWidth="200"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Vertical" Margin="50,0"
-                         >
+            <StackPanel Orientation="Vertical" Margin="50,0" MinHeight="100">
                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
                     <TextBlock Text="{Binding File.Name}" />
                     <TextBlock Margin="5,0" Text="{Binding Samples, StringFormat='Samples {0}'}"/>
@@ -59,16 +61,37 @@
                     <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedInterval.Length, StringFormat='Selected interval {0} samples'}"/>
                     <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedAbsPeak, StringFormat='Peak {0}'}" Margin="10,0,0,0"/>
                 </WrapPanel>
-                
             </StackPanel>
 
             <TextBlock Grid.Column="1" MaxWidth="200"
                        Text="{Binding ElementName=pitchDataPlot, Path=CurrentDataPoint.Data}" TextWrapping="Wrap"/>
 
-            <StackPanel Grid.Column="2">
-                <Button Click="Play_Click" Margin="20,10" Width="100">Play</Button>
-                <Button Click="PlaySelected_Click" Margin="20,10" Width="100">Play Selected</Button>
-            </StackPanel>
+            <WrapPanel Grid.Column="2">
+                <TextBlock VerticalAlignment="Center">Norm</TextBlock>
+                <TextBox x:Name="normalization" Height="23" Margin="10,3" TextWrapping="Wrap" Text="0.9" Width="30" PreviewTextInput="NumberValidationTextBox"/>
+                <TextBlock VerticalAlignment="Center">Threshold</TextBlock>
+                <TextBox x:Name="threshold" Height="23" Margin="10,3" TextWrapping="Wrap" Text="0.02" Width="60" PreviewTextInput="NumberValidationTextBox"/>
+                <TextBlock VerticalAlignment="Center">Ramp (ms)</TextBlock>
+                <TextBox x:Name="ramp" Height="23" Margin="10,3" TextWrapping="Wrap" Text="5" Width="60" PreviewTextInput="NumberValidationTextBox"/>
+            </WrapPanel>
+
+            <WrapPanel Grid.Column="3">
+                <Button Height="25" Margin="3" Click="Play_Click" Background="White">
+                    <iconPacks:PackIconMaterial  Kind="Play" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Green"/>
+                </Button>
+
+                <Button Height="25" Margin="3" Click="PlaySelected_Click" Background="White">
+                    <iconPacks:PackIconMaterial  Kind="Play" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
+                </Button>
+
+                <Button Height="25" Margin="3" Click="FindGaps_Click" Background="White">
+                    <iconPacks:PackIconBootstrapIcons Kind="Activity" />
+                </Button>
+
+                <Button Height="25" Margin="3" Click="Trim_Click" Background="White">
+                    <iconPacks:PackIconUnicons Kind="ArrowsMerge" />
+                </Button>
+            </WrapPanel>
             
         </Grid>
 

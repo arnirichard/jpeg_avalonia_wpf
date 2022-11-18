@@ -105,6 +105,15 @@ namespace SignalPlot
         public static readonly DependencyProperty SelectedAbsPeakProperty =
             DependencyProperty.Register("SelectedAbsPeak", typeof(float?), typeof(Plot), new PropertyMetadata(null));
 
+        public List<IntRange> Gaps
+        {
+            get { return (List<IntRange>)GetValue(GapsProperty); }
+            set { SetValue(GapsProperty, value); }
+        }
+
+        public static readonly DependencyProperty GapsProperty =
+            DependencyProperty.Register("Gaps", typeof(List<IntRange>), typeof(Plot), new PropertyMetadata(new List<IntRange>(), GapsChanged));
+
         public string? UnitX { get; set; }
         public string? UnitY { get; set; }
 
@@ -132,6 +141,14 @@ namespace SignalPlot
             if (d is Plot plot)
             {
                 plot.UpdateValues();
+            }
+        }
+
+        static void GapsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is Plot plot)
+            {
+                plot.RefreshPlot();
             }
         }
 
@@ -339,6 +356,7 @@ namespace SignalPlot
         private void image_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             SelectedXRange = null;
+            Gaps = new();
         }
 
         private void image_MouseUp(object sender, MouseButtonEventArgs e)
@@ -366,7 +384,8 @@ namespace SignalPlot
                         XRange, plotData.YRange,
                         BackgroundColor, SignalColor, SelectedIntervalColor,
                         VerticalLines, HorizontalLines,
-                        SelectedInterval)
+                        SelectedInterval,
+                        Gaps)
                     : writeableBitmap.Plot(plotData.X, plotData.Y, XRange, plotData.YRange,
                         BackgroundColor, SignalColor, SelectedIntervalColor,
                         VerticalLines, HorizontalLines, SelectedXRange);
@@ -381,7 +400,7 @@ namespace SignalPlot
 
                     if (!string.IsNullOrEmpty(unit))
                     {
-                        unit = (plotLine.Vertical ? " " : "\n") + unit;
+                        unit = (plotLine.Vertical ? "" : "\n") + unit;
                     }
                     TextBlock textBlock = new TextBlock()
                     {

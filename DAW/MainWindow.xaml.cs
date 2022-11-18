@@ -60,15 +60,16 @@ namespace DAW
             {
                 if (fileList.SelectedItem is FileInfo fi)
                 {
+                    viewModel.LastFileName = fi.FullName;
                     viewModel.SelectedModule?.SetFile(fi.FullName);
                 }
-
-                fileList.SelectedItem = null;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
             }
+
+            fileList.SelectedItem = null;
         }
 
         private void Module_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

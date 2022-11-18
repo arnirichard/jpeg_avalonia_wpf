@@ -28,7 +28,8 @@ namespace DAW.Recorder
         });
 
         public RecorderModule() 
-        { 
+        {
+            
         }
 
         public void Deactivate()

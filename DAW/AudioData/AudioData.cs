@@ -50,6 +50,7 @@ namespace DAW
                         mono[j] = data[j * audioFileReader.WaveFormat.Channels];
                 }
             }
+            audioFileReader.Close();
 
             return new AudioData(audioData, audioFileReader.WaveFormat);
         }

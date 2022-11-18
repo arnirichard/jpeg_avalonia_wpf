@@ -36,5 +36,10 @@ namespace SignalPlot
             Start = start;
             End = start+length;
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0}-{1}", Start, End);
+        }
     }
 }

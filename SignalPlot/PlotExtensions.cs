@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,6 +13,8 @@ namespace SignalPlot
 {
     public static class PlotExtensions
     {
+        public static int LightBlue = int.Parse("AAFFFF", System.Globalization.NumberStyles.HexNumber);
+
         public static List<PlotLine> PlotSignal(this WriteableBitmap writeableBitmap,
             float[] values, 
             IntRange interval,
@@ -20,7 +23,8 @@ namespace SignalPlot
             int backgroundcolor, int color, int selectedColor,
             List<LinesDefinition> verticalLines,
             List<LinesDefinition> horizontalLines,
-            IntRange? selectedInterval)
+            IntRange? selectedInterval,
+            List<IntRange>? gaps = null)
         {
             List<PlotLine> result = new List<PlotLine>();
 
@@ -32,6 +36,16 @@ namespace SignalPlot
 
                 if (writeableBitmap.Width < 2 || interval.Length <= 0)
                     return result;
+
+                if(gaps?.Count > 0)
+                {
+                    foreach(var gap in gaps)
+                    {
+                        int posStart = writeableBitmap.PixelWidth * (gap.Start - interval.Start) / interval.Length;
+                        int posEnd = writeableBitmap.PixelWidth * (gap.End - interval.Start) / interval.Length;
+                        writeableBitmap.PaintVerticalSegment(LightBlue, posStart, posEnd - posStart);
+                    }
+                }
 
                 // Paint selected interval
                 if (selectedInterval != null && selectedInterval.Value.Length > 0)

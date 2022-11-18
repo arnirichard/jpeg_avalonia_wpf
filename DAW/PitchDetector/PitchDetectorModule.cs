@@ -21,6 +21,11 @@ namespace DAW.PitchDetector
 
         public UserControl UserInterface => view ?? (view = new PitchDetectorView(player));
 
+        public PitchDetectorModule()
+        {
+            var u = UserInterface;
+        }
+
         public void Deactivate()
         {
             
@@ -30,36 +35,25 @@ namespace DAW.PitchDetector
         {
             if(File.Exists(filename) && view != null)
             {
-                AudioData? audioData = AudioData.ReadSamples(filename);
+                AudioData? audioData = null;
+
+                try
+                {
+                    audioData = AudioData.ReadSamples(filename);
+                }
+                catch(Exception ex)
+                {
+
+                }
                 if(audioData != null)
                 {
-                    PitchTracker pitchTracker = new PitchTracker(audioData.Format.SampleRate / 300, audioData.Format.SampleRate / 80, audioData.Format.SampleRate);
-                    float[] samples = audioData.ChannelData[0];
-
-                    for (int i = 0; i < samples.Length; i++)
-                    {
-                        pitchTracker.AddSample(samples[i]);
-                    }
-
                     SignalViewModel vs = new SignalViewModel(new FileInfo(filename), audioData.Format,
                         new PlotData(audioData!.ChannelData[0], new FloatRange(-1, 1),
-                        new FloatRange(0, audioData.ChannelData[0].Length/(float)audioData.Format.SampleRate)),
-                        CreatePitchPlotData.GetPitchPlotData(pitchTracker),
-                        GetPitchData(pitchTracker));
+                            new FloatRange(0, audioData.ChannelData[0].Length/(float)audioData.Format.SampleRate)));
+                    vs.SetPitchData();
                     view.DataContext = vs;
                 }
             }
-        }
-
-        PlotData GetPitchData(PitchTracker pitchTracker)
-        {
-            float[] y = pitchTracker.Data.PeriodFits.Select(p => (float)p.Period).ToArray();
-            float[] x = pitchTracker.Data.PeriodFits.Select(p => (float)p.Sample/ pitchTracker.SampleRate).ToArray();
-
-            return new PlotData(y,
-                new FloatRange(y.Min() - 5, y.Max() + 5),
-                new FloatRange(0, pitchTracker.TotalSamples / (float)pitchTracker.SampleRate),
-                x, pitchTracker.Data.PeriodFits.ToArray());
         }
 
         public void SetFolder(string folder)

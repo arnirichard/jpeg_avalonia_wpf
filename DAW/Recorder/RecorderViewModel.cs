@@ -115,16 +115,12 @@ namespace DAW.Recorder
                     {
                         StopRecording();
                     }
-
-                            
-
                 }
             }
             catch 
             {
                 StopRecording();
             }
-                //});
         }      
 
         public void AddFile(string filename)
@@ -149,8 +145,7 @@ namespace DAW.Recorder
                         SignalViewModel vs = new SignalViewModel(new FileInfo(filename), audioData.Format,
                             new PlotData(audioData!.ChannelData[0], 
                                 new FloatRange(-1, 1), 
-                                new FloatRange(0, audioData.ChannelData[0].Length / (float)audioData.Format.SampleRate)),
-                            CreatePitchPlotData.GetPitchPlotData(pitchTracker));
+                                new FloatRange(0, audioData.ChannelData[0].Length / (float)audioData.Format.SampleRate)));
                         Records.Add(vs);
                     }
                 }
@@ -158,11 +153,8 @@ namespace DAW.Recorder
                 {
                     int seconds = 0;
                     float[] signal = new float[captureFormat.SampleRate * seconds];
-                    PlotData pitchData = new PlotData(new float[signal.Length],
-                        new FloatRange(-1, 1), new FloatRange(80, 300));
                     SignalViewModel vs = new SignalViewModel(new FileInfo(filename), captureFormat,
-                            new PlotData(signal, new FloatRange(-1, 1), new FloatRange(0, seconds)),
-                            pitchData);
+                            new PlotData(signal, new FloatRange(-1, 1), new FloatRange(0, seconds)));
                     Records.Add(vs);
                 }
             }

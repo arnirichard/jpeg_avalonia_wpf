@@ -1,4 +1,6 @@
-﻿using DAW.Utils;
+﻿using DAW.Recorder;
+using DAW.Utils;
+using NAudio.Gui;
 using NAudio.MediaFoundation;
 using NAudio.Wave;
 using SignalPlot;
@@ -8,6 +10,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -32,6 +35,7 @@ namespace DAW.PitchDetector
             Player = player;
             List<LinesDefinition> verticalLines = new List<LinesDefinition>()
             {
+                new LinesDefinition(0, 0.5f, false, Plot.Beige, 50),
                 new LinesDefinition(0, 0.1f, false, Plot.Beige, 50),
                 new LinesDefinition(0, 0.05f, false, Plot.Beige, 50),
                 new LinesDefinition(0, 0.01f, false, Plot.Beige, 50),
@@ -91,6 +95,53 @@ namespace DAW.PitchDetector
                 if (fromIndex >= 0 && fromIndex+length <= vm.SignalPlotData.Y.Length)
                 {
                     Player?.Play(vm.SignalPlotData.Y, vm.Format.SampleRate, signalPlot.SelectedInterval);
+                }
+            }
+        }
+
+        private void FindGaps_Click(object sender, RoutedEventArgs e)
+        {
+            float threshold;
+
+            if (float.TryParse(this.threshold.Text, out threshold) &&
+                signalPlot.DataContext is PlotData plotData)
+            {
+                signalPlot.Gaps = Gaps.FindGaps(plotData.Y, threshold);
+            }
+        }
+
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9.]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void Trim_Click(object sender, RoutedEventArgs e)
+        {
+            float threshold;
+            float rampms;
+
+            if (float.TryParse(this.threshold.Text, out threshold) &&
+                float.TryParse(this.ramp.Text, out rampms) &&
+                signalPlot.DataContext is PlotData plotData &&
+                DataContext is SignalViewModel record)
+            {
+                if(signalPlot.SelectedInterval != null)
+                {
+                    SignalViewModel newRecord = record.Trim(signalPlot.SelectedInterval.Value.Start, signalPlot.SelectedInterval.Value.Length);
+                    CreateWave.WriteSingleChannelWave(newRecord.File.FullName, newRecord.Format, newRecord.SignalPlotData.Y);
+                    signalPlot.SelectedXRange = null;
+                    signalPlot.Gaps = new();
+                    DataContext = newRecord;
+                }
+                else if(signalPlot.Gaps.Count > 0)
+                {
+                    int ramplength = (int)(rampms / 1000 * record.Format.SampleRate);
+                    SignalViewModel newRecord = record.RemoveGaps(signalPlot.Gaps, ramplength);
+                    CreateWave.WriteSingleChannelWave(newRecord.File.FullName, newRecord.Format, newRecord.SignalPlotData.Y);
+                    signalPlot.SelectedXRange = null;
+                    signalPlot.Gaps = new();
+                    DataContext = newRecord;
                 }
             }
         }

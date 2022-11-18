@@ -45,6 +45,7 @@ namespace DAW
         WaveFormat? captureFormat;
         JobHandler recordingHandler = new JobHandler(1);
         MMDeviceEnumerator? deviceEnumerator;
+        public string? LastFileName;
 
         public MainWindowViewModel(IEnumerable<IModule> modules)
         {
@@ -115,7 +116,10 @@ namespace DAW
             {
                 if (value != selectedModule)
                 {
+                    selectedModule?.Deactivate();
                     selectedModule = value;
+                    if(LastFileName != null && selectedModule != null)
+                        selectedModule.SetFile(LastFileName);
                     OnPropertyChanged("SelectedModule");
                     OnPropertyChanged("UserInterface");
                 }
