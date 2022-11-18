@@ -5,12 +5,101 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:converters="clr-namespace:DAW.Converters"
              xmlns:local="clr-namespace:DAW.DFT"
-             >
+             xmlns:signalplot="clr-namespace:SignalPlot;assembly=SignalPlot"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             x:Name="self">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <converters:NullVisibilityConverter x:Key="NullToVis" />
     </UserControl.Resources>
     <Grid>
-            
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Visibility="{Binding Signal, Converter={StaticResource NullToVis}, FallbackValue=Hidden}">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto" MaxWidth="200"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto" MinWidth="200"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Vertical" Margin="50,0" MinHeight="100">
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <TextBlock Text="{Binding File.Name}" />
+                    <TextBlock Margin="5,0" Text="{Binding Signal.Samples, StringFormat='Samples {0}'}"/>
+                    <TextBlock Margin="5,0" Text="{Binding Signal.Duration, StringFormat='Duration {0:0.000}s'}"/>
+                    <TextBlock Margin="5,0" Text="{Binding Signal.Format.SampleRate, StringFormat='SampleRate {0}'}"/>
+                    <TextBlock Margin="5,0" Text="{Binding Signal.Format.BitsPerSample, StringFormat='BitsPerSample {0}'}"/>
+                    <TextBlock Margin="5,0" Text="{Binding Signal.Format.Channels, StringFormat='Channels {0}'}"/>
+                </WrapPanel>
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=Interval.Start, StringFormat='Range {0}'}"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=Interval.End, StringFormat='-{0}'}"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=XRange.Start, StringFormat='Time {0:0.000}'}" Margin="10,0,0,0"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=XRange.End, StringFormat='-{0:0.000}s'}"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=AbsPeak, StringFormat='Peak {0}'}" Margin="10,0,0,0"/>
+                </WrapPanel>
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=CurrentDataPoint.Index, StringFormat='Sample {0}'}"/>
+                    <TextBlock Margin="10,0"
+                               Text="{Binding ElementName=signalPlot, Path=CurrentX, StringFormat='Time {0:0.000}s'}"/>
+                    <TextBlock Margin="10,0"
+                               Text="{Binding ElementName=signalPlot, Path=CurrentDataPoint.Y, StringFormat='Value {0}'}"/>
+                    <TextBlock Margin="10,0"
+                               Text="{Binding ElementName=pitchPlot, Path=CurrentDataPoint.Y, StringFormat='Pitch {0:0.00}Hz'}"/>
+                    <TextBlock Margin="10,0" x:Name="periodTextBlock"/>
+                </WrapPanel>
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" 
+                           Visibility="{Binding ElementName=signalPlot,Path=SelectedInterval, Converter={StaticResource NullToVis}}">
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedInterval.Length, StringFormat='Selected interval {0} samples'}"/>
+                    <TextBlock Text="{Binding ElementName=signalPlot, Path=SelectedAbsPeak, StringFormat='Peak {0}'}" Margin="10,0,0,0"/>
+                </WrapPanel>
+            </StackPanel>
+
+            <WrapPanel Grid.Column="2">
+                <TextBlock VerticalAlignment="Center">Norm</TextBlock>
+                <TextBox x:Name="normalization" Height="23" Margin="10,3" TextWrapping="Wrap" Text="0.9" Width="30" PreviewTextInput="NumberValidationTextBox"/>
+                <TextBlock VerticalAlignment="Center">Threshold</TextBlock>
+                <TextBox x:Name="threshold" Height="23" Margin="10,3" TextWrapping="Wrap" Text="0.02" Width="60" PreviewTextInput="NumberValidationTextBox"/>
+                <TextBlock VerticalAlignment="Center">Ramp (ms)</TextBlock>
+                <TextBox x:Name="ramp" Height="23" Margin="10,3" TextWrapping="Wrap" Text="5" Width="60" PreviewTextInput="NumberValidationTextBox"/>
+            </WrapPanel>
+
+            <WrapPanel Grid.Column="3">
+                <Button Height="25" Margin="3" Click="Play_Click" Background="White">
+                    <iconPacks:PackIconMaterial  Kind="Play" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Green"/>
+                </Button>
+
+                <Button Height="25" Margin="3" Click="PlaySelected_Click" Background="White">
+                    <iconPacks:PackIconMaterial  Kind="Play" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
+                </Button>
+            </WrapPanel>
+
+        </Grid>
+
+        <signalplot:Plot x:Name="signalPlot" Grid.Row="1" UnitX="s" DataContext="{Binding Signal.SignalPlotData}" Margin="0,0,10,0"/>
+
+        <WrapPanel Grid.Row="2">
+            <TextBlock VerticalAlignment="Center">EventPerc</TextBlock>
+            <TextBlock Text="{Binding DftData.EvenPerc, StringFormat=' {0:0.000}'}"
+                Margin="10,3" TextWrapping="Wrap" Width="30"/>
+        </WrapPanel>
+        
+        <signalplot:Plot x:Name="dftPlot" Grid.Row="3" Margin="0,0,10,0"
+                         UnitX="Hz" UnitY="%"
+                         DataContext="{Binding DftData.Data}"/>
+
+        <signalplot:Plot x:Name="pitchPlot" Grid.Row="4" UnitX="s" UnitY="Hz" DataContext="{Binding Signal.PitchPlotData}" Margin="0,0,10,0"
+                         XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
+                         SelectedXRange="{Binding ElementName=signalPlot, Path=SelectedXRange, Mode=TwoWay}"
+                         CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=TwoWay}"/>
+
     </Grid>
 </UserControl>

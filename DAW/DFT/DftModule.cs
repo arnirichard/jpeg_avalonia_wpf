@@ -38,7 +38,8 @@ namespace DAW.DFT
                     SignalViewModel vs = new SignalViewModel(new FileInfo(filename), audioData.Format,
                         new PlotData(audioData!.ChannelData[0], new FloatRange(-1, 1),
                         new FloatRange(0, audioData.ChannelData[0].Length / (float)audioData.Format.SampleRate)));
-                    view.DataContext = vs;
+                    vs.SetPitchData();
+                    viewModel.SetSignal(vs);
                 }
             }
         }

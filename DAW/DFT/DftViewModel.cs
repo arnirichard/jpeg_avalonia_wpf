@@ -17,9 +17,17 @@ namespace DAW.DFT
 
         public PlotData? DFT { get; private set; }
 
+        public DftDataViewModel? DftData { get;     private set; }
+
         public DftViewModel()
         {
             
+        }
+
+        public void SetDftData(DftDataViewModel? dftData)
+        {
+            DftData = dftData;
+            OnPropertyChanged("DftData");
         }
 
         internal void SetPlayer(IPlayer player)

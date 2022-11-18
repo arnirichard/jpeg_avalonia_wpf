@@ -58,7 +58,7 @@ namespace DAW.PitchDetector
             pitchDataPlot.HorizontalLines.Add(new LinesDefinition(0, 10, false, Plot.Beige));
 
             var pd = DependencyPropertyDescriptor.FromProperty(Plot.CurrentDataPointProperty, typeof(Plot));
-            pd.AddValueChanged(pitchPlot, OnCurrentValueChanged);
+            pd.AddValueChanged(signalPlot, OnCurrentValueChanged);
         }
 
         internal void SetPlayer(IPlayer player)

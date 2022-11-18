@@ -39,7 +39,6 @@ namespace SignalPlot
                 return values.Length - 1;
 
             int indFrom = 0, indTo = values.Length - 1;
-            //float valFrom = values[indFrom], valTo = values[values.Length - 1];
             float val;
             int index;
 
