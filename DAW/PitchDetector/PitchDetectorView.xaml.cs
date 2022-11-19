@@ -3,6 +3,7 @@ using DAW.Utils;
 using NAudio.Gui;
 using NAudio.MediaFoundation;
 using NAudio.Wave;
+using PitchDetector;
 using SignalPlot;
 using System;
 using System.Collections.Generic;
@@ -68,10 +69,17 @@ namespace DAW.PitchDetector
 
         private void OnCurrentValueChanged(object? sender, EventArgs e)
         {
-            float? val = pitchPlot.CurrentDataPoint?.Y;
-            periodTextBlock.Text = val > 0 && DataContext is SignalViewModel vm && vm.Format != null
-                    ? "Period: " + ((int)Math.Round(vm.Format.SampleRate / (float)val))
-                    : "";
+            if (pitchPlot.CurrentDataPoint?.Data is PeriodFit pf)
+            {
+                periodTextBlock.Text = "Period: " + pf.Period;
+            }
+            else
+            {
+                float? val = pitchPlot.CurrentDataPoint?.Y;
+                periodTextBlock.Text = val > 0 && DataContext is SignalViewModel vm && vm.Format != null
+                        ? "Period: " + ((int)Math.Round(vm.Format.SampleRate / (float)val))
+                        : "";
+            }
         }
 
         private void Play_Click(object sender, RoutedEventArgs e)

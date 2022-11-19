@@ -68,6 +68,7 @@ namespace PitchDetector
 
                         if (periodFit.IsValid)
                         {
+                            periodFit.AvgPower = GetAvgPower(periodFit);
                             PeriodFits.Add(periodFit);
                             lastValidPeriodicFit = periodFit;
                         }
@@ -77,6 +78,24 @@ namespace PitchDetector
 
             sampleIndex++;
             lastSample = sample;
+        }
+
+        private float GetAvgPower(PeriodFit periodFit)
+        {
+            float result = 0;
+            int index = sampleIndex % signal.Length;
+            float v;
+
+            for (int i = 0; i < periodFit.Period; i++)
+            {
+                v = signal[index];
+                result += v*v;
+                index--;
+                if (index < 0)
+                    index += signal.Length;
+            }
+
+            return result/periodFit.Period;
         }
 
         int GetLastPeriod()

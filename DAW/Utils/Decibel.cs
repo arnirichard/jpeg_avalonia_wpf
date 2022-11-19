@@ -14,6 +14,10 @@ namespace DAW.Utils
         // ln( 10 ) / 20
         private const double DB_2_LOG = 0.11512925464970228420089957273422;
 
+        const double refSpl = 0.00002;
+        /// Base-10 logarithm of [e].
+        const double log10e = 0.4342944819032518;
+
         /// <summary>
         /// linear to dB conversion
         /// </summary>
@@ -32,6 +36,11 @@ namespace DAW.Utils
         public static double DecibelsToLinear(double dB)
         {
             return Math.Exp(dB * DB_2_LOG);
+        }
+
+        public static double AvgPowerToSQL(double power)
+        {
+            return Math.Max(0, (20 * log10e * Math.Log(power/ refSpl)));
         }
 
     }

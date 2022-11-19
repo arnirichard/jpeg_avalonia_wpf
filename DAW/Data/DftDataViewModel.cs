@@ -13,6 +13,7 @@ namespace DAW.DFT
     {
         XY[] dft;
         int length;
+        float[] power;
 
         public PlotData? Data { get; }
         public float AvgSamplePower { get; }
@@ -20,22 +21,32 @@ namespace DAW.DFT
         public double DC { get; }
         public double SPL { get; }
         public float EvenPerc { get; }
+        public float F0 { get; }
 
+        public float TotalPower { get; }
 
         public DftDataViewModel(XY[] dft, int sampleRate, int length)
         {
             this.dft = dft;
             this.length = length;
+            F0 = sampleRate/ length;
 
-            float[] power = dft.Select(d => d.Power).ToArray();
-            float totalPower = power.Sum();
+            power = new float[dft.Length];
+            power[0] = dft[0].Power;
+            for(int i = 1; i < dft.Length; i++)
+            {
+                power[i] = dft[i].Power * 2;
+            }
 
-            AvgSamplePower = totalPower / length;
+            TotalPower = power.Sum();
+
+            AvgSamplePower = TotalPower / length / length;
+
             DC = Math.Sqrt(dft[0].Power);
 
-            if (totalPower > 0)
+            if (TotalPower > 0)
             {
-                float[] perc = power.Select(p => p / totalPower * 100).ToArray();
+                float[] perc = power.Select(p => p / TotalPower * 100).ToArray();
 
                 Data = new PlotData(perc,
                     new FloatRange(0, perc.Max()),
@@ -45,8 +56,20 @@ namespace DAW.DFT
                 {
                     EvenPower += power[i];
                 }
-                EvenPerc = EvenPower / totalPower;
+                EvenPerc = EvenPower / TotalPower;
             }
+        }
+
+        public float GetPower(IntRange range)
+        {
+            float result = 0;
+
+            for(int i = range.Start; i < range.End; i++)
+            {
+                result += power[i];
+            }
+
+            return result;
         }
     }
 }

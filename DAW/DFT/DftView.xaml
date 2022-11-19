@@ -86,14 +86,17 @@
 
         <signalplot:Plot x:Name="signalPlot" Grid.Row="1" UnitX="s" DataContext="{Binding Signal.SignalPlotData}" Margin="0,0,10,0"/>
 
-        <WrapPanel Grid.Row="2">
-            <TextBlock VerticalAlignment="Center">EventPerc</TextBlock>
-            <TextBlock Text="{Binding DftData.EvenPerc, StringFormat=' {0:0.000}'}"
-                Margin="10,3" TextWrapping="Wrap" Width="30"/>
-        </WrapPanel>
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <TextBlock Text="{Binding DftData.EvenPerc, StringFormat='EvenPerc {0:0.000}'}"
+                Margin="10,0" />
+            <TextBlock Text="{Binding DftData.F0, StringFormat='F0 {0:0.0}Hz'}"
+                Margin="10,0" />
+            <TextBlock x:Name="powRat" Margin="10,0"/>
+            <TextBlock x:Name="spl" Margin="10,0"/>
+        </StackPanel>
         
         <signalplot:Plot x:Name="dftPlot" Grid.Row="3" Margin="0,0,10,0"
-                         UnitX="Hz" UnitY="%"
+                         UnitX="" UnitY=""
                          DataContext="{Binding DftData.Data}"/>
 
         <signalplot:Plot x:Name="pitchPlot" Grid.Row="4" UnitX="s" UnitY="Hz" DataContext="{Binding Signal.PitchPlotData}" Margin="0,0,10,0"
