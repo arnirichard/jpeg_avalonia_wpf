@@ -18,6 +18,11 @@ namespace SignalPlot
             Start = start; 
             End = end;
         }
+
+        public bool IsWithinRange(float val)
+        {
+            return val >= Start && val <= End;
+        }
     }
 
     public struct IntRange

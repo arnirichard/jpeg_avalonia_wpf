@@ -96,7 +96,7 @@
         </StackPanel>
         
         <signalplot:Plot x:Name="dftPlot" Grid.Row="3" Margin="0,0,10,0"
-                         UnitX="" UnitY=""
+                         UnitX="" UnitY="" DefaultXEnd="20"
                          DataContext="{Binding DftData.Data}"/>
 
         <signalplot:Plot x:Name="pitchPlot" Grid.Row="4" UnitX="s" UnitY="Hz" DataContext="{Binding Signal.PitchPlotData}" Margin="0,0,10,0"

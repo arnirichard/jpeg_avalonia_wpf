@@ -116,6 +116,7 @@ namespace SignalPlot
 
         public string? UnitX { get; set; }
         public string? UnitY { get; set; }
+        public float? DefaultXEnd { get; set; }
 
         public readonly List<LinesDefinition> VerticalLines = new();
         public readonly List<LinesDefinition> HorizontalLines = new();
@@ -198,7 +199,9 @@ namespace SignalPlot
         {
             if (DataContext is PlotData plotData)
             {
-                XRange = plotData.XRange;
+                XRange = DefaultXEnd != null && plotData.XRange.IsWithinRange(DefaultXEnd.Value)
+                    ? new FloatRange(plotData.XRange.Start, DefaultXEnd.Value)
+                    : plotData.XRange;
                 SelectedInterval = null;
                 AbsPeak = plotData.AbsPeak;
                 UpdateValues();
