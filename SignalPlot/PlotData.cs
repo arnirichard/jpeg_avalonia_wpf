@@ -24,7 +24,7 @@ namespace SignalPlot
     public class PlotData
     {
         public float[] Y { get; }
-        public FloatRange YRange { get; }
+        public FloatRange YRange { get; private set; }
         public FloatRange XRange { get; }
         public float AbsPeak { get; }
         public float[]? X { get; }
@@ -44,6 +44,11 @@ namespace SignalPlot
         public PlotData Clone()
         {
             return new PlotData(Y, YRange, XRange, X);
+        }
+
+        public void SetYRange(FloatRange yRange)
+        {
+            YRange = yRange;
         }
 
         internal DataPoint? GetDataPoint(float x, float tolerance)

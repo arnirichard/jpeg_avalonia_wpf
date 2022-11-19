@@ -49,7 +49,6 @@ namespace DAW.Utils
             float[] pitch = new float[pitchTracker.TotalSamples];
             int lastIndex = int.MinValue;
             float lastFreq = 0;
-            //float freq;
             float delta, ratio;
             float pi;
             float minPitch = float.MaxValue;

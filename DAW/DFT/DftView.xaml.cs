@@ -1,4 +1,5 @@
 ﻿using DAW.PitchDetector;
+using DAW.Tasks;
 using DAW.Utils;
 using PitchDetector;
 using SignalPlot;
@@ -27,6 +28,8 @@ namespace DAW.DFT
     /// </summary>
     public partial class DftView : UserControl
     {
+        JobHandler setBinHandler = new JobHandler(1);
+
         public DftView()
         {
             InitializeComponent();
@@ -55,6 +58,15 @@ namespace DAW.DFT
             dftPlot.VerticalLines.Add(new LinesDefinition(0, 1, false, Plot.Beige));
             dftPlot.HorizontalLines.Add(new LinesDefinition(0, 10, false, Plot.Beige));
 
+            dftBinPlot.VerticalLines.AddRange(verticalLines);
+            dftBinPlot.HorizontalLines.AddRange(new List<LinesDefinition>()
+            {
+                new LinesDefinition(0, 0.5f, false, Plot.Beige, 40),
+                new LinesDefinition(0, 0.1f, false, Plot.Beige, 40),
+                new LinesDefinition(0, 0.01f, false, Plot.Beige, 30),
+                new LinesDefinition(0, 0.001f, false, Plot.Beige, 30),
+            });
+
             var pd = DependencyPropertyDescriptor.FromProperty(Plot.CurrentDataPointProperty, typeof(Plot));
             pd.AddValueChanged(pitchPlot, OnCurrentValueChanged);
 
@@ -76,6 +88,35 @@ namespace DAW.DFT
             //{
             //    pow += dft[i].Power;
             //}
+            for (int i = 0; i < 20; i++)
+                binCombo.Items.Add(new ComboBoxItem()
+                {
+                    Content = "Bin "+i
+                });
+        }
+
+        private void self_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            
+        }
+
+        private void binCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (DataContext is DftViewModel dvm &&
+                dvm.Signal != null)
+            {
+                SetDftBins(dvm.Signal);
+            }
+        }
+
+        void SetDftBins(SignalViewModel signalViewModel)
+        {
+            int bin = binCombo.SelectedIndex;
+
+            setBinHandler.AddJob(delegate
+            {
+                signalViewModel.SetDftBinData(bin);
+            });
         }
 
 
@@ -106,7 +147,8 @@ namespace DAW.DFT
                 signalPlot?.DataContext is PlotData plotData &&
                 period != null)
             {
-                XY[] dft = Dft.CalcDft(plotData.Y, signalPlot.CurrentDataPoint.Index, period.Value);
+                int index = Math.Max(0, signalPlot.CurrentDataPoint.Index - period.Value);
+                XY[] dft = Dft.CalcDft(plotData.Y, index, period.Value);
                 var dftData = new DftDataViewModel(dft, dvm.Signal.Format.SampleRate, period.Value);
                 dvm.SetDftData(dftData);
                 spl.Text = Decibel.AvgPowerToSQL(dftData.AvgSamplePower).ToString("N1") + " SPL";
@@ -154,12 +196,36 @@ namespace DAW.DFT
 
         private void Play_Click(object sender, RoutedEventArgs e)
         {
-
+            if (DataContext is DftViewModel vm &&
+                vm.Signal?.SignalPlotData?.Y.Length > 0)
+            {
+                vm.Player?.Play(vm.Signal.SignalPlotData.Y, vm.Signal.Format.SampleRate);
+            }
         }
 
         private void PlaySelected_Click(object sender, RoutedEventArgs e)
         {
+            if (DataContext is DftViewModel vm &&
+                vm.Signal?.SignalPlotData?.Y.Length > 0 &&
+                signalPlot.SelectedInterval != null)
+            {
+                int fromIndex = Math.Min(signalPlot.SelectedInterval.Value.Start, signalPlot.SelectedInterval.Value.End);
+                int length = Math.Abs(signalPlot.SelectedInterval.Value.Length);
 
+                if (fromIndex >= 0 && fromIndex + length <= vm.Signal.SignalPlotData.Y.Length)
+                {
+                    vm.Player?.Play(vm.Signal.SignalPlotData.Y, vm.Signal.Format.SampleRate);
+                }
+            }
+        }
+
+        private void signalPlot_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (DataContext is DftViewModel dvm &&
+                dvm.Signal != null)
+            {
+                SetDftBins(dvm.Signal);
+            }
         }
     }
 }

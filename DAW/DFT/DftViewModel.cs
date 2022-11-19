@@ -19,10 +19,7 @@ namespace DAW.DFT
 
         public DftDataViewModel? DftData { get;     private set; }
 
-        public DftViewModel()
-        {
-            
-        }
+        public DftViewModel() {}
 
         public void SetDftData(DftDataViewModel? dftData)
         {

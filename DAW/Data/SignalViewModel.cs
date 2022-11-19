@@ -19,6 +19,8 @@ namespace DAW.PitchDetector
         public PlotData SignalPlotData { get; private set; }
         public PlotData? PitchPlotData { get; private set; }
         public PlotData? PitchDetailData { get; private set; }
+        public PlotData? BinDetailData { get; private set; }
+
         public WaveFormat Format { get; private set; }
         public bool IsRecording { get; private set; }
         public int? Samples => SignalPlotData?.Y.Length;
@@ -26,6 +28,8 @@ namespace DAW.PitchDetector
         public double? Duration => Samples.HasValue && Format != null 
             ? Samples.Value / (double)Format.SampleRate
             : null;
+        PlotData[]? dftBinData;
+        public IPlayer? Player;
 
         public SignalViewModel(FileInfo file, WaveFormat waveFormat, PlotData signalPlotData)
         {
@@ -51,6 +55,60 @@ namespace DAW.PitchDetector
                 new FloatRange(y.Min() - 5, y.Max() + 5),
                 new FloatRange(0, pitchTracker.TotalSamples / (float)pitchTracker.SampleRate),
                 x, pitchTracker.Data.PeriodFits.ToArray());
+        }
+
+        public void SetDftBinData(int bin)
+        {
+            if(PitchDetailData?.Data != null)
+            {
+                if (dftBinData == null)
+                    dftBinData = CreateDFTs(PitchDetailData);
+
+                BinDetailData = bin >= 0 && bin < dftBinData.Length
+                    ? dftBinData[bin]
+                    : null;
+
+                OnPropertyChanged("BinDetailData");
+            }
+        }
+
+        private PlotData[] CreateDFTs(PlotData pitchDetailData)
+        {
+            PlotData[] result = new PlotData[20];
+            for(int i = 0; i < result.Length; i++)
+            {
+                result[i] = new PlotData(new float[pitchDetailData.Y.Length],
+                    new FloatRange(0, 1), SignalPlotData.XRange, pitchDetailData.X);
+            }
+            float[] max = new float[result.Length];
+
+            int index, ind2;
+            float val;
+            if(pitchDetailData.Data != null)
+                for (int i = 0; i < pitchDetailData.Data.Length; i++)
+                {
+                    if (pitchDetailData.Data[i] is PeriodFit pf)
+                    {
+                        index = Math.Max(0, pf.Sample - pf.Period);
+                        XY[] dft = Dft.CalcDft(SignalPlotData.Y, index, pf.Period);
+                        if(dft.Length > 0)
+                        {
+                            result[0].Y[i] = Math.Abs(dft[0].X)/ pf.Period;
+                            ind2 = Math.Min(result.Length, dft.Length);
+                            for (int j = 1; j  < ind2; j++)
+                            {
+                                val = result[j].Y[i] = 2 *  dft[j].Abs/ pf.Period;
+                                if(val > max[j])
+                                    max[j] = val;
+                            }
+                        }
+                    }
+                }
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i].SetYRange(new FloatRange(0, max[i]*1.1f));
+            }
+            return result;
         }
 
         public void SetWaveFormat(WaveFormat waveFormat)

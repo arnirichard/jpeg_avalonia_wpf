@@ -20,6 +20,7 @@ namespace PitchDetector
         public int SampleRate;
         public float Pitch;
         public float AvgPower;
+        
 
         public double RelativeIncrease => SumS2 > 0 ? SumS1 / SumS2 : 1;
         public double SameSignRatio => Count > 0 ? CountSameSign / (double)Count : int.MaxValue;
