@@ -42,6 +42,16 @@ namespace DAW.Recorder
             }
         }
 
+        private void StopPlaying_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement fe &&
+                fe.DataContext is SignalViewModel vm &&
+                DataContext is RecorderViewModel rvm)
+            {
+                rvm.Player?.Stop();
+            }
+        }
+
         private void PlaySelected_Click(object sender, RoutedEventArgs e)
         {
             if (sender is FrameworkElement fe && 
@@ -82,7 +92,11 @@ namespace DAW.Recorder
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.Enter && DataContext is RecorderViewModel vm &&
+            var vm = DataContext as RecorderViewModel;
+
+            
+            if (e.Key == Key.Enter &&
+                vm != null &&
                 !string.IsNullOrEmpty(vm.Folder) && 
                 Directory.Exists(vm.Folder))
             {

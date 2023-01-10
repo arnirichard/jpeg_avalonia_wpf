@@ -46,10 +46,16 @@ namespace DAW.DFT
 
             if (TotalPower > 0)
             {
-                float[] perc = power.Select(p => p / TotalPower * 100).ToArray();
+                double amp = Math.Sqrt(TotalPower);
+                float[] perc = power.Select(p => (float) Math.Log10(Math.Sqrt(p) / amp)).ToArray();
+
+                float maxPerc = perc.Max();
+                for (int i = 0; i < perc.Length; i++)
+                    perc[i] -= maxPerc;
+                //maxPerc = (float)(Math.Ceiling(maxPerc / 10) * 10);
 
                 Data = new PlotData(perc,
-                    new FloatRange(0, perc.Max()),
+                    new FloatRange(Math.Max(-3, perc.Min()), perc.Max()),
                     new FloatRange(0, power.Length));
 
                 for(int i = 2; i < power.Length; i+=2)
@@ -58,6 +64,27 @@ namespace DAW.DFT
                 }
                 EvenPerc = EvenPower / TotalPower;
             }
+        }
+
+        public double[] GetNormalisedAmps(int length)
+        {
+            double[] result = new double[length];
+            double v;
+            double maxValue = -5;
+            for(int i = 0; i < length; i++)
+            {
+                result[i] = v = Data!.Y[i];
+                if(v > maxValue)
+                {
+                    maxValue = v;
+                }
+            }
+            for (int i = 0; i < length; i++)
+            {
+                result[i] -= maxValue;
+            }
+
+            return result;
         }
 
         public float GetPower(IntRange range)

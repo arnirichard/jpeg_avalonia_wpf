@@ -19,6 +19,7 @@ namespace DAW.Utils
 
         public float Power => X * X + Y * Y;
         public float Abs => (float)Math.Sqrt(Power);
+        public double Phase => Math.Atan2(-Y, X);
 
         public XY Inverse => new XY() { X = X, Y = -Y };
 

@@ -21,10 +21,11 @@ namespace DAW.Recorder
         RecorderView? view;
         RecorderViewModel? viewModel;
         IPlayer? player;
+        string? folder;
 
         public UserControl UserInterface => view ?? (view = new RecorderView() 
         {
-            DataContext = viewModel = new RecorderViewModel(player) 
+            DataContext = viewModel = new RecorderViewModel(player) { Folder= folder }
         });
 
         public RecorderModule() 
@@ -45,7 +46,9 @@ namespace DAW.Recorder
 
         public void SetFolder(string folder)
         {
-            if(viewModel!= null)
+            this.folder = folder;
+
+            if (viewModel!= null)
                 viewModel.Folder = folder;
         }
 

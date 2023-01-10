@@ -10,5 +10,6 @@ namespace DAW.Utils
     public interface IPlayer
     {
         void Play(float[] floats, int sampleRate, IntRange? range = null);
+        void Stop();
     }
 }

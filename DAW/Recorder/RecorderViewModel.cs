@@ -100,10 +100,12 @@ namespace DAW.Recorder
 
                         if (recordingIndex + samples.Length > recData.SignalPlotData.Y.Length)
                         {
-                            plotData = new PlotData(new float[recData.SignalPlotData.Y.Length + 5 * recData.Format.SampleRate], 
+                            int newLength = recData.SignalPlotData.Y.Length + 5 * recData.Format.SampleRate;
+                            plotData = new PlotData(new float[newLength], 
                                     new FloatRange(-1, 1), 
-                                    new FloatRange(0, 5));
+                                    new FloatRange(0, newLength/ (float)recData.Format.SampleRate));
                             Array.Copy(recData.SignalPlotData.Y, plotData.Y, recordingIndex);
+                            recData.SignalChanged(plotData);
                         }
 
                         Array.Copy(samples, 0, recData.SignalPlotData.Y, recordingIndex, samples.Length);
@@ -117,7 +119,7 @@ namespace DAW.Recorder
                     }
                 }
             }
-            catch 
+            catch (Exception ex)
             {
                 StopRecording();
             }
@@ -134,13 +136,13 @@ namespace DAW.Recorder
                     AudioData? audioData = AudioData.ReadSamples(filename);
                     if (audioData != null)
                     {
-                        PitchTracker pitchTracker = new PitchTracker(audioData.Format.SampleRate / 300, audioData.Format.SampleRate / 80, audioData.Format.SampleRate);
-                        float[] samples = audioData.ChannelData[0];
+                        //PitchTracker pitchTracker = new PitchTracker(audioData.Format.SampleRate / 300, audioData.Format.SampleRate / 80, audioData.Format.SampleRate);
+                        //float[] samples = audioData.ChannelData[0];
 
-                        for (int i = 0; i < samples.Length; i++)
-                        {
-                            pitchTracker.AddSample(samples[i]);
-                        }
+                        //for (int i = 0; i < samples.Length; i++)
+                        //{
+                        //    pitchTracker.AddSample(samples[i]);
+                        //}
 
                         SignalViewModel vs = new SignalViewModel(new FileInfo(filename), audioData.Format,
                             new PlotData(audioData!.ChannelData[0], 

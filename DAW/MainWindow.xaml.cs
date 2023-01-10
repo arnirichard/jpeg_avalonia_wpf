@@ -1,4 +1,5 @@
-﻿using DAW.Utils;
+﻿using DAW.Transcription;
+using DAW.Utils;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -29,11 +30,13 @@ namespace DAW
             {
                 viewModel.Deactivate();
             };
+            PhonemeModel.Models.AddRange(LoadPhoneModels.Load());
         }
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.Forms.FolderBrowserDialog openFileDlg = new System.Windows.Forms.FolderBrowserDialog();
+
             var result = openFileDlg.ShowDialog();
             if (result.ToString() != string.Empty)
             {

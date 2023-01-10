@@ -12,6 +12,11 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
         <StackPanel Orientation="Vertical">
 
             <Border Background="LightBlue">
@@ -55,17 +60,17 @@
                 <TextBlock>Files</TextBlock>
             </Border>
             
-            <ListBox x:Name="fileList"
-            Grid.Row="3"
+        </StackPanel>
+
+        <ListBox x:Name="fileList" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto"
                  ItemsSource="{Binding Files}" 
                  SelectionChanged="Files_SelectionChanged">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </StackPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" FontSize="18"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
 
         <ContentPresenter x:Name="contentPresenter" Grid.Column="1" Grid.RowSpan="10"
                           Content="{Binding UserInterface}" />

@@ -45,16 +45,17 @@
             </ItemsControl.Template>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid Height="60" Margin="0,2">
+                    <Grid Height="80" Margin="0,2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="170"/>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="{Binding File.Name}" TextWrapping="Wrap" Margin="10,0" FontSize="16"/>
+                            <TextBlock Text="{Binding File.Name}" TextWrapping="Wrap" Margin="10,0" FontSize="20"/>
                             <TextBlock Text="{Binding Duration, StringFormat=' {0:0.000}s'}"  Margin="10,0"/>
                             <TextBlock Text="{Binding Format.SampleRate}"  Margin="10,0"/>
+                            <TextBlock Text="{Binding ElementName=signalPlot, Path=XRange}"  Margin="10,0"/>
                         </StackPanel>
                         
                         <signalplot:Plot x:Name="signalPlot" Grid.Column="1" UnitX="s" DataContext="{Binding SignalPlotData}" />
@@ -71,6 +72,10 @@
 
                             <Button Height="25" Margin="3" Click="PlaySelected_Click" Background="White">
                                 <iconPacks:PackIconMaterial  Kind="Play" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
+                            </Button>
+
+                            <Button Height="25" Margin="3" Click="StopPlaying_Click" Background="White">
+                                <iconPacks:PackIconMaterial  Kind="Stop" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
                             </Button>
 
                             <Button Height="25" Margin="3" Click="Record_Click" Background="White">

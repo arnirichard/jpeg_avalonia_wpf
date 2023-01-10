@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,13 +22,13 @@ namespace DAW
 {
     class AudioDevice
     {
-        public MMDevice Device { get; private set; }
+        public MMDevice? Device { get; private set; }
         public string Name { get; }
 
-        public AudioDevice(MMDevice device)
+        public AudioDevice(MMDevice? device, string? name = null)
         {
             Device = device;
-            Name = device.ToString();
+            Name = device?.ToString() ?? name ?? "";
         }
 
         public override string ToString()
@@ -46,6 +48,8 @@ namespace DAW
         JobHandler recordingHandler = new JobHandler(1);
         MMDeviceEnumerator? deviceEnumerator;
         public string? LastFileName;
+        IWavePlayer? playing;
+        WasapiLoopbackCapture? systemCapture;
 
         public MainWindowViewModel(IEnumerable<IModule> modules)
         {
@@ -116,7 +120,7 @@ namespace DAW
             {
                 if (value != selectedModule)
                 {
-                    selectedModule?.Deactivate();
+                    //selectedModule?.Deactivate();
                     selectedModule = value;
                     if(LastFileName != null && selectedModule != null)
                         selectedModule.SetFile(LastFileName);
@@ -130,7 +134,9 @@ namespace DAW
 
         public void Play(float[] samples, int sampleRate, IntRange? range)
         {
-            if(playbackDevice != null)
+            Stop();
+
+            if (playbackDevice != null)
             {
                 IWaveProvider provider = new RawSourceWaveStream(
                     new MemoryStream(PlayFloats.Get32BitSamplesWaveData(samples, range)),
@@ -139,7 +145,13 @@ namespace DAW
                 WasapiOut wasapiOut = new WasapiOut(playbackDevice.Device, AudioClientShareMode.Shared, false, 0);
                 wasapiOut.Init(provider);
                 wasapiOut.Play();
+                playing = wasapiOut;
             }
+        }
+
+        public void Stop()
+        {
+            playing?.Stop();
         }
 
         void SetDevices()
@@ -151,6 +163,7 @@ namespace DAW
                 PlaybackDevices.Add(new AudioDevice(d));
             foreach (var d in deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active))
                 CaptureDevices.Add(new AudioDevice(d));
+            CaptureDevices.Add(new AudioDevice(null, "SystemCapture"));
 
             if (playbackDevice == null || !PlaybackDevices.Any(d => d.Device.ID == playbackDevice.Device.ID))
             {
@@ -174,6 +187,12 @@ namespace DAW
             if (captureDevice == null)
                 return;
 
+            if(captureDevice.Device == null)
+            {
+                StartSystemCapture();
+                return;
+            }
+
             try
             {
                 capture = new WasapiCapture(captureDevice.Device);
@@ -188,6 +207,33 @@ namespace DAW
             }
         }
 
+        WaveFileWriter waveFileWriter;
+
+        void StartSystemCapture()
+        {
+            string Name = string.Format(@"C:\Temp\dump.wav");
+
+            systemCapture = new WasapiLoopbackCapture();
+
+            waveFileWriter = new WaveFileWriter(Name, systemCapture.WaveFormat);
+            
+            systemCapture.DataAvailable += (s, capData) => waveFileWriter.Write(capData.Buffer, 0, capData.BytesRecorded);
+            systemCapture.StartRecording();
+            
+
+            //try
+            //{
+            //    systemCapture = new WasapiLoopbackCapture();
+            //    captureFormat = systemCapture.WaveFormat;
+            //    systemCapture.DataAvailable += CaptureOnDataAvailable;
+            //    systemCapture.StartRecording();
+            //}
+            //catch (Exception ex)
+            //{
+            //    System.Windows.MessageBox.Show(ex.Message);
+            //}
+        }
+
         void StopCapture()
         {
             if (capture != null)
@@ -195,6 +241,14 @@ namespace DAW
                 capture.StopRecording();
                 capture.DataAvailable -= CaptureOnDataAvailable;
                 capture = null;
+            }
+
+            if(systemCapture != null)
+            {
+                waveFileWriter?.Close();
+                systemCapture.StopRecording();
+                systemCapture.DataAvailable -= CaptureOnDataAvailable;
+                systemCapture = null;
             }
         }
 

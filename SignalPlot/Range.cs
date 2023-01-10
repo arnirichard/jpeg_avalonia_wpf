@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,11 @@ namespace SignalPlot
         {
             return val >= Start && val <= End;
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0}-{1}", Start.ToString(), End.ToString());
+        }
     }
 
     public struct IntRange
@@ -40,6 +46,16 @@ namespace SignalPlot
         {
             Start = start;
             End = start+length;
+        }
+
+        public override bool Equals([NotNullWhen(true)] object? obj)
+        {
+            IntRange? range = obj as IntRange?;
+            if(range != null)
+            {
+                return Start == range!.Value.Start && End == range!.Value.End;
+            }
+            return false;
         }
 
         public override string ToString()

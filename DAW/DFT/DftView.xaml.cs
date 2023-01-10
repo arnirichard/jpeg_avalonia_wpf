@@ -1,5 +1,7 @@
 ﻿using DAW.PitchDetector;
+using DAW.Recorder;
 using DAW.Tasks;
+using DAW.Transcription;
 using DAW.Utils;
 using PitchDetector;
 using SignalPlot;
@@ -29,6 +31,7 @@ namespace DAW.DFT
     public partial class DftView : UserControl
     {
         JobHandler setBinHandler = new JobHandler(1);
+        IntRange? selectedInterval;
 
         public DftView()
         {
@@ -47,7 +50,15 @@ namespace DAW.DFT
             signalPlot.VerticalLines.AddRange(verticalLines);
             signalPlot.HorizontalLines.AddRange(new List<LinesDefinition>()
             {
-                new LinesDefinition(0, 0.5f, false, Plot.Beige, 40),
+                new LinesDefinition(0, 0.5f, false, Plot.Beige, 20),
+                new LinesDefinition(0, 0.1f, false, Plot.Beige, 20),
+            });
+
+            synthPlot.VerticalLines.AddRange(verticalLines);
+            synthPlot.HorizontalLines.AddRange(new List<LinesDefinition>()
+            {
+                new LinesDefinition(0, 0.5f, false, Plot.Beige, 20),
+                new LinesDefinition(0, 0.1f, false, Plot.Beige, 20),
             });
             pitchPlot.HorizontalLines.AddRange(new List<LinesDefinition>()
             {
@@ -56,15 +67,28 @@ namespace DAW.DFT
             });
 
             dftPlot.VerticalLines.Add(new LinesDefinition(0, 1, false, Plot.Beige));
-            dftPlot.HorizontalLines.Add(new LinesDefinition(0, 10, false, Plot.Beige));
+            dftPlot.HorizontalLines.AddRange(new List<LinesDefinition>()
+            {
+                new LinesDefinition(0, 10, false, Plot.Beige),
+                new LinesDefinition(0, 5, false, Plot.Beige, 10),
+                new LinesDefinition(0, 1, false, Plot.Beige, 7)
+            });
+                
 
             dftBinPlot.VerticalLines.AddRange(verticalLines);
             dftBinPlot.HorizontalLines.AddRange(new List<LinesDefinition>()
             {
-                new LinesDefinition(0, 0.5f, false, Plot.Beige, 40),
-                new LinesDefinition(0, 0.1f, false, Plot.Beige, 40),
-                new LinesDefinition(0, 0.01f, false, Plot.Beige, 30),
-                new LinesDefinition(0, 0.001f, false, Plot.Beige, 30),
+                new LinesDefinition(0, 0.5f, false, Plot.Beige, 20),
+                new LinesDefinition(0, 0.1f, false, Plot.Beige, 10),
+                new LinesDefinition(0, 0.01f, false, Plot.Beige, 10),
+                new LinesDefinition(0, 0.001f, false, Plot.Beige, 10),
+            });
+
+            dftBinPhase.VerticalLines.AddRange(verticalLines);
+            dftBinPhase.HorizontalLines.AddRange(new List<LinesDefinition>()
+            {
+                new LinesDefinition(0, (float)Math.PI/4f, false, Plot.Beige, 15),
+                new LinesDefinition(0, (float)Math.PI/2f, false, Plot.Beige, 20),
             });
 
             var pd = DependencyPropertyDescriptor.FromProperty(Plot.CurrentDataPointProperty, typeof(Plot));
@@ -76,23 +100,12 @@ namespace DAW.DFT
             var pd3 = DependencyPropertyDescriptor.FromProperty(Plot.IntervalProperty, typeof(Plot));
             pd3.AddValueChanged(dftPlot, OnDftXRangeChanged);
 
-            //float[] signal = new float[8];
-
-            //for (int i = 0; i < signal.Length; i++)
-            //    signal[i] = (float)Math.Sin(2 * Math.PI * i / signal.Length);
-
-            //XY[] dft = Dft.CalcDft(signal, 0, signal.Length);
-
-            //double pow = 0;
-            //for (int i = 0; i < dft.Length; i++)
-            //{
-            //    pow += dft[i].Power;
-            //}
             for (int i = 0; i < 20; i++)
                 binCombo.Items.Add(new ComboBoxItem()
                 {
-                    Content = "Bin "+i
+                    Content = "Harmonic "+i
                 });
+            binCombo.SelectedIndex = 1;
         }
 
         private void self_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -130,8 +143,28 @@ namespace DAW.DFT
             }
         }
 
+        private void calcDftState_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is DftViewModel dvm &&
+                dvm.Signal?.PitchDetailData != null &&
+                signalPlot.SelectedInterval != null)
+            {
+                string str = CalcDftStat.CalcStats(signalPlot.SelectedInterval, 
+                    dvm.Signal.SignalPlotData, dvm.Signal.PitchDetailData,
+                    dvm.Signal.Format.SampleRate);
+                
+                Clipboard.SetText(str);
+            }
+        }
+
+
         private void OnCurrentValueChanged(object? sender, EventArgs e)
         {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                return;
+            }
+
             float? val = pitchPlot.CurrentDataPoint?.Y;
             int? period = val > 0 && DataContext is DftViewModel vm && vm.Signal?.Format != null
                     ? ((int)Math.Round(vm.Signal.Format.SampleRate / (float)val))
@@ -140,7 +173,7 @@ namespace DAW.DFT
                     ? "Period: " + period
                     : "";
 
-            if(signalPlot.SelectedInterval == null &&
+            if (signalPlot.SelectedInterval == null &&
                 signalPlot.CurrentDataPoint != null &&
                 DataContext is DftViewModel dvm &&
                 dvm.Signal != null &&
@@ -152,37 +185,57 @@ namespace DAW.DFT
                 var dftData = new DftDataViewModel(dft, dvm.Signal.Format.SampleRate, period.Value);
                 dvm.SetDftData(dftData);
                 spl.Text = Decibel.AvgPowerToSQL(dftData.AvgSamplePower).ToString("N1") + " SPL";
+                string phonemeStr = "";
+                double[] norm = dftData.GetNormalisedAmps(30);
+                double prop, currentProp = double.NegativeInfinity;
+
+                foreach (var m in PhonemeModel.Models)
+                {
+                    prop = m.CalcProp(norm);
+                    if (prop > currentProp)
+                    {
+                        currentProp = prop;
+                        phonemeStr = m.SourceName + " " + prop;
+                    }
+                }
+                phoneme.Text = phonemeStr;
             }
         }
 
         private void OnSelectedXRangeChanged(object? sender, EventArgs e)
         {
-            if(signalPlot.DataContext is PlotData plotData &&
+            //if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            //{
+            //    return;
+            //}
+
+            if (signalPlot.DataContext is PlotData plotData &&
                 DataContext is DftViewModel dvm &&
                 dvm.Signal != null &&
                 signalPlot.SelectedInterval?.Length > 4)
             {
-                XY[] dft = Dft.CalcDft(plotData.Y, signalPlot.SelectedInterval.Value.Start, signalPlot.SelectedInterval.Value.Length);
+                var interval = selectedInterval = signalPlot.SelectedInterval;
 
-                //int start = signalPlot.SelectedInterval.Value.Start;
-                //int length = signalPlot.SelectedInterval.Value.End;
-                //double pow = 0;
-                //double avg = 0;
-                //for(int i = start; i < length; i++)
-                //{
-                //    pow += Math.Pow(plotData.Y[i], 2);
-                //    avg += plotData.Y[i];
-                //}
-                
-                //int l = signalPlot.SelectedInterval.Value.Length;
-                //pow /= l;
-                //double p = dft.Sum(d => d.Power) / l / l;
+                setBinHandler.AddJob(delegate
+                {
+                    if (!interval.Equals(selectedInterval))
+                        return;
+                    XY[] dft = Dft.CalcDft(plotData.Y, interval.Value.Start, interval.Value.Length);
+                    if (!interval.Equals(selectedInterval))
+                        return;
+                    var dftData = new DftDataViewModel(dft, dvm.Signal.Format.SampleRate, interval.Value.Length);
+                    dvm.SetDftData(dftData);
 
-                var dftData = new DftDataViewModel(dft, dvm.Signal.Format.SampleRate, signalPlot.SelectedInterval.Value.Length);
-                dvm.SetDftData(dftData);
-                spl.Text = Decibel.AvgPowerToSQL(dftData.AvgSamplePower).ToString("N1")+" SPL";
+                    Application.Current.Dispatcher.Invoke(new Action(() => 
+                    {
+                        if (!interval.Equals(selectedInterval))
+                            return;
+                        spl.Text = Decibel.AvgPowerToSQL(dftData.AvgSamplePower).ToString("N1") + " SPL";
+                    }));
+                    
+                });
             }
-            else if(DataContext is DftViewModel dvm2)
+            else if (DataContext is DftViewModel dvm2)
             {
                 dvm2.SetDftData(null);
             }
@@ -203,6 +256,15 @@ namespace DAW.DFT
             }
         }
 
+        private void Play_Synth(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is DftViewModel vm &&
+                vm.Signal?.SynthData?.Y.Length > 0)
+            {
+                vm.Player?.Play(vm.Signal.SynthData.Y, vm.Signal.Format.SampleRate);
+            }
+        }
+
         private void PlaySelected_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is DftViewModel vm &&
@@ -214,7 +276,40 @@ namespace DAW.DFT
 
                 if (fromIndex >= 0 && fromIndex + length <= vm.Signal.SignalPlotData.Y.Length)
                 {
-                    vm.Player?.Play(vm.Signal.SignalPlotData.Y, vm.Signal.Format.SampleRate);
+                    vm.Player?.Play(vm.Signal.SignalPlotData.Y, vm.Signal.Format.SampleRate, signalPlot.SelectedInterval);
+                }
+            }
+        }
+
+        private void PlaySelectedRepeat_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is DftViewModel vm &&
+                vm.Signal?.SignalPlotData?.Y.Length > 0 &&
+                signalPlot.SelectedInterval != null)
+            {
+                int fromIndex = Math.Min(signalPlot.SelectedInterval.Value.Start, signalPlot.SelectedInterval.Value.End);
+                int length = Math.Abs(signalPlot.SelectedInterval.Value.Length);
+
+                if (fromIndex >= 0 && fromIndex + length <= vm.Signal.SignalPlotData.Y.Length)
+                {
+                    int desiredLength = vm.Signal.Format.SampleRate * 5;
+                    if (length >= desiredLength)
+                        vm.Player?.Play(vm.Signal.SignalPlotData.Y, vm.Signal.Format.SampleRate, signalPlot.SelectedInterval);
+                    else
+                    {
+                        float[] samples = new float[desiredLength];
+
+                        int index = 0;
+                        int copyLength;
+
+                        while (index < samples.Length)
+                        {
+                            copyLength = Math.Min(length, samples.Length-index);
+                            Array.Copy(vm.Signal.SignalPlotData.Y, fromIndex, samples, index, copyLength);
+                            index += copyLength;
+                        }
+                        vm.Player?.Play(samples, vm.Signal.Format.SampleRate);
+                    }
                 }
             }
         }
@@ -225,6 +320,65 @@ namespace DAW.DFT
                 dvm.Signal != null)
             {
                 SetDftBins(dvm.Signal);
+            }
+        }
+
+        private void copyAmplitudes(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is DftViewModel dvm &&
+                dvm.DftData?.Data != null)
+            {
+                var y = dvm.DftData.Data?.Y;
+
+                if(y != null)
+                {
+                    var str = string.Join("\n", y.ToList().GetRange(0, Math.Min(30, y.Length)).Select(y => y.ToString()));
+                    Clipboard.SetText(str);
+                }
+            }
+        }
+
+        private void PlayDftRepeat_Click(object sender, RoutedEventArgs e)
+        {
+            float? val = pitchPlot.CurrentDataPoint?.Y;
+            int? period = val > 0 && DataContext is DftViewModel vm && vm.Signal?.Format != null
+                    ? ((int)Math.Round(vm.Signal.Format.SampleRate / (float)val))
+                    : null;
+
+            if (signalPlot.SelectedInterval == null &&
+                    signalPlot.CurrentDataPoint != null &&
+                    DataContext is DftViewModel dvm &&
+                    dvm.Signal != null &&
+                    signalPlot?.DataContext is PlotData plotData &&
+                    period != null)
+            {
+                int index = Math.Max(0, signalPlot.CurrentDataPoint.Index - period.Value);
+                float[] periodSignal = new float[period.Value];
+                Array.Copy(plotData.Y, index, periodSignal, 0, period.Value);
+
+                string str = string.Join('\n', periodSignal);
+                Clipboard.SetText(str);
+
+                periodSignal = periodSignal.Extrapolate(dvm.Signal.Format.SampleRate / period.Value*2);
+
+                dvm.Player?.Play(periodSignal, dvm.Signal.Format.SampleRate);
+            }
+        }
+
+        private void copyEnvelope(object sender, RoutedEventArgs e)
+        {
+            if(dftBinPlot.DataContext is PlotData pd)
+            {
+                MyClipboard.Object = pd;
+            }
+        }
+
+        private void StopPlaying_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement fe &&
+                fe.DataContext is DftViewModel vm)
+            {
+                vm.Player?.Stop();
             }
         }
     }

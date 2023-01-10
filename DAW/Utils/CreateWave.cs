@@ -17,6 +17,17 @@ namespace DAW.Utils
 
         public static void WriteSingleChannelWave(string filepath, WaveFormat waveFormat, float[] samples)
         {
+            if(waveFormat.Channels > 1)
+            {
+                waveFormat = WaveFormat.CreateCustomFormat(
+                    waveFormat.Encoding,
+                    waveFormat.SampleRate,
+                    1,
+                    waveFormat.AverageBytesPerSecond / waveFormat.Channels,
+                    waveFormat.BlockAlign / waveFormat.Channels,
+                    waveFormat.BitsPerSample);
+            }
+
             using (var writer = new WaveFileWriter(filepath, waveFormat))
             {
                 writer.WriteSamples(samples, 0, samples.Length);

@@ -105,7 +105,7 @@ namespace DAW.Utils
             }
 
             return new PlotData(pitch,
-                new FloatRange(80, 300),
+                new FloatRange(minPitch-10, maxPitch+10),
                 new FloatRange(0, pitch.Length / (float)pitchTracker.SampleRate));
         }
     }

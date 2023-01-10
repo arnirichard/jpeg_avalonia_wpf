@@ -19,8 +19,12 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -31,11 +35,12 @@
                 <ColumnDefinition Width="Auto" MaxWidth="200"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto" MinWidth="200"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Orientation="Vertical" Margin="50,0" MinHeight="100">
                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <TextBlock Text="{Binding File.Name}" />
+                    <TextBlock Text="{Binding Signal.File.Name}" />
                     <TextBlock Margin="5,0" Text="{Binding Signal.Samples, StringFormat='Samples {0}'}"/>
                     <TextBlock Margin="5,0" Text="{Binding Signal.Duration, StringFormat='Duration {0:0.000}s'}"/>
                     <TextBlock Margin="5,0" Text="{Binding Signal.Format.SampleRate, StringFormat='SampleRate {0}'}"/>
@@ -83,38 +88,80 @@
                 <Button Height="25" Margin="3" Click="PlaySelected_Click" Background="White">
                     <iconPacks:PackIconMaterial  Kind="Play" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
                 </Button>
+                <Button Height="25" Margin="3" Click="PlaySelectedRepeat_Click" Background="White">
+                    <iconPacks:PackIconMaterial  Kind="Repeat" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
+                </Button>
+                <Button Height="25" Margin="3" Click="StopPlaying_Click" Background="White">
+                    <iconPacks:PackIconMaterial  Kind="Stop" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
+                </Button>
+                <Button Click="calcDftState_Click" >Calc DFT stats</Button>
             </WrapPanel>
-
         </Grid>
 
-        <signalplot:Plot x:Name="signalPlot" Grid.Row="1" UnitX="s" DataContext="{Binding Signal.SignalPlotData}" Margin="0,0,10,0"
-                         DataContextChanged="signalPlot_DataContextChanged"/>
+        <signalplot:Plot x:Name="signalPlot" Grid.Row="1" UnitX="s" 
+                DataContext="{Binding Signal.SignalPlotData}" Margin="0,0,10,0"
+                DataContextChanged="signalPlot_DataContextChanged"/>
 
-        <WrapPanel Grid.Row="2" Orientation="Horizontal">
-            <TextBlock Text="{Binding DftData.EvenPerc, StringFormat='EvenPerc {0:0.000}'}"
-                Margin="10,0" />
-            <TextBlock Text="{Binding DftData.F0, StringFormat='F0 {0:0.0}Hz'}"
-                Margin="10,0" />
+        <Button Grid.Row="2" Height="25" Width="25" Margin="50,0,0,0" Click="Play_Synth" Background="White">
+            <iconPacks:PackIconMaterial  Kind="Play" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
+        </Button>
+
+        <signalplot:Plot x:Name="synthPlot" Grid.Row="3" UnitX="s"
+                         DataContext="{Binding Signal.SynthData}" Margin="0,0,10,0"
+                         DoNotResetRange="True"
+                         XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
+                         SelectedXRange="{Binding ElementName=signalPlot, Path=SelectedXRange, Mode=TwoWay}"/>
+
+        <WrapPanel Grid.Row="4" Orientation="Horizontal" Margin="50,0,0,0">
+            <TextBlock Text="{Binding DftData.EvenPerc, StringFormat='EvenPerc {0:0.000}'}" Margin="10,0" />
+            <TextBlock Text="{Binding DftData.F0, StringFormat='F0 {0:0.0}Hz'}" Margin="10,0" />
             <TextBlock x:Name="powRat" Margin="10,0"/>
             <TextBlock x:Name="spl" Margin="10,0"/>
+            <TextBlock x:Name="phoneme" Margin="10,0"/>
+            <TextBlock Margin="10,0" Text="{Binding ElementName=dftPlot, Path=CurrentDataPoint.X, StringFormat='X {0}'}"/>
+            <TextBlock Margin="10,0" Text="{Binding ElementName=dftPlot, Path=CurrentDataPoint.Y, StringFormat='Value {0}'}"/>
+            <Button Click="copyAmplitudes">Copy</Button>
+            <Button Height="25" Margin="3" Click="PlayDftRepeat_Click" Background="White">
+                <iconPacks:PackIconMaterial  Kind="Repeat" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
+            </Button>
         </WrapPanel>
         
-        <signalplot:Plot x:Name="dftPlot" Grid.Row="3" Margin="0,0,10,0"
-                         UnitX="" UnitY="" DefaultXEnd="20"
+        <signalplot:Plot x:Name="dftPlot" Grid.Row="5" Margin="0,0,10,0"
+                         UnitX="" UnitY="" DefaultXEnd="40"
                          DataContext="{Binding DftData.Data}"/>
 
-        <signalplot:Plot x:Name="pitchPlot" Grid.Row="4" UnitX="s" UnitY="Hz" DataContext="{Binding Signal.PitchPlotData}" Margin="0,0,10,0"
-                         XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
-                         SelectedXRange="{Binding ElementName=signalPlot, Path=SelectedXRange, Mode=TwoWay}"
-                         CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=TwoWay}"/>
-
-        <WrapPanel Grid.Row="5" Orientation="Horizontal">
-            <ComboBox x:Name="binCombo" SelectionChanged="binCombo_SelectionChanged" Margin="50,0,0,0"/>
+        <WrapPanel Grid.Row="6" Orientation="Horizontal">
+            <TextBlock Margin="10,0"
+                               Text="Pitch"/>
         </WrapPanel>
 
-        <signalplot:Plot x:Name="dftBinPlot" Grid.Row="6" Margin="0,0,10,0"
-                         UnitX="" UnitY="" DataContext="{Binding Signal.BinDetailData}"
-                         XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"/>
+        <signalplot:Plot x:Name="pitchPlot" Grid.Row="7" UnitX="s" UnitY="Hz" 
+                         DataContext="{Binding Signal.PitchPlotData}" Margin="0,0,10,0"
+                         CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=TwoWay}"
+                         XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
+                         />
+
+        <!--XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
+                         SelectedXRange="{Binding ElementName=signalPlot, Path=SelectedXRange, Mode=OneWay}"
+                         CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=OneWay}"-->
+
+        <WrapPanel Grid.Row="8" Orientation="Horizontal">
+            <ComboBox x:Name="binCombo" SelectionChanged="binCombo_SelectionChanged" Margin="50,0,0,0"/>
+            <TextBlock Margin="10,0"
+                               Text="{Binding ElementName=dftBinPlot, Path=CurrentDataPoint.Y, StringFormat='Value {0}'}"/>
+            <Button Click="copyEnvelope">Copy</Button>
+        </WrapPanel>
+
+        <signalplot:Plot x:Name="dftBinPlot" Grid.Row="9" Margin="0,0,10,0"
+                         DoNotResetRange="True"
+                         UnitX="s" UnitY="" DataContext="{Binding Signal.BinAmp}"
+                         XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
+                         />
+
+        <signalplot:Plot x:Name="dftBinPhase" Grid.Row="10" Margin="0,0,10,0"
+                         DoNotResetRange="True"
+                         UnitX="s" UnitY="" DataContext="{Binding Signal.BinPhase}"
+                         />
 
     </Grid>
 </UserControl>

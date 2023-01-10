@@ -41,8 +41,8 @@ namespace SignalPlot
                 {
                     foreach(var gap in gaps)
                     {
-                        int posStart = writeableBitmap.PixelWidth * (gap.Start - interval.Start) / interval.Length;
-                        int posEnd = writeableBitmap.PixelWidth * (gap.End - interval.Start) / interval.Length;
+                        int posStart = (int)(writeableBitmap.PixelWidth * ((gap.Start - interval.Start) / (double)interval.Length));
+                        int posEnd = (int)(writeableBitmap.PixelWidth * ((gap.End - interval.Start) / (double)interval.Length));
                         writeableBitmap.PaintVerticalSegment(LightBlue, posStart, posEnd - posStart);
                     }
                 }
@@ -50,8 +50,8 @@ namespace SignalPlot
                 // Paint selected interval
                 if (selectedInterval != null && selectedInterval.Value.Length > 0)
                 {
-                    int posStart = writeableBitmap.PixelWidth * (selectedInterval.Value.Start - interval.Start) / interval.Length;
-                    int posEnd = writeableBitmap.PixelWidth * (selectedInterval.Value.End- interval.Start) / interval.Length;
+                    int posStart =(int)(writeableBitmap.PixelWidth * ((selectedInterval.Value.Start - interval.Start) / (double)interval.Length));
+                    int posEnd =(int)(writeableBitmap.PixelWidth * ((selectedInterval.Value.End- interval.Start) / (double)interval.Length));
                     writeableBitmap.PaintVerticalSegment(selectedColor, posStart, posEnd - posStart);
                 }
 

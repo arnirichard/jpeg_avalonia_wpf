@@ -51,8 +51,10 @@ namespace DAW.PitchDetector
             });
             pitchPlot.HorizontalLines.AddRange(new List<LinesDefinition>()
             {
-                new LinesDefinition(0, 50, false, Plot.Beige, 50),
-                new LinesDefinition(0, 10, false, Plot.Beige, 50),
+                new LinesDefinition(0, 50, false, Plot.Beige, 20),
+                new LinesDefinition(0, 10, false, Plot.Beige, 20),
+                new LinesDefinition(0, 5, false, Plot.Beige, 20),
+                new LinesDefinition(0, 1, false, Plot.Beige, 20),
             });
 
             pitchDataPlot.VerticalLines.AddRange(verticalLines);
