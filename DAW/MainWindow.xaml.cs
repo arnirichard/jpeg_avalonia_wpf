@@ -30,31 +30,54 @@ namespace DAW
             {
                 viewModel.Deactivate();
             };
-            PhonemeModel.Models.AddRange(LoadPhoneModels.Load());
+            string? folder = GetLastFolder();
+            if(folder != null && Directory.Exists(folder))
+            {
+                ApplyFolder(folder);
+            }
+            LoadPhoneModels.Load();
         }
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.Forms.FolderBrowserDialog openFileDlg = new System.Windows.Forms.FolderBrowserDialog();
-
+            var bla = openFileDlg.InitialDirectory;
             var result = openFileDlg.ShowDialog();
-            if (result.ToString() != string.Empty)
+            if (result.ToString() != string.Empty && Directory.Exists(openFileDlg.SelectedPath))
             {
-                if (Directory.Exists(openFileDlg.SelectedPath))
-                {
-                    viewModel.Files.Clear();
-
-                    foreach (var f in Directory.GetFiles(openFileDlg.SelectedPath))
-                    {
-                        FileInfo fi = new FileInfo(f);
-                        if (fi.Name.EndsWith("wav"))
-                            viewModel.Files.Add(fi);
-                    }
-
-                    viewModel.Modules.ForEach(m => m.SetFolder(openFileDlg.SelectedPath));
-                    viewModel.Folder = openFileDlg.SelectedPath;
-                }
+                ApplyFolder(openFileDlg.SelectedPath);
+                SaveFolder(openFileDlg.SelectedPath);
             }
+        }
+
+        const string FolderName = "folder";
+        string? GetLastFolder()
+        {
+            if (File.Exists(FolderName))
+                return File.ReadAllText(FolderName);
+            return null;
+        }
+
+        void SaveFolder(string folderName)
+        {
+            try
+            {
+                File.WriteAllText(FolderName, folderName);
+            }
+            catch { }
+        }
+        
+        void ApplyFolder(string folder)
+        {
+            viewModel.Files.Clear();
+            foreach (var f in Directory.GetFiles(folder))
+            {
+                FileInfo fi = new FileInfo(f);
+                if (fi.Name.EndsWith("wav"))
+                    viewModel.Files.Add(fi);
+            }
+            viewModel.Modules.ForEach(m => m.SetFolder(folder));
+            viewModel.Folder = folder;
         }
 
         private void Files_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

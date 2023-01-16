@@ -8,6 +8,6 @@ namespace DAW.Utils
 {
     internal static class MyClipboard
     {
-        public static object Object;
+        public static object? Object;
     }
 }

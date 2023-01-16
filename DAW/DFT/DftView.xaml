@@ -26,6 +26,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <Grid Visibility="{Binding Signal, Converter={StaticResource NullToVis}, FallbackValue=Hidden}">
@@ -95,6 +96,7 @@
                     <iconPacks:PackIconMaterial  Kind="Stop" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
                 </Button>
                 <Button Click="calcDftState_Click" >Calc DFT stats</Button>
+                <Button Click="calcDftState_Click" >Write DFT stats</Button>
             </WrapPanel>
         </Grid>
 
@@ -121,6 +123,7 @@
             <TextBlock Margin="10,0" Text="{Binding ElementName=dftPlot, Path=CurrentDataPoint.X, StringFormat='X {0}'}"/>
             <TextBlock Margin="10,0" Text="{Binding ElementName=dftPlot, Path=CurrentDataPoint.Y, StringFormat='Value {0}'}"/>
             <Button Click="copyAmplitudes">Copy</Button>
+            <Button x:Name="c30" Click="copyAmplitudes">Copy30</Button>
             <Button Height="25" Margin="3" Click="PlayDftRepeat_Click" Background="White">
                 <iconPacks:PackIconMaterial  Kind="Repeat" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
             </Button>
@@ -133,6 +136,7 @@
         <WrapPanel Grid.Row="6" Orientation="Horizontal">
             <TextBlock Margin="10,0"
                                Text="Pitch"/>
+            <Button Click="copyPitch">Copy</Button>
         </WrapPanel>
 
         <signalplot:Plot x:Name="pitchPlot" Grid.Row="7" UnitX="s" UnitY="Hz" 
@@ -141,14 +145,9 @@
                          XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
                          />
 
-        <!--XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
-                         SelectedXRange="{Binding ElementName=signalPlot, Path=SelectedXRange, Mode=OneWay}"
-                         CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=OneWay}"-->
-
         <WrapPanel Grid.Row="8" Orientation="Horizontal">
             <ComboBox x:Name="binCombo" SelectionChanged="binCombo_SelectionChanged" Margin="50,0,0,0"/>
-            <TextBlock Margin="10,0"
-                               Text="{Binding ElementName=dftBinPlot, Path=CurrentDataPoint.Y, StringFormat='Value {0}'}"/>
+            <TextBlock Margin="10,0" Text="{Binding ElementName=dftBinPlot, Path=CurrentDataPoint.Y, StringFormat='Value {0}'}"/>
             <Button Click="copyEnvelope">Copy</Button>
         </WrapPanel>
 
@@ -162,6 +161,11 @@
                          DoNotResetRange="True"
                          UnitX="s" UnitY="" DataContext="{Binding Signal.BinPhase}"
                          />
+
+        <signalplot:Plot x:Name="pitchDataPlot" Grid.Row="11" UnitX="s" UnitY="" DataContext="{Binding Signal.PitchDetailData}" Margin="0,0,10,0"
+                         XRange="{Binding ElementName=signalPlot, Path=XRange, Mode=TwoWay}"
+                         SelectedXRange="{Binding ElementName=signalPlot, Path=SelectedXRange, Mode=TwoWay}"
+                         CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=TwoWay}"/>
 
     </Grid>
 </UserControl>

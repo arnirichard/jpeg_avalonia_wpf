@@ -6,8 +6,11 @@ using DAW.Utils;
 using PitchDetector;
 using SignalPlot;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -15,13 +18,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DAW.DFT
 {
@@ -100,7 +97,7 @@ namespace DAW.DFT
             var pd3 = DependencyPropertyDescriptor.FromProperty(Plot.IntervalProperty, typeof(Plot));
             pd3.AddValueChanged(dftPlot, OnDftXRangeChanged);
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 30; i++)
                 binCombo.Items.Add(new ComboBoxItem()
                 {
                     Content = "Harmonic "+i
@@ -149,11 +146,12 @@ namespace DAW.DFT
                 dvm.Signal?.PitchDetailData != null &&
                 signalPlot.SelectedInterval != null)
             {
-                string str = CalcDftStat.CalcStats(signalPlot.SelectedInterval, 
+                List<string> str = CalcDftStat.CalcStats(signalPlot.SelectedInterval, 
                     dvm.Signal.SignalPlotData, dvm.Signal.PitchDetailData,
                     dvm.Signal.Format.SampleRate);
                 
-                Clipboard.SetText(str);
+                //File.WriteAllLines(Path.GetFileNameWithoutExtension(dvm.Signal.File.Name)+".txt", str);
+                Clipboard.SetText(string.Join("\n", str));
             }
         }
 
@@ -175,29 +173,44 @@ namespace DAW.DFT
 
             if (signalPlot.SelectedInterval == null &&
                 signalPlot.CurrentDataPoint != null &&
+                pitchDataPlot.CurrentDataPoint?.Data is PeriodFit pf &&
                 DataContext is DftViewModel dvm &&
                 dvm.Signal != null &&
                 signalPlot?.DataContext is PlotData plotData &&
                 period != null)
             {
-                int index = Math.Max(0, signalPlot.CurrentDataPoint.Index - period.Value);
+                
+                int index = Math.Max(0, pf.Sample - pf.Period);
+                if (index == 0 || index >= plotData.Y.Length)
+                    return;
+                period = CalcDftStat.FindExactPeriod(plotData.Y, index, pf.Period);
                 XY[] dft = Dft.CalcDft(plotData.Y, index, period.Value);
                 var dftData = new DftDataViewModel(dft, dvm.Signal.Format.SampleRate, period.Value);
                 dvm.SetDftData(dftData);
                 spl.Text = Decibel.AvgPowerToSQL(dftData.AvgSamplePower).ToString("N1") + " SPL";
                 string phonemeStr = "";
-                double[] norm = dftData.GetNormalisedAmps(30);
-                double prop, currentProp = double.NegativeInfinity;
+                float[] norm = dftData.GetNormalisedAmps(30, false);
+                double dist, currentDist = double.PositiveInfinity;
+                Dictionary<PhonemeModel, double> ordered = new Dictionary<PhonemeModel, double>();
+                //PhonemeModel PM = new PhonemeModel("", "", norm);
 
+                if (norm[0] > -1)
+                {
+
+                }
+                    
                 foreach (var m in PhonemeModel.Models)
                 {
-                    prop = m.CalcProp(norm);
-                    if (prop > currentProp)
+                    dist = m.CalcDistance(norm);
+                    ordered[m] = dist;
+                    if (dist < currentDist)
                     {
-                        currentProp = prop;
-                        phonemeStr = m.SourceName + " " + prop;
+                        currentDist = dist;
+                        phonemeStr = m.SourceName + " " + dist;
                     }
                 }
+
+                var sortedKeyValuePairs = ordered.OrderBy(x => x.Value).ToList();
                 phoneme.Text = phonemeStr;
             }
         }
@@ -332,7 +345,7 @@ namespace DAW.DFT
 
                 if(y != null)
                 {
-                    var str = string.Join("\n", y.ToList().GetRange(0, Math.Min(30, y.Length)).Select(y => y.ToString()));
+                    var str = string.Join("\n", y.ToList().GetRange(0, Math.Min(sender == c30 ? 30 : 40, y.Length)).Select(y => y.ToString()));
                     Clipboard.SetText(str);
                 }
             }
@@ -367,9 +380,10 @@ namespace DAW.DFT
 
         private void copyEnvelope(object sender, RoutedEventArgs e)
         {
-            if(dftBinPlot.DataContext is PlotData pd)
+            if (DataContext is DftViewModel dvm &&
+                dvm.Signal != null)
             {
-                MyClipboard.Object = pd;
+                MyClipboard.Object = dvm.Signal.DftBinAmps;
             }
         }
 
@@ -379,6 +393,14 @@ namespace DAW.DFT
                 fe.DataContext is DftViewModel vm)
             {
                 vm.Player?.Stop();
+            }
+        }
+
+        private void copyPitch(object sender, RoutedEventArgs e)
+        {
+            if(pitchPlot.DataContext is PlotData)
+            {
+                MyClipboard.Object = pitchPlot.DataContext as PlotData;
             }
         }
     }

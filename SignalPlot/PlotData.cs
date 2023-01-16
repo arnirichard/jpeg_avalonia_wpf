@@ -29,9 +29,10 @@ namespace SignalPlot
         public float AbsPeak { get; }
         public float[]? X { get; }
         public object[]? Data { get; }
+        public ValueDistribution[]? Distributions { get; }
 
         public PlotData(float[] y, FloatRange yRange, FloatRange xRange, 
-            float[]? x = null, object[]? data = null)
+            float[]? x = null, object[]? data = null, ValueDistribution[]? distributions = null)
         {
             Y = y;
             YRange = yRange;
@@ -39,6 +40,7 @@ namespace SignalPlot
             AbsPeak = y.GetAbsPeak();
             X = x;
             Data = data;
+            Distributions = distributions;
         }
 
         public PlotData Clone()

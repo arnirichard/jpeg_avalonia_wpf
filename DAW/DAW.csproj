@@ -20,46 +20,73 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Transcription\Data\A.txt">
+    <None Update="Transcription\Data\mK.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\E.txt">
+    <None Update="Transcription\Data\m.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\I.txt">
+    <None Update="Transcription\Data\a.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\L.txt">
+    <None Update="Transcription\Data\a2.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\J.txt">
+    <None Update="Transcription\Data\a4.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\Ð.txt">
+    <None Update="Transcription\Data\a3.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\N.txt">
+    <None Update="Transcription\Data\E1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\O.txt">
+    <None Update="Transcription\Data\E2.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\M.txt">
+    <None Update="Transcription\Data\E3.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\U.txt">
+    <None Update="Transcription\Data\OTiro.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\Í.txt">
+    <None Update="Transcription\Data\OK2.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\Á.txt">
+    <None Update="Transcription\Data\OK1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\Ó.txt">
+    <None Update="Transcription\Data\O1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Transcription\Data\Ö.txt">
+    <None Update="Transcription\Data\O2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Transcription\Data\O3.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Transcription\Data\I2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Transcription\Data\I1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Transcription\Data\U1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Transcription\Data\U2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Transcription\Data\U3.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Transcription\Data\Ö1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Transcription\Data\Ö2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Transcription\Data\Ö3.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

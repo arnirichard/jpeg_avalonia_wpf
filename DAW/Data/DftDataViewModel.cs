@@ -38,7 +38,7 @@ namespace DAW.DFT
                 power[i] = dft[i].Power * 2;
             }
 
-            TotalPower = power.Sum();
+            TotalPower = power.Sum()-power[0];
 
             AvgSamplePower = TotalPower / length / length;
 
@@ -66,23 +66,25 @@ namespace DAW.DFT
             }
         }
 
-        public double[] GetNormalisedAmps(int length)
+        public float[] GetNormalisedAmps(int length, bool omitDc)
         {
-            double[] result = new double[length];
-            double v;
-            double maxValue = -5;
-            for(int i = 0; i < length; i++)
-            {
-                result[i] = v = Data!.Y[i];
-                if(v > maxValue)
-                {
-                    maxValue = v;
-                }
-            }
-            for (int i = 0; i < length; i++)
-            {
-                result[i] -= maxValue;
-            }
+            //int omit = omitDc ? -1 : 0;
+            float[] result = new float[length];
+
+            Array.Copy(Data!.Y, 0, result, 0, result.Length);
+            //float maxValue = -5;
+            //for(int i = -omit; i < result.Length; i++)
+            //{
+            //    result[i+ omit] = v = Data!.Y[i];
+            //    //if(v > maxValue)
+            //    //{
+            //    //    maxValue = v;
+            //    //}
+            //}
+            //for (int i = result.Length; i < length; i++)
+            //{
+            //    result[i+omit] = -5;
+            //}
 
             return result;
         }

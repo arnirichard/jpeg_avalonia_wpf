@@ -31,6 +31,7 @@ namespace DAW.PitchDetector
             ? Samples.Value / (double)Format.SampleRate
             : null;
         PlotData[]? dftBinAmps, dftBinPhases;
+        public PlotData[]? DftBinAmps => dftBinAmps;
         public IPlayer? Player;
         //float[][]? synths;
 

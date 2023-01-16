@@ -1,4 +1,5 @@
-﻿using DAW.Utils;
+﻿using DAW.Transcription;
+using DAW.Utils;
 using Microsoft.VisualBasic.Logging;
 using SignalPlot;
 using System;
@@ -52,7 +53,6 @@ namespace DAW.HarmonicGenerator
     public partial class HarmonicGeneratorView : UserControl
     {
         ObservableCollection<HarmonicWeight> harmonicWeights= new ObservableCollection<HarmonicWeight>();
-        PlotData? amplitudes;
 
         public HarmonicGeneratorView()
         {
@@ -60,6 +60,9 @@ namespace DAW.HarmonicGenerator
             for (int i = 0; i < 40; i++)
                 harmonicWeights.Add(new HarmonicWeight(i + 1, i == 0 ? -0.5 : -5));
             harmoicWeightsItems.ItemsSource = harmonicWeights;
+            phonemes.ItemsSource = PhonemeModel.Models;
+            ampPlot.VerticalLines.Add(new LinesDefinition(0, 1f, false, Plot.Beige, 10));
+            ampPlot.HorizontalLines.Add(new LinesDefinition(0, 1f, false, Plot.Beige, 10));
         }
 
         private void Weight_TextChanged(object sender, TextChangedEventArgs e)
@@ -77,7 +80,7 @@ namespace DAW.HarmonicGenerator
                 }
                 if (DataContext is HarmoicGeneratorViewModel vm)
                 {
-                    vm.SetHarmonic(new Utils.Harmonic(weights, vm.Harmonic.Pitch));
+                    vm.SetHarmonic(new Harmonic(vm.Harmonic.Weights, vm.Harmonic.DefaultPitch, vm.Harmonic.Amplitudes, vm.Harmonic.Pitch));
                 }
             }
         }
@@ -94,13 +97,10 @@ namespace DAW.HarmonicGenerator
             {
                 var signal = vm.Period.Y;
 
-                //String str = string.Join('\n', signal);
-                //Clipboard.SetText(str);
-
-                if (signal.Length < vm.SampleRate)
-                {
-                    signal = signal.Extrapolate(vm.SampleRate*2/signal.Length);
-                }
+                //if (signal.Length < vm.SampleRate)
+                //{
+                //    signal = signal.Extrapolate(vm.SampleRate*2/signal.Length);
+                //}
 
                 vm.Player?.Play(signal, vm.SampleRate);
             }
@@ -113,13 +113,13 @@ namespace DAW.HarmonicGenerator
                 string text = Clipboard.GetText();
 
                 var splits = text.Split('\n');
-                double log;
-                double[] logs = new double[40];
+                float log;
+                float[] logs = new float[40];
                 for (int i = 0; i < logs.Length; i++)
                     logs[i] = -5;
                 for (int i = 1; i < Math.Min(logs.Length, splits.Length); i++)
                 {
-                    if (!double.TryParse(splits[i], out log))
+                    if (!float.TryParse(splits[i], out log))
                         return;
                     logs[i-1] = log;
                 }
@@ -128,22 +128,29 @@ namespace DAW.HarmonicGenerator
                 {
                     harmonicWeights.Add(new HarmonicWeight(i + 1, logs[i]));
                 }
-                vm.SetHarmonic(new Harmonic(logs, vm.Harmonic.Pitch), amplitudes);
+                vm.SetHarmonic(new Harmonic(logs, vm.Harmonic.DefaultPitch, vm.Harmonic.Amplitudes, vm.Harmonic.Pitch));
             }
         }
 
         private void createEnvelope(object sender, RoutedEventArgs e)
         {
-            amplitudes = MyClipboard.Object as PlotData;
+            PlotData[]? amplitudes = MyClipboard.Object as PlotData[];
+            PlotData? pitch = MyClipboard.Object as PlotData;
             if (DataContext is HarmoicGeneratorViewModel vm)
             {
-                vm.SetHarmonic(vm.Harmonic, amplitudes);
+                vm.SetHarmonic(new Harmonic(vm.Harmonic.Weights, vm.Harmonic.DefaultPitch, 
+                    amplitudes ?? vm.Harmonic.Amplitudes, pitch ?? vm.Harmonic.Pitch));
             }
         }
 
-        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        private void phonemes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            if(phonemes.SelectedItem is PhonemeModel ph &&
+                DataContext is HarmoicGeneratorViewModel vm)
+            {
+                vm.SetHarmonic(new Harmonic(ph.Average, vm.Harmonic.DefaultPitch,
+                    vm.Harmonic.Amplitudes, vm.Harmonic.Pitch));
+            }
         }
     }
 }

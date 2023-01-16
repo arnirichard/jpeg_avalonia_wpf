@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
+using System.Xml.Schema;
 
 namespace SignalPlot
 {
@@ -24,7 +25,8 @@ namespace SignalPlot
             List<LinesDefinition> verticalLines,
             List<LinesDefinition> horizontalLines,
             IntRange? selectedInterval,
-            List<IntRange>? gaps = null)
+            List<IntRange>? gaps = null,
+            ValueDistribution[]? distributions = null)
         {
             List<PlotLine> result = new List<PlotLine>();
 
@@ -55,6 +57,9 @@ namespace SignalPlot
                     writeableBitmap.PaintVerticalSegment(selectedColor, posStart, posEnd - posStart);
                 }
 
+                if (distributions != null)
+                    writeableBitmap.PaintDistributions(distributions, interval, yRange);
+
                 // Paint selected interval
                 HashSet<int> points = new(); // Keeps track of which points already have been painted
 
@@ -71,7 +76,7 @@ namespace SignalPlot
                 int height = writeableBitmap.PixelHeight;
                 double width = writeableBitmap.PixelWidth;
                 double sample = interval.Start;
-                double deltaSample = (interval.Length - 1) / (writeableBitmap.Width - 1);
+                double deltaSample = interval.Length / (writeableBitmap.Width - 1);
 
                 IntPtr pBackBuffer = writeableBitmap.BackBuffer;
 
@@ -125,6 +130,69 @@ namespace SignalPlot
             }
 
             return result;
+        }
+
+        static void PaintDistributions(this WriteableBitmap writeableBitmap, ValueDistribution[] distributions,
+            IntRange interval, FloatRange yRange)
+        {
+            ValueDistribution distribution;
+
+            for (int i = interval.Start; i < interval.End; i++)
+            {
+                distribution = distributions[i];
+                writeableBitmap.PaintDistribtution(distribution,
+                    (i - interval.Start) * writeableBitmap.PixelWidth / interval.Length,
+                    writeableBitmap.PixelWidth / interval.Length,
+                    yRange,
+                    Plot.Red);
+            }
+        }
+
+        static void PaintDistribtution(this WriteableBitmap writeableBitmap, ValueDistribution distribution,
+            int columnStart, int width, FloatRange yRange, int color)
+        {
+            IntPtr pBackBuffer;
+            float start, end;
+            int startRow, endRow;
+
+            unsafe
+            {
+                byte aDelta = (byte)(127 / distribution.Quantiles.Length);
+                byte a = 0;
+                Color c = Color.FromArgb(color);
+                int paintColor;
+                int[] colors = new int[] { Plot.Red, Plot.Orange };
+                int index = 0;
+                foreach (var quantile in distribution.Quantiles)
+                {
+                    a += aDelta;
+                    var co = Color.FromArgb(100, c);
+                    paintColor = colors[index% colors.Length];
+                    start = quantile.Start > yRange.Start ? quantile.Start : yRange.Start;
+                    end = quantile.End < yRange.End ? quantile.End : yRange.End;
+
+                    if (start >= end)
+                        continue;
+
+                    startRow = (int)((yRange.End - end) * writeableBitmap.Height / yRange.Length);
+                    endRow = (int)((yRange.End - start) * writeableBitmap.Height / yRange.Length);
+
+                    pBackBuffer =  writeableBitmap.BackBuffer + 4 * columnStart +
+                        startRow * writeableBitmap.BackBufferStride;
+
+                    for(int i = startRow; i < endRow; i++)
+                    {
+                        for(int j = 0; j < width; j++)
+                        {
+                            *(int*)pBackBuffer = paintColor;
+                            pBackBuffer += 4;
+                        }
+                        pBackBuffer += 4 * (writeableBitmap.PixelWidth-width);
+                    }
+                    index++;
+                    //break;
+                }
+            }
         }
 
         internal static List<PlotLine> PaintVerticalLines(this WriteableBitmap writeableBitmap, 

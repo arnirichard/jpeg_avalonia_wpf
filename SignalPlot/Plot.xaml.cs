@@ -407,7 +407,8 @@ namespace SignalPlot
                         BackgroundColor, SignalColor, SelectedIntervalColor,
                         VerticalLines, HorizontalLines,
                         SelectedInterval,
-                        Gaps)
+                        Gaps,
+                        plotData.Distributions)
                     : writeableBitmap.Plot(plotData.X, plotData.Y, XRange, plotData.YRange,
                         BackgroundColor, SignalColor, SelectedIntervalColor,
                         VerticalLines, HorizontalLines, SelectedXRange);
@@ -440,7 +441,7 @@ namespace SignalPlot
                     }
                     else
                     {
-                        Canvas.SetLeft(textBlock, plotLine.Position - 10);
+                        Canvas.SetLeft(textBlock, plotLine.Position-2);
                         Canvas.SetTop(textBlock, 3);
                         horizontalLabels.Children.Add(textBlock);
                     }

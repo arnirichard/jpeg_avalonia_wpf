@@ -63,6 +63,7 @@ namespace SignalPlot
                         {
                             xpos = (int)(width * (x[i] - xRange.Start) / xRange.Length);
                             ypos = (int)(height * (yRange.End - y[i]) / yRange.Length);
+
                             if(xpos >= 0 && xpos < width && ypos >= 0 && ypos < height)
                             {
                                 pBackBuffer = writeableBitmap.BackBuffer + 4 * xpos +

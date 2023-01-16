@@ -23,42 +23,59 @@ namespace DAW.Transcription
                 string name;
                 int length = 30;
 
-                List<double> doubles;
+                float[][] doubles;
                 string line;
                 double v;
 
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    line = lines[i];
-                    var splits = line.Trim().Split(" ");
-                    if (splits.Length == 0)
-                        continue;
-                    if (lines.Length - i < length)
-                        break;
-                    if (splits.Length == 1)
-                    {
-                        name = splits[0].Trim();
-                        doubles = ReadDoubles(lines, i + 1, length);
-                        result.Add(new PhonemeModel(fileName, name, doubles.ToArray()));
-                    }
-                    i += length;
-                }
+                //for (int i = 0; i < lines.Length; i++)
+                //{
+                //    line = lines[i];
+                //    var splits = line.Trim().Split(" ");
+                //    if (splits.Length == 0)
+                //        continue;
+                //    if (lines.Length - i < length)
+                //        break;
+                //    if (splits.Length == 1)
+                //    {
+                name = Path.GetFileNameWithoutExtension(fileName);
+                doubles = ReadDoubles(lines);
+                //List<PhonemeSample> phonemes = new List<PhonemeSample>();
+                //foreach (var list in doubles)
+                //   phonemes.Add(new PhonemeSample(list));
+                //PhonemeModel model = new PhonemeModel(fileName, name, doubles.ToArray());
+                PhonemeModel? model = PhonemeModel.FromData(name, doubles.ToArray());
+                if(model != null)
+                    PhonemeModel.Models.Add(model);
+                result.Add(model);
+                //    }
+                //    i += length;
+                //}
             }
 
             return result;
         }
 
-        static List<double> ReadDoubles(string[] lines, int index, int length)
+        static float[][] ReadDoubles(string[] lines)
         {
-            List<double> result = new List<double>();
-            double value;
-            for(int i = index; i < index+length; i++)
+            List<float[]> result = new List<float[]>();
+             
+            float value;
+            List<float> list = new List<float>();
+
+            for(int i = 0; i < lines.Length; i++)
             {
-                if (double.TryParse(lines[i], out value))
-                    result.Add(value);
+
+                list.Clear();
+                string[] splits = lines[i].Split(',');
+                for(int j = 0; j < splits.Length; j++)
+                {
+                    if (float.TryParse(splits[j], out value))
+                        list.Add(value);
+                }
+                result.Add(list.ToArray());
             }
 
-            return result;
+            return result.ToArray();
         }
     }
 }

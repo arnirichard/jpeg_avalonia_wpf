@@ -7,15 +7,16 @@
              xmlns:signalplot="clr-namespace:SignalPlot;assembly=SignalPlot"
              mc:Ignorable="d" 
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             d:DesignHeight="450" d:DesignWidth="800" Unloaded="UserControl_Unloaded">
+             >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="200"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <StackPanel>
-            <TextBlock Margin="5,0" Text="{Binding Harmonic.Pitch, StringFormat='Pitch {0}Hz'}"/>
+            <TextBlock Margin="5,0" Text="{Binding Harmonic.DefaultPitch, StringFormat='DefaultPitch {0}Hz'}"/>
             <ItemsControl x:Name="harmoicWeightsItems" >
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -38,12 +39,21 @@
                     <iconPacks:PackIconMaterial  Kind="Play" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Green"/>
                 </Button>
             </StackPanel>
-            <CheckBox x:Name="shiftCheckBox" IsChecked="true"/>
-            <Button Click="pasteAmplitudes">Paste</Button>
-            <Button Click="createEnvelope">Create Envelope</Button>
+            <WrapPanel>
+                <CheckBox x:Name="shiftCheckBox" IsChecked="true"/>
+                <Button Click="pasteAmplitudes">Paste</Button>
+                <Button Click="createEnvelope">Paste amplitudes or pitch</Button>
+            </WrapPanel>
+            <WrapPanel>
+                <TextBlock Margin="10,0" Text="{Binding ElementName=periodPlot, Path=CurrentDataPoint.X, StringFormat='X {0}'}"/>
+                <TextBlock Margin="10,0" Text="{Binding ElementName=periodPlot, Path=CurrentDataPoint.Y, StringFormat='Value {0}'}"/>
+            </WrapPanel>
+            <ComboBox x:Name="phonemes" SelectionChanged="phonemes_SelectionChanged"/>
         </StackPanel>
 
         <signalplot:Plot x:Name="periodPlot" Grid.Row="1" 
                          DataContext="{Binding Period}" Margin="0,0,10,0"/>
+        <signalplot:Plot x:Name="ampPlot" Grid.Row="2" 
+                         DataContext="{Binding Amplitudes}" Margin="0,0,10,0"/>
     </Grid>
 </UserControl>
