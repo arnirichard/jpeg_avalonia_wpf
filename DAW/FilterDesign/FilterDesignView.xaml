@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="DAW.FilterDesign.FilterDesignView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DAW.FilterDesign"
+             xmlns:signalplot="clr-namespace:SignalPlot;assembly=SignalPlot"
+             mc:Ignorable="d" 
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <WrapPanel>
+                <TextBox x:Name="zeroTextBox" Width="100" FontSize="20"></TextBox>
+                <Button Click="AddZero_Click" FontSize="20">Add Zero</Button>
+                <TextBox x:Name="poleTextBox" Width="100" FontSize="20"></TextBox>
+                <Button Click="AddPole_Click" FontSize="20">Add Pole</Button>
+                <Button Click="ClearAll_Click" FontSize="20">Clear All</Button>
+            </WrapPanel>
+            <WrapPanel>
+                <TextBlock FontSize="20">Zeros</TextBlock>
+                <ItemsControl x:Name="zeroPanel" ItemsSource="{Binding Zeros}" Margin="20,5">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="{Binding}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </WrapPanel>
+            <WrapPanel>
+                <TextBlock>Poles</TextBlock>
+                <ItemsControl x:Name="polesPanel" ItemsSource="{Binding Poles}"  Margin="20,5">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="{Binding}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </WrapPanel>
+        </StackPanel>
+
+        <signalplot:Plot x:Name="responsePlot" Grid.Row="1" UnitX="s" DefaultXEnd="20000"
+                Margin="0,0,10,0"/>
+    </Grid>
+</UserControl>

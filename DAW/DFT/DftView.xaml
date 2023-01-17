@@ -12,7 +12,8 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <converters:NullVisibilityConverter x:Key="NullToVis" />
-    </UserControl.Resources>
+        <converters:FrequencyConverter x:Key="FreqCon"/>
+     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

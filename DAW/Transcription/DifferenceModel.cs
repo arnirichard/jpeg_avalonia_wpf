@@ -32,7 +32,7 @@ namespace DAW.Transcription
             {
                 //if (!Distributions[i].Range.IsWithinRange(floats[i]))
                 //{
-                    result += Distributions[i].Range.DistFromRange(floats[i]) * (Distributions[i].Range.Length == 0 ? 1000 : 1/ Distributions[i].Range.Length);
+                result += Distributions[i].Range.DistFromRange(floats[i]); // * (Distributions[i].Range.Length == 0 ? 1000 : 1/ Distributions[i].Range.Length);
                 //}
 
                 cross = CrossDistributions[i];
@@ -40,8 +40,9 @@ namespace DAW.Transcription
                 for (int j = 1; j < Math.Min(floats.Length, Distributions.Length); j++)
                 {
                     if (!cross[j].Range.IsWithinRange(floats[j] - floats[i]))
-                        result += cross[j].Range.DistFromRange(floats[j] - floats[i]) * (cross[j].Range.Length == 0 ? 1000 : 1 / cross[j].Range.Length) *
-                            (cross[j].Range.End <= 0 ? 5 : 1);
+                        result += cross[j].Range.DistFromRange(floats[j] - floats[i]);
+                            //* (cross[j].Range.Length == 0 ? 1000 : 1 / cross[j].Range.Length) *
+                            //(cross[j].Range.End <= 0 ? 5 : 1);
                      
                 }
             }

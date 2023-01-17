@@ -8,6 +8,22 @@ namespace DAW.Utils
 {
     public static class FloatExtensions
     {
+        public static void Normalize(this float[] samples, float toAmp)
+        {
+            float maxAmp = samples.Max(p => Math.Abs(p));
+            if(maxAmp < 1)
+            {
+                return;
+            }
+
+            float scale = toAmp/maxAmp;
+
+            for (int i = 0; i < samples.Length; i++)
+            {
+                samples[i] = samples[i] * scale;
+            }
+        }
+
         public static float[] Extrapolate(this float[] samples, int count)
         {
             float[] result = new float[count*samples.Length];

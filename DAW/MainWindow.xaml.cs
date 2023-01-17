@@ -1,4 +1,5 @@
-﻿using DAW.Transcription;
+﻿using DAW.FilterDesign;
+using DAW.Transcription;
 using DAW.Utils;
 using Microsoft.Win32;
 using System;

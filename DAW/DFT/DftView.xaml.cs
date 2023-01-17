@@ -150,7 +150,6 @@ namespace DAW.DFT
                     dvm.Signal.SignalPlotData, dvm.Signal.PitchDetailData,
                     dvm.Signal.Format.SampleRate);
                 
-                //File.WriteAllLines(Path.GetFileNameWithoutExtension(dvm.Signal.File.Name)+".txt", str);
                 Clipboard.SetText(string.Join("\n", str));
             }
         }
@@ -192,12 +191,6 @@ namespace DAW.DFT
                 float[] norm = dftData.GetNormalisedAmps(30, false);
                 double dist, currentDist = double.PositiveInfinity;
                 Dictionary<PhonemeModel, double> ordered = new Dictionary<PhonemeModel, double>();
-                //PhonemeModel PM = new PhonemeModel("", "", norm);
-
-                if (norm[0] > -1)
-                {
-
-                }
                     
                 foreach (var m in PhonemeModel.Models)
                 {
@@ -373,6 +366,13 @@ namespace DAW.DFT
                 Clipboard.SetText(str);
 
                 periodSignal = periodSignal.Extrapolate(dvm.Signal.Format.SampleRate / period.Value*2);
+
+                int modPeriod = dvm.Signal.Format.SampleRate / 40;
+
+                for(int i = 0; i < periodSignal.Length; i++)
+                {
+                    periodSignal[i] = (float)(periodSignal[i] * (1 + 0.15 * Math.Sin(2 * i * Math.PI / modPeriod)));
+                }
 
                 dvm.Player?.Play(periodSignal, dvm.Signal.Format.SampleRate);
             }

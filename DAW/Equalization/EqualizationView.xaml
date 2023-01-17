@@ -1,0 +1,100 @@
+﻿<UserControl x:Class="DAW.Equalization.EqualizationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DAW.Equalization"
+             xmlns:converters="clr-namespace:DAW.Converters"
+             xmlns:signalplot="clr-namespace:SignalPlot;assembly=SignalPlot"
+             mc:Ignorable="d" 
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             DataContextChanged="UserControl_DataContextChanged">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:NullVisibilityConverter x:Key="NullToVis" />
+        <converters:FrequencyConverter x:Key="FreqCon"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <ItemsControl x:Name="eqPanel">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Rows="1" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="{Binding Decibel, StringFormat=' {0}dB'}"></TextBlock>
+                        <Slider Grid.Row="1" Orientation="Vertical" Margin="8" Minimum="-30" Maximum="30" Value="{Binding Decibel, Mode=OneWay}"
+                                ValueChanged="Slider_ValueChanged" HorizontalAlignment="Center"
+                            Height="200"></Slider>
+                        <TextBlock Grid.Row="2" HorizontalAlignment="Center" Text="{Binding Frequency, Converter={StaticResource FreqCon}}"></TextBlock>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <WrapPanel Grid.Row="1">
+            <Button x:Name="signPlay" Height="25" Margin="3" Click="Play_Click" Background="White">
+                <iconPacks:PackIconMaterial  Kind="Play" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Green"/>
+            </Button>
+            <Button Height="25" Margin="3" Click="StopPlaying_Click" Background="White">
+                <iconPacks:PackIconMaterial  Kind="Stop" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
+            </Button>
+            <TextBlock Margin="10,0" Text="{Binding ElementName=signalPlot, Path=CurrentDataPoint.X, StringFormat='X {0}'}"/>
+            <TextBlock Margin="10,0" Text="{Binding ElementName=signalPlot, Path=CurrentDataPoint.Y, StringFormat='Value {0}'}"/>
+            <TextBlock x:Name="pitchText"></TextBlock>
+        </WrapPanel>
+
+        <signalplot:Plot x:Name="signalPlot" Grid.Row="2" UnitX="s" 
+                DataContext="{Binding Signal.SignalPlotData}" Margin="0,0,10,0"
+                         DataContextChanged="signalPlot_DataContextChanged"
+                         
+                />
+
+        <signalplot:Plot x:Name="signalDftPlot" Grid.Row="3" UnitX="" DefaultXEnd="40"
+                DataContext="{Binding SignalDFT}" Margin="0,0,10,0"/>
+
+        <WrapPanel Grid.Row="4">
+            <Button x:Name="filtPlay" Height="25" Margin="3" Click="Play_Click" Background="White">
+                <iconPacks:PackIconMaterial  Kind="Play" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Green"/>
+            </Button>
+            <Button Height="25" Margin="3" Click="StopPlaying_Click" Background="White">
+                <iconPacks:PackIconMaterial  Kind="Stop" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
+            </Button>
+            <TextBlock Margin="10,0" Text="{Binding ElementName=filteredSignalPlot, Path=CurrentDataPoint.X, StringFormat='X {0}'}"/>
+            <TextBlock Margin="10,0" Text="{Binding ElementName=filteredSignalPlot, Path=CurrentDataPoint.Y, StringFormat='Value {0}'}"/>
+        </WrapPanel>
+
+        <signalplot:Plot x:Name="filteredSignalPlot" Grid.Row="5" UnitX="" 
+                         CurrentX="{Binding ElementName=signalPlot, Path=CurrentX, Mode=TwoWay}"
+                DataContext="{Binding FilteredSignal}" Margin="0,0,10,0"/>
+
+        <signalplot:Plot x:Name="filteredSignalDftPlot" Grid.Row="6" UnitX="s" DefaultXEnd="40"
+                DataContext="{Binding FilteredSignalDFT}" Margin="0,0,10,0"/>
+
+        <WrapPanel Grid.Row="7">
+            <Button Click="GenerateRespone_Click">Generate Response</Button>
+        </WrapPanel>
+
+        <signalplot:Plot x:Name="responsePlot" Grid.Row="8" UnitX="s" DefaultXEnd="20000"
+                Margin="0,0,10,0"/>
+    </Grid>
+</UserControl>
