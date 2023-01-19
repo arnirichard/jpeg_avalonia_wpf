@@ -19,9 +19,20 @@ namespace DAW.FilterDesign
             Power = power;
         }
 
+        public Term(float coeff, int power)
+        {
+            Coeff = new Complex(coeff,0);
+            Power = power;
+        }
+
         public Term Mult(Term t)
         {
             return new Term(t.Coeff * Coeff, t.Power + Power);
+        }
+
+        public Complex ValueOf(Complex x)
+        {
+            return Coeff * x.Power(Power);
         }
 
         public override string ToString()
@@ -49,9 +60,29 @@ namespace DAW.FilterDesign
             Terms = terms.OrderByDescending(t => t.Power).ToList();
         }
 
+        public Complex ValueOf(Complex x)
+        {
+            Complex reslt = new Complex();
+            foreach (var t in Terms)
+                reslt = reslt + t.ValueOf(x);
+            return reslt;
+        }
+
         public static Polynomial FromRoot(Complex root)
         {
             return new Polynomial(new List<Term>() { new Term(1, 1), new Term(-root, 0) });
+        }
+
+        public static List<Complex> GetZeros(Complex a, Complex b, Complex c)
+        {
+            List<Complex> result = new List<Complex>();
+
+            // ax2 + bx +c = 0
+            
+            result.Add((-b + (b.Square() - 4 * a * c).SquareRoot()) / (2 * a));
+            result.Add((-b - (b.Square() - 4 * a * c).SquareRoot()) / (2 * a));
+
+            return result;
         }
 
         public Polynomial Mult(Polynomial polynomial)

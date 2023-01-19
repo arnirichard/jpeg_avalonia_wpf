@@ -1,4 +1,5 @@
 ﻿using DAW.FilterDesign;
+
 using DAW.Transcription;
 using DAW.Utils;
 using Microsoft.Win32;
@@ -37,6 +38,10 @@ namespace DAW
                 ApplyFolder(folder);
             }
             LoadPhoneModels.Load();
+
+            //Polynomial P = new Polynomial(new List<Term>() { new Term(1, 2), new Term(Math.Sqrt(2), 1), new Term(1, 0) });
+            var zeros = Polynomial.GetZeros(1, Math.Sqrt(2), 1);
+            //P.Z
         }
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)

@@ -44,39 +44,39 @@ namespace DAW.Equalization
 
         public override string ToString()
         {
-            return string.Format("{0}x_n+{1}x_n-1+{0}x_n-2 + {3}y_n-1 + {4}y_n-2",
+            return string.Format("{0}x_n+{1}x_n-1+{2}x_n-2 - {3}y_n-1 - {4}y_n-2",
                 a0, a1, a2, a3, a4);
         }
 
-        public List<double> GetZeros()
-        {
-            List<double> result = new List<double>();
+        //public List<double> GetZeros()
+        //{
+        //    List<double> result = new List<double>();
 
-            // ax2 + bx +c = 0
-            // x = [-b +/- sqrt(b^2-4ac)]/[2a]
-            // c = a0, b = a1, c = a2
-            double a = a2, b = a1, c = a0;
+        //    // ax2 + bx +c = 0
+        //    // x = [-b +/- sqrt(b^2-4ac)]/[2a]
+        //    // c = a0, b = a1, c = a2
+        //    double a = a2, b = a1, c = a0;
             
-            result.Add((-b + Math.Sqrt(Math.Pow(b, 2) - 4*a*c)) /(2*a));
-            result.Add((-b - Math.Sqrt(Math.Pow(b, 2) - 4 * a * c)) / (2 * a));
+        //    result.Add((-b + Math.Sqrt(Math.Pow(b, 2) - 4*a*c)) /(2*a));
+        //    result.Add((-b - Math.Sqrt(Math.Pow(b, 2) - 4 * a * c)) / (2 * a));
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public List<double> GetPoles()
-        {
-            List<double> result = new List<double>();
+        //public List<double> GetPoles()
+        //{
+        //    List<double> result = new List<double>();
 
-            // ax2 + bx +c = 0
-            // x = [-b +/- sqrt(b^2-4ac)]/[2a]
-            // c = a0, b = a1, c = a2
-            double a = a4, b = a3, c = 1;
+        //    // ax2 + bx +c = 0
+        //    // x = [-b +/- sqrt(b^2-4ac)]/[2a]
+        //    // c = a0, b = a1, c = a2
+        //    double a = a4, b = a3, c = 1;
 
-            result.Add((-b + Math.Sqrt(Math.Pow(b, 2) - 4 * a * c)) / (2 * a));
-            result.Add((-b - Math.Sqrt(Math.Pow(b, 2) - 4 * a * c)) / (2 * a));
+        //    result.Add((-b + Math.Sqrt(Math.Pow(b, 2) - 4 * a * c)) / (2 * a));
+        //    result.Add((-b - Math.Sqrt(Math.Pow(b, 2) - 4 * a * c)) / (2 * a));
 
-            return result;
-        }
+        //    return result;
+        //}
 
         private void SetCoefficients(double aa0, double aa1, double aa2, double b0, double b1, double b2)
         {

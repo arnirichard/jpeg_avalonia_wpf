@@ -67,14 +67,11 @@ namespace DAW.Equalization
 
             for (int n = 0; n < count; n++)
             {
-                if(n == 15000)
-                {
-
-                }
                 for (int band = 0; band < bandCount; band++)
                 {
                     buffer[offset + n] = filters[0, band].Transform(buffer[offset + n]);
                 }
+                //buffer[offset + n] = filters[0, 15].Transform(buffer[offset + n]);
             }   
         }
     }
