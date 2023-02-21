@@ -8,7 +8,7 @@
              xmlns:signalplot="clr-namespace:SignalPlot;assembly=SignalPlot"
              mc:Ignorable="d" 
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             DataContextChanged="UserControl_DataContextChanged">
+             >
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <converters:NullVisibilityConverter x:Key="NullToVis" />
@@ -27,7 +27,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <ItemsControl x:Name="eqPanel">
+        <ItemsControl x:Name="eqPanel" ItemsSource="{Binding GainMap}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Rows="1" />
@@ -43,7 +43,7 @@
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="{Binding Decibel, StringFormat=' {0}dB'}"></TextBlock>
                         <Slider Grid.Row="1" Orientation="Vertical" Margin="8" Minimum="-30" Maximum="30" Value="{Binding Decibel, Mode=OneWay}"
-                                ValueChanged="Slider_ValueChanged" HorizontalAlignment="Center"
+                                ValueChanged="Slider_ValueChanged" HorizontalAlignment="Center" TickFrequency="0.1" IsSnapToTickEnabled="True"
                             Height="200"></Slider>
                         <TextBlock Grid.Row="2" HorizontalAlignment="Center" Text="{Binding Frequency, Converter={StaticResource FreqCon}}"></TextBlock>
                     </Grid>
@@ -65,9 +65,8 @@
 
         <signalplot:Plot x:Name="signalPlot" Grid.Row="2" UnitX="s" 
                 DataContext="{Binding Signal.SignalPlotData}" Margin="0,0,10,0"
-                         DataContextChanged="signalPlot_DataContextChanged"
-                         
-                />
+                DataContextChanged="signalPlot_DataContextChanged"                         
+        />
 
         <signalplot:Plot x:Name="signalDftPlot" Grid.Row="3" UnitX="" DefaultXEnd="40"
                 DataContext="{Binding SignalDFT}" Margin="0,0,10,0"/>

@@ -118,14 +118,6 @@ namespace DAW.Equalization
             }
         }
 
-        private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if(DataContext is EqualizationViewModule vm)
-            {
-                eqPanel.ItemsSource = vm.GainMap;
-            }
-        }
-
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if(sender is Slider fe &&

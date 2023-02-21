@@ -33,7 +33,15 @@ namespace DAW.PitchDetector
         PlotData[]? dftBinAmps, dftBinPhases;
         public PlotData[]? DftBinAmps => dftBinAmps;
         public IPlayer? Player;
-        //float[][]? synths;
+        
+        public string FormatShortString
+        {
+            get 
+            {
+                return string.Format("{0}Hz,{1}Ch,{2}Bit",
+                    Format.SampleRate, Format.Channels, Format.BitsPerSample);
+            }
+        }
 
         public SignalViewModel(FileInfo file, WaveFormat waveFormat, PlotData signalPlotData)
         {

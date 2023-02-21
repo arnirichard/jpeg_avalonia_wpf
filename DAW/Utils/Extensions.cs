@@ -1,4 +1,5 @@
-﻿using SignalPlot;
+﻿using NAudio.Wave;
+using SignalPlot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,14 @@ namespace DAW.Utils
                 return true;
 
             return range1!.Equals(range2!);
+        }
+
+        public static string GetShortString(this WaveFormat waveFormat)
+        {
+            return string.Format("{0}Hz,{1}Ch,{2}bit",
+                waveFormat.SampleRate,
+                waveFormat.Channels,
+                waveFormat.BitsPerSample);
         }
     }
 }

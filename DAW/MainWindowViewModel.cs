@@ -16,6 +16,7 @@ using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
 using SignalPlot;
+using static System.Net.WebRequestMethods;
 using static System.Windows.Forms.DataFormats;
 
 namespace DAW
@@ -50,6 +51,7 @@ namespace DAW
         public string? LastFileName;
         IWavePlayer? playing;
         WasapiLoopbackCapture? systemCapture;
+        WaveFileWriter? waveFileWriter;
 
         public MainWindowViewModel(IEnumerable<IModule> modules)
         {
@@ -69,7 +71,8 @@ namespace DAW
         }
 
         public List<IModule> Modules { get; }
-        public ObservableCollection<FileInfo> Files { get; } = new ObservableCollection<FileInfo>();
+        public ObservableCollection<FileInfo> Files { get; } = new();
+        public ObservableCollection<KeyValuePair<string, List<FileInfo>>> FileFormats { get; } = new();
         public ObservableCollection<AudioDevice> PlaybackDevices { get; } = new();
         public ObservableCollection<AudioDevice> CaptureDevices { get; } = new();
 
@@ -207,8 +210,6 @@ namespace DAW
             }
         }
 
-        WaveFileWriter waveFileWriter;
-
         void StartSystemCapture()
         {
             string Name = string.Format(@"C:\Temp\dump.wav");
@@ -219,19 +220,7 @@ namespace DAW
             
             systemCapture.DataAvailable += (s, capData) => waveFileWriter.Write(capData.Buffer, 0, capData.BytesRecorded);
             systemCapture.StartRecording();
-            
-
-            //try
-            //{
-            //    systemCapture = new WasapiLoopbackCapture();
-            //    captureFormat = systemCapture.WaveFormat;
-            //    systemCapture.DataAvailable += CaptureOnDataAvailable;
-            //    systemCapture.StartRecording();
-            //}
-            //catch (Exception ex)
-            //{
-            //    System.Windows.MessageBox.Show(ex.Message);
-            //}
+      
         }
 
         void StopCapture()

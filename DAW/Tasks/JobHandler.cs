@@ -202,10 +202,6 @@ namespace DAW.Tasks
                                 toRemove = kvp.Key;
 
                             mProcessingJobs.Add(result);
-                            if (result.JobPool != null)
-                            {
-
-                            }
 
                             if (!string.IsNullOrEmpty(result.SyncKey))
                                 mSyncKeysInUse.Add(result.SyncKey, result.SyncKey);

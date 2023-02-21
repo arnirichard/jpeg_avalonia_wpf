@@ -3,8 +3,10 @@
 using DAW.Transcription;
 using DAW.Utils;
 using Microsoft.Win32;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -39,9 +41,7 @@ namespace DAW
             }
             LoadPhoneModels.Load();
 
-            //Polynomial P = new Polynomial(new List<Term>() { new Term(1, 2), new Term(Math.Sqrt(2), 1), new Term(1, 0) });
-            var zeros = Polynomial.GetZeros(1, Math.Sqrt(2), 1);
-            //P.Z
+            //var zeros = Polynomial.GetZeros(1, Math.Sqrt(2), 1);
         }
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
@@ -76,11 +76,29 @@ namespace DAW
         void ApplyFolder(string folder)
         {
             viewModel.Files.Clear();
+            viewModel.FileFormats.Clear();
+
+            Dictionary<string, List<FileInfo>> formats = new();
+            List<FileInfo>? list;
             foreach (var f in Directory.GetFiles(folder))
             {
                 FileInfo fi = new FileInfo(f);
                 if (fi.Name.EndsWith("wav"))
+                {
                     viewModel.Files.Add(fi);
+                    WaveFileReader waveFileReader = new WaveFileReader(fi.FullName);
+                    if(waveFileReader.WaveFormat.BitsPerSample == 16 && !fi.Name.Contains("-"))
+                    { 
+                    }
+                    string key = waveFileReader.WaveFormat.GetShortString();
+                    if (!formats.TryGetValue(key, out list))
+                        formats.Add(key, list = new());
+                    list.Add(fi);
+                }
+            }
+            foreach (var kvp in formats)
+            {
+                viewModel.FileFormats.Add(new KeyValuePair<string, List<FileInfo>>(kvp.Key, kvp.Value));
             }
             viewModel.Modules.ForEach(m => m.SetFolder(folder));
             viewModel.Folder = folder;
