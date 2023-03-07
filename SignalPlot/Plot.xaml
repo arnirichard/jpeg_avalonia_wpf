@@ -24,9 +24,8 @@
                     MouseWheel="image_MouseWheel" 
                     MouseMove="image_MouseMove"
                     MouseUp="image_MouseUp"
-                    MouseLeave="image_MouseLeave"
-                    MouseEnter="image_MouseEnter"
                     MouseRightButtonDown="image_MouseRightButtonDown"
+                    MouseLeftButtonDown="image_MouseLeftButtonDown"
                 />
             </Grid>
         </Border>

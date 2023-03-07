@@ -294,12 +294,12 @@ namespace SignalPlot
                 {
                     if (Keyboard.IsKeyDown(Key.LeftCtrl))
                     {
-                        if (plotSelectXPressed == null)
-                        {
-                            plotSelectXPressed = currentX;
-                            SelectedXRange = new FloatRange(currentX, currentX);
-                        }
-                        else if(SelectedXRange != null)
+                        //if (plotSelectXPressed == null)
+                        //{
+                        //    plotSelectXPressed = currentX;
+                        //    SelectedXRange = new FloatRange(currentX, currentX);
+                        //}
+                        if(plotSelectXPressed != null && SelectedXRange != null)
                         {
                             SelectedXRange = new FloatRange(
                                 Math.Min(plotSelectXPressed.Value, currentX),
@@ -344,35 +344,37 @@ namespace SignalPlot
             }   
         }
 
-        private void image_MouseLeave(object sender, MouseEventArgs e)
+        private void image_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            //if(plotSelectXPressed != null && SelectedInterval != null)
-            //{
-            //    double x = e.GetPosition(image).X;
-            //    if (x < 0)
-            //        SelectedInterval = new IntRange(Interval.Start, SelectedInterval.Value.End);
-            //    if (x > image.ActualWidth)
-            //        SelectedInterval = new IntRange(SelectedInterval.Value.Start, Interval.End);
-            //}
-        }
+            double x = e.GetPosition(image).X;
 
-        private void image_MouseEnter(object sender, MouseEventArgs e)
-        {
-        //    if (e.LeftButton == MouseButtonState.Pressed && Keyboard.IsKeyDown(Key.LeftCtrl))
-        //    {
-        //        double x = e.GetPosition(image).X;
+            if (x < 0)
+                x = 0;
 
-        //        if(x < 50)
-        //        {
-        //            plotSelectXPressed = Interval.Start;
-        //            SelectedXRange = new FloatRange(XRange.Start, XRange.Start);
-        //        }
-        //        else if(x > image.ActualWidth-50)
-        //        {
-        //            plotSelectXPressed = Interval.End;
-        //            SelectedXRange = new FloatRange(XRange.End, XRange.End);
-        //        }
-        //    }
+            if (x > image.ActualWidth)
+                x = image.ActualWidth;
+
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && 
+                DataContext is PlotData plotData)
+            {
+                float currentX = (float)(x / image.ActualWidth * XRange.Length) + XRange.Start;
+                if (currentX < 0)
+                    currentX = 0;
+                else if (currentX > plotData.Y.Length)
+                    currentX = plotData.Y.Length;
+
+                if (plotSelectXPressed == null)
+                {
+                    plotSelectXPressed = currentX;
+                    SelectedXRange = new FloatRange(currentX, currentX);
+                }
+                else if (SelectedXRange != null)
+                {
+                    SelectedXRange = new FloatRange(
+                        Math.Min(plotSelectXPressed.Value, currentX),
+                        Math.Max(plotSelectXPressed.Value, currentX));
+                }
+            }
         }
 
         private void image_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
