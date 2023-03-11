@@ -13,4 +13,4 @@ This project shows some problems in Avalonia
 WriteableBitmap in Avalonia has the advantage over WPF that it can be created in worker thread for better performance
 (that does not apply to the Textblocks in Canvas though).
 
-Project JpegAvaloniaAsync show worker thread processing of WriteableBitmap.
+Project JpegAvaloniaAsync shows worker thread (async) processing of WriteableBitmap.
