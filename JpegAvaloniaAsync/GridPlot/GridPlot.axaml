@@ -1,0 +1,13 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 DataContextChanged="GridPlot_DataContextChanged"
+             x:Class="JpegAvaloniaAsync.GridPlot">
+	<Border x:Name="border" Grid.Column="1" Grid.Row="0" BorderBrush="Black" BorderThickness="0">
+		<Grid x:Name="grid">
+			<Image Name="image" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			<Canvas Name="canvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+		</Grid>
+	</Border>
+</UserControl>

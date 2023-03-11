@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JpegWpf", "JpegWpf\JpegWpf.csproj", "{96D7A9C5-2642-47F7-8564-6FADD8DDEA98}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JpegLib", "JpegLib\JpegLib.csproj", "{38F75769-23DA-4ECD-860D-FD3BF0C59A36}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JpegAvalonia", "JpegAvalonia\JpegAvalonia.csproj", "{DAFDE816-2034-4266-906F-68153AA61D54}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JpegAvaloniaAsync", "JpegAvaloniaAsync\JpegAvaloniaAsync.csproj", "{CF1CFC78-AB1C-4C88-B695-AF8780D8B7BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{96D7A9C5-2642-47F7-8564-6FADD8DDEA98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96D7A9C5-2642-47F7-8564-6FADD8DDEA98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96D7A9C5-2642-47F7-8564-6FADD8DDEA98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96D7A9C5-2642-47F7-8564-6FADD8DDEA98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38F75769-23DA-4ECD-860D-FD3BF0C59A36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38F75769-23DA-4ECD-860D-FD3BF0C59A36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38F75769-23DA-4ECD-860D-FD3BF0C59A36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38F75769-23DA-4ECD-860D-FD3BF0C59A36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAFDE816-2034-4266-906F-68153AA61D54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAFDE816-2034-4266-906F-68153AA61D54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAFDE816-2034-4266-906F-68153AA61D54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAFDE816-2034-4266-906F-68153AA61D54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF1CFC78-AB1C-4C88-B695-AF8780D8B7BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF1CFC78-AB1C-4C88-B695-AF8780D8B7BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF1CFC78-AB1C-4C88-B695-AF8780D8B7BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF1CFC78-AB1C-4C88-B695-AF8780D8B7BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DF6983B5-94DE-47AD-9FA9-2B4866BA5389}
+	EndGlobalSection
+EndGlobal
