@@ -7,8 +7,8 @@ This is implemented in both Avalonia and WPF (.Net) using WriteableBitmap
 
 This project shows some problems in Avalonia
 
-1. Performance problems with many TextBlocks in Canvas
-2. Grid column that should be equally sized are not
+1. Performance problems with multiple TextBlocks in Canvas
+2. Grid columns that should be equally sized are not, due to overflowing TextBlocks.
 
 WriteableBitmap in Avalonia has the advantage over WPF that it can be created in worker thread for better performance
 (that does not apply to the Textblocks in Canvas though).
