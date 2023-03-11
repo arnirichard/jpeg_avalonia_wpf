@@ -128,6 +128,12 @@ namespace JpegAvaloniaAsync
 
                     for (int i = 0; i < values.Length; i++)
                     {
+                        if(values != currentValues)
+                        {
+                            taskCompletionSource.SetResult(null);
+                            break;
+                        }
+
                         x = i / NumColumns;
                         y = i % NumColumns;
 
