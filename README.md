@@ -16,4 +16,3 @@ WriteableBitmap in Avalonia has the advantage over WPF that it can be created in
 Project JpegAvaloniaAsync shows worker thread (async) processing of WriteableBitmap.
 
 ![Alt text](screenshot.png?raw=true)
-![Alt text](screenshot.jpg?raw=true)
