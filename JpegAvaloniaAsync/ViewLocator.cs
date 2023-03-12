@@ -7,9 +7,9 @@ namespace JpegAvaloniaAsync
 {
     public class ViewLocator : IDataTemplate
     {
-        public IControl Build(object data)
+        public Control? Build(object? param)
         {
-            var name = data.GetType().FullName!.Replace("ViewModel", "View");
+            var name = param?.GetType().FullName!.Replace("ViewModel", "View");
             var type = Type.GetType(name);
 
             if (type != null)
@@ -22,7 +22,7 @@ namespace JpegAvaloniaAsync
             }
         }
 
-        public bool Match(object data)
+        public bool Match(object? data)
         {
             return data is ViewModelBase;
         }
