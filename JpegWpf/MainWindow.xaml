@@ -6,6 +6,13 @@
         Width="2500" Height="1000"
         xmlns:local="clr-namespace:JpegWpf"
         Title="Jpeg WPF">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Margin" Value="10" />
+            <Setter Property="FontSize" Value="20"/>
+        </Style>
+    </Window.Resources>
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -22,7 +29,11 @@
             <ColumnDefinition Width="30"/>
         </Grid.ColumnDefinitions>
 
-        <Image Name="birdImage" Width="400" HorizontalAlignment="Center" MouseDown="birdImage_MouseDown"/>
+        <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="Select a block by clicking the image."/>
+            <Image Name="birdImage" Width="400" MouseDown="birdImage_MouseDown"/>
+        </StackPanel>
+        
         <TextBlock Text="{Binding RefreshTime}" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
 
         <Grid Grid.Column="1" Height="50" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Aqua">

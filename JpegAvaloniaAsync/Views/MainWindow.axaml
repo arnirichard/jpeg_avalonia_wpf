@@ -36,7 +36,10 @@
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
 
-		<Image Name="birdImage" Width="400"/>
+		<StackPanel VerticalAlignment="Center">
+			<TextBlock Text="Select a block by clicking the image."/>
+			<Image Name="birdImage" Width="400"/>
+		</StackPanel>
 		<TextBlock Text="{Binding RefreshTime}" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
 
 		<Grid Grid.Column="1" Height="50" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Aqua">

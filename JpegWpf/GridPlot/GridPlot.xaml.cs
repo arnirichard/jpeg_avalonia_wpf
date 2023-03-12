@@ -162,11 +162,12 @@ namespace JpegWpf
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Foreground = new SolidColorBrush(black ? Colors.Black : Colors.White),
-                FontSize = 10
+                FontSize = 10,
+                Margin = new Thickness(0)
             };
-                Canvas.SetLeft(textBlock, left);
-                Canvas.SetTop(textBlock, top);
-                return textBlock;
+            Canvas.SetLeft(textBlock, left);
+            Canvas.SetTop(textBlock, top);
+            return textBlock;
         }
     }
 }
