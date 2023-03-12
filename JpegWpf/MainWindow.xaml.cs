@@ -33,6 +33,9 @@ namespace JpegWpf
 
             quant_luminance.DataContext = Quant.QuantLuminance;
             quant_crominance.DataContext = Quant.QuantChrominance;
+
+            this.Height = System.Windows.SystemParameters.PrimaryScreenHeight * 0.8;
+            this.Width = System.Windows.SystemParameters.PrimaryScreenWidth * 0.8;
         }
 
         private void birdImage_MouseDown(object sender, MouseButtonEventArgs e)

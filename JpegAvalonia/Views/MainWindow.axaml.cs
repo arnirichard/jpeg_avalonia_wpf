@@ -35,6 +35,9 @@ namespace JpegAvalonia.Views
 
             birdImage.Source = bitmap;
             birdImage.PointerPressed += BirdImage_PointerPressed;
+
+            Height = Screens.Primary.WorkingArea.Height * 0.8;
+            Width = Screens.Primary.WorkingArea.Width * 0.8;
         }
 
         private unsafe void BirdImage_PointerPressed(object? sender, PointerEventArgs e)

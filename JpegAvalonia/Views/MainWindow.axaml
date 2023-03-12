@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         x:Class="JpegAvalonia.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-		Width="2500" Height="1000"
+		WindowStartupLocation="CenterScreen"
         Title="JpegAvalonia">
 
 	<Window.Styles>
