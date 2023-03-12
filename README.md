@@ -14,3 +14,5 @@ WriteableBitmap in Avalonia has the advantage over WPF that it can be created in
 (that does not apply to the Textblocks in Canvas though).
 
 Project JpegAvaloniaAsync shows worker thread (async) processing of WriteableBitmap.
+
+![Alt text](/screenshot.png?raw=true)
