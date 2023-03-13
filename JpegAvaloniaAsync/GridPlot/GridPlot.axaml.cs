@@ -52,7 +52,7 @@ namespace JpegAvaloniaAsync
             {
                 if (DataContext is int[] values)
                 {
-                    Redraw(values);
+                    _ = Redraw(values);
                 }
             });
 
@@ -63,11 +63,11 @@ namespace JpegAvaloniaAsync
         {
             if (DataContext is int[] values)
             {
-                Redraw(values);
+                _= Redraw(values);
             }
         }
 
-        async void Redraw(int[] values)
+        async Task Redraw(int[] values)
         {
             if(grid.Bounds.Width == 0 || grid.Bounds.Height == 0) 
                 return;
