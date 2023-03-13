@@ -18,6 +18,7 @@ namespace JpegAvaloniaAsync.Views
     public partial class MainWindow : Window
     {
         WriteableBitmap writeableBitmap;
+        const string BirdImagePath = @".\Assets\bird.bmp";
 
         public MainWindow()
         {
@@ -25,10 +26,11 @@ namespace JpegAvaloniaAsync.Views
 
             quant_luminance.DataContext = Quant.QuantLuminance;
             quant_crominance.DataContext = Quant.QuantChrominance;
+            zigzag.DataContext = Zigzag.ZIGZAG;
 
-            var bitmap = new Bitmap(@".\Assets\bird.bmp");
+            var bitmap = new Bitmap(BirdImagePath);
 
-            using (var stream = File.Open(@".\Assets\bird.bmp", FileMode.Open))
+            using (var stream = File.Open(BirdImagePath, FileMode.Open))
             {
                 writeableBitmap = WriteableBitmap.Decode(stream);
             }

@@ -36,6 +36,7 @@
         
         <TextBlock Text="{Binding RefreshTime}" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
 
+        <!-- Show column sizes -->
         <Grid Grid.Column="1" Height="50" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="Aqua">
             <TextBlock Text="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" HorizontalAlignment="Center"></TextBlock>
         </Grid>
@@ -172,6 +173,12 @@
             <TextBlock Margin="10, 10" FontSize="20">Chrom. quant. matrix</TextBlock>
 
             <local:GridPlot x:Name="quant_crominance" BorderThickness="0" NumColumns="8"
+					Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
+					Channel="Abs" GrayScale="true"/>
+
+            <TextBlock Margin="10, 10" FontSize="20">Zigzag matrix</TextBlock>
+
+            <local:GridPlot x:Name="zigzag" BorderThickness="0" NumColumns="8"
 					Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}"
 					Channel="Abs" GrayScale="true"/>
 

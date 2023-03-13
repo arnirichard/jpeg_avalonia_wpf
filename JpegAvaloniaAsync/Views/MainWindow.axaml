@@ -181,6 +181,12 @@
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					Channel="Abs" GrayScale="true"/>
 
+			<TextBlock>Zigzat mat.</TextBlock>
+
+			<local:GridPlot x:Name="zigzag" BorderThickness="0" NumColumns="8"
+					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
+					Channel="Abs" GrayScale="true"/>
+			
 		</StackPanel>
 
 		<!-- DCT QUANTIZED -->

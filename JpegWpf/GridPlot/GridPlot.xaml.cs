@@ -141,7 +141,7 @@ namespace JpegWpf
                         (int)(x + columnWidth) - posX,
                         (int)(y + rowHeight) - posY);
 
-                x += (int)(x + columnWidth) - posX;
+                x += columnWidth;
             }
             
             writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, width, height));

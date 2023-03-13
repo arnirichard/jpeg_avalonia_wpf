@@ -33,6 +33,7 @@ namespace JpegWpf
 
             quant_luminance.DataContext = Quant.QuantLuminance;
             quant_crominance.DataContext = Quant.QuantChrominance;
+            zigzag.DataContext = Zigzag.ZIGZAG;
 
             this.Height = System.Windows.SystemParameters.PrimaryScreenHeight * 0.8;
             this.Width = System.Windows.SystemParameters.PrimaryScreenWidth * 0.8;
