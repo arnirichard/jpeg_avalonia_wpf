@@ -134,8 +134,8 @@ namespace JpegAvaloniaAsync
                             break;
                         }
 
-                        x = i / NumColumns;
-                        y = i % NumColumns;
+                        y = i / NumColumns;
+                        x = i % NumColumns;
 
                         value = values[i];
 
@@ -178,22 +178,6 @@ namespace JpegAvaloniaAsync
             });
 
             return await taskCompletionSource.Task;
-        }
-
-        TextBlock GetTextBlock(long display, double left, double top, bool black, double fontSize)
-        {
-            TextBlock textBlock = new TextBlock()
-            {
-                Text = display.ToString(),
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
-                Foreground = new SolidColorBrush(black ? Colors.Black : Colors.White),
-                FontSize = fontSize,
-                Margin = new Thickness(0)
-            };
-            Canvas.SetLeft(textBlock, left);
-            Canvas.SetTop(textBlock, top);
-            return textBlock;
         }
     }
 }

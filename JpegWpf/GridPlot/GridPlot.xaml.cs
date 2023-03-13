@@ -91,6 +91,7 @@ namespace JpegWpf
             double x = 0, y = -rowHeight;
             int posX, posY;
             writeableBitmap.Lock();
+            double fontSize = height / NumColumns * 0.3;
 
             for (int i = 0; i < values.Length; i++)
             {
@@ -108,7 +109,7 @@ namespace JpegWpf
                     colorValue = (int)((display / maxAbs) * 255);
                     black = colorValue > 127;
                     colorValue = (int)(colorValue << 16 | colorValue << 8 | colorValue | 0xff000000);
-                    canvas.Children.Add(GetTextBlock(display, x, y + 0.2 * rowHeight, black, columnWidth));
+                    canvas.Children.Add(GetTextBlock(display, x, y + 0.2 * rowHeight, black, fontSize, columnWidth));
                 }
                 else if (Channel != ColorChannel.None)
                 {
@@ -124,7 +125,7 @@ namespace JpegWpf
                     }
 
                     black = GrayScale && display > 127;
-                    canvas.Children.Add(GetTextBlock(display, x, y + 0.2 * rowHeight, GrayScale && display > 127, columnWidth));
+                    canvas.Children.Add(GetTextBlock(display, x, y + 0.2 * rowHeight, GrayScale && display > 127, fontSize, columnWidth));
                 }
                 else
                 {
@@ -152,7 +153,7 @@ namespace JpegWpf
             TotRedrawsTicks += stopwatch.ElapsedTicks;
         }
 
-        TextBlock GetTextBlock(long display, double left, double top, bool black, double width)
+        TextBlock GetTextBlock(long display, double left, double top, bool black, double fontSize, double width)
         {
             TextBlock textBlock = new TextBlock()
             {

@@ -55,11 +55,11 @@ namespace JpegAvaloniaAsync
             x = Math.Max(0, x);
             y = Math.Max(0, y);
 
-            int x2 = Math.Min(x + height, writeableBitmap.PixelSize.Height);
-            int y2 = Math.Min(y + width, writeableBitmap.PixelSize.Width);
+            int x2 = Math.Min(x + height, writeableBitmap.PixelSize.Width);
+            int y2 = Math.Min(y + width, writeableBitmap.PixelSize.Height);
 
-            width = y2 - y;
-            height = x2 - x;
+            height = y2 - y;
+            width = x2 - x;
 
             if (width <= 0 || height <= 0)
                 return;
@@ -68,47 +68,17 @@ namespace JpegAvaloniaAsync
             {
                 var ptr = (uint*)buf.Address;
 
-                ptr += y + buf.Size.Width * x;
+                ptr += y * buf.Size.Width + x;
 
-                for (int _x = 0; _x < height; _x++)
+                for (int _y = 0; _y < height; _y++)
                 {
-                    for (int _y = 0; _y < width; _y++)
+                    for (int _x = 0; _x < width; _x++)
                     {
                         *ptr = color;
                         ptr += 1;
                     }
                     ptr += buf.Size.Width - width;
                 }
-            }
-        }
-
-        internal static unsafe void PaintRect(this ILockedFramebuffer buf, uint color, int x, int y, int width, int height)
-        {
-            x = Math.Max(0, x);
-            y = Math.Max(0, y);
-
-            int x2 = Math.Min(x + height, buf.Size.Height);
-            int y2 = Math.Min(y + width, buf.Size.Width);
-
-            width = y2 - y;
-            height = x2 - x;
-
-            if (width <= 0 || height <= 0)
-                return;
-
-
-            var ptr = (uint*)buf.Address;
-
-            ptr += y + buf.Size.Width * x;
-
-            for (int _x = 0; _x < height; _x++)
-            {
-                for (int _y = 0; _y < width; _y++)
-                {
-                    *ptr = color;
-                    ptr += 1;
-                }
-                ptr += buf.Size.Width - width;
             }
         }
     }

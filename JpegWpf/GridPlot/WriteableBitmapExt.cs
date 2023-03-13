@@ -75,21 +75,18 @@ namespace JpegWpf
 
                 ptr += y * writeableBitmap.BackBufferStride + x * 4;
 
-                for (int _x = 0; _x < height; _x++)
-                {
-                    for (int _y = 0; _y < width; _y++)
+                for (int _y = 0; _y < height; _y++)
+                { 
+                    for (int _x = 0; _x < width; _x++)
                     {
                         *(int*)ptr = color;
                         ptr += 4;
                     }
                     ptr += writeableBitmap.BackBufferStride - width * 4;
                 }
-
-                
             }
             finally
             {
-                //writeableBitmap.Unlock();
             }
         }
     }

@@ -113,8 +113,8 @@ namespace JpegAvalonia
 
                 for (int i = 0; i < values.Length; i++)
                 {
-                    x = i / NumColumns;
-                    y = i % NumColumns;
+                    y = i / NumColumns;
+                    x = i % NumColumns;
 
                     value = values[i];
 
@@ -124,7 +124,7 @@ namespace JpegAvalonia
                         colorValue = (uint)((display / maxAbs) * 255);
                         black = colorValue > 127;
                         colorValue = colorValue << 16 | colorValue << 8 | colorValue | 0xff000000;
-                        canvas.Children.Add(GetTextBlock(display, (y + 0.3) * columnWidth, (x + 0.3) * rowHeight, black, fontSize));
+                        canvas.Children.Add(GetTextBlock(display, x * columnWidth, (y + 0.3) * rowHeight, black, fontSize, columnWidth));
                     }
                     else if (Channel != ColorChannel.None)
                     {
@@ -139,7 +139,7 @@ namespace JpegAvalonia
                             colorValue = (uint)((display << channelValue) | 0xff000000);
                         }
 
-                        canvas.Children.Add(GetTextBlock(display, (y + 0.3) * columnWidth, (x + 0.3) * rowHeight, GrayScale && display > 127, fontSize));
+                        canvas.Children.Add(GetTextBlock(display, x * columnWidth,(y + 0.3) * rowHeight, GrayScale && display > 127, fontSize, columnWidth));
                     }
                     else
                     {
@@ -147,8 +147,8 @@ namespace JpegAvalonia
                     }
 
                     writeableBitmap.PaintRect(colorValue,
-                                x * columnWidth, y * rowHeight,
-                                    columnWidth, rowHeight);
+                        x * columnWidth, y * rowHeight,
+                        columnWidth, rowHeight);
                 }
                     
                 return writeableBitmap;
@@ -159,13 +159,15 @@ namespace JpegAvalonia
             }
         }
 
-        TextBlock GetTextBlock(long display, double left, double top, bool black, double fontSize)
+        TextBlock GetTextBlock(long display, double left, double top, bool black, double fontSize, double width)
         {
             TextBlock textBlock = new TextBlock()
             {
                 Text = display.ToString(),
+                Width = width,
                 TextAlignment = TextAlignment.Center,
                 VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
                 Foreground = new SolidColorBrush(black ? Colors.Black : Colors.White),
                 FontSize = fontSize,
                 Margin = new Thickness(0)
