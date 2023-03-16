@@ -8,11 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Concurrency;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
 namespace JpegAvalonia
 {
@@ -22,7 +17,7 @@ namespace JpegAvalonia
         Red = 16,
         Green = 8,
         Blue = 0,
-        Abs = 1
+        Range = 1
     }
 
     public partial class GridPlot : UserControl
@@ -37,6 +32,7 @@ namespace JpegAvalonia
         public int NumColumns { get; set; }
         public ColorChannel Channel { get; set; } = ColorChannel.None;
         public bool GrayScale { get; set; }
+        public int AddDisplayValue { get; set; }
 
         public static int NumRedraws;
         public static long TotRedrawsTicks;
@@ -95,36 +91,39 @@ namespace JpegAvalonia
                     Avalonia.Platform.PixelFormat.Bgra8888,
                     Avalonia.Platform.AlphaFormat.Unpremul);
 
-                int y, x;
-                int rows = values.Length / NumColumns + ((values.Length % NumColumns) > 0 ? 1 : 0);
-                int columnWidth = width / NumColumns;
-                int rowHeight = height / rows;
+                int rows = (values.Length+ NumColumns-1) / NumColumns;
+                double columnWidth = width / (double)NumColumns;
+                double rowHeight = height / (double)rows;
                 int value;
                 uint colorValue;
                 long display;
                 int channelValue = (int)Channel;
-                canvas.Children.Clear();
-                
-                double maxAbs = Channel == ColorChannel.Abs ? values.Select(v => Math.Abs(v)).Max() : 255;
+                canvas.Children.Clear();                
                 bool black;
-                if (maxAbs == 0)
-                    maxAbs = 1;
                 double fontSize = height / NumColumns * 0.3;
+                int posX, posY;
+                double x = 0, y = -rowHeight;
+
+                double maxRange = Channel == ColorChannel.Range ? values.Max() : 255;
+                double minRange = Channel == ColorChannel.Range ? Math.Min(0, values.Min()) : 0;
 
                 for (int i = 0; i < values.Length; i++)
                 {
-                    y = i / NumColumns;
-                    x = i % NumColumns;
+                    if (i % NumColumns == 0)
+                    {
+                        y += rowHeight;
+                        x = 0;
+                    }
 
                     value = values[i];
 
-                    if (Channel == ColorChannel.Abs)
+                    if (Channel == ColorChannel.Range)
                     {
-                        display = value < 0 ? -value : value;
-                        colorValue = (uint)((display / maxAbs) * 255);
+                        display = value;
+                        colorValue = (uint)(((display - minRange) / (maxRange-minRange)) * 255);
                         black = colorValue > 127;
                         colorValue = colorValue << 16 | colorValue << 8 | colorValue | 0xff000000;
-                        canvas.Children.Add(GetTextBlock(display, x * columnWidth, (y + 0.3) * rowHeight, black, fontSize, columnWidth));
+                        canvas.Children.Add(GetTextBlock(display+AddDisplayValue, x, y + 0.3 * rowHeight, black, fontSize, columnWidth));
                     }
                     else if (Channel != ColorChannel.None)
                     {
@@ -139,16 +138,23 @@ namespace JpegAvalonia
                             colorValue = (uint)((display << channelValue) | 0xff000000);
                         }
 
-                        canvas.Children.Add(GetTextBlock(display, x * columnWidth,(y + 0.3) * rowHeight, GrayScale && display > 127, fontSize, columnWidth));
+                        canvas.Children.Add(GetTextBlock(display+ AddDisplayValue, x, y + 0.3 * rowHeight, GrayScale && display > 127, fontSize, columnWidth));
                     }
                     else
                     {
                         colorValue = (uint)value;
                     }
 
+                    posX = (int)x;
+                    posY = (int)y;
+
                     writeableBitmap.PaintRect(colorValue,
-                        x * columnWidth, y * rowHeight,
-                        columnWidth, rowHeight);
+                        posX % width,
+                        posY % height,
+                        (int)Math.Ceiling(x + columnWidth) - posX,
+                        (int)Math.Ceiling(y + rowHeight) - posY);
+
+                    x += columnWidth;
                 }
                     
                 return writeableBitmap;

@@ -8,7 +8,7 @@ namespace JpegLib
 {
     public class BlockAnalysisData
     {
-        public int[] Rgb { get; set; }
+        public int[]? Rgb { get; set; }
         public int[]? Yuv { get; set; }
         public int[]? YDct { get; set; }
         public int[]? UDct { get; set; }
@@ -27,27 +27,22 @@ namespace JpegLib
 
         public static BlockAnalysisData CreateFrom(int[] rgb)
         {
-            int[] originalYuv = YuvRgb.RgbToYuv(rgb);
-            int[][] yuv = new int[3][];
-            int[][] dct = new int[3][];
-            int ff;
-
-            for (int i = 0; i < yuv.Length; i++)
+            // Adding 128 so the values fit into 0-255
+            int[][] yuv = YCbCrRgbColor.RgbToYCrCb(rgb, 0);
+            int[] originalYuv = new int[64];
+            for (int i = 0; i < originalYuv.Length; i++)
             {
-                var arr = yuv[i] = new int[64];
-                ff = 0xff << (16 - i * 8);
-                for (int j = 0; j < 64; j++)
-                {
-                    arr[j] = ((originalYuv[j] & ff) >> (16 - i * 8));
-                }
+                originalYuv[i] = ((yuv[0][i] + 128) << 16) + ((yuv[1][i] + 128) << 8) + yuv[2][i];
             }
-
+            
+            int[][] dct = new int[3][];
+           
             for (int i = 0; i < yuv.Length; i++)
             {
                 dct[i] = DCT.ForwardFast(yuv[i]);
             }
 
-            int[] quantLuminance = Quant.QuantLuminance; // .NoQuant;
+            int[] quantLuminance = Quant.QuantLuminance;
             int[] quantChrominance = Quant.QuantChrominance;
             int[] lum_quant_dct = Quant.Quantize(dct[0], quantLuminance);
             int[] u_quant_dct = Quant.Quantize(dct[1], quantChrominance);
@@ -63,10 +58,10 @@ namespace JpegLib
 
             for (int i = 0; i < jpegYuv.Length; i++)
             {
-                jpegYuv[i] = (Math.Min(255, Math.Max(0, idct_y[i])) << 16) + (Math.Min(255, Math.Max(0, idct_u[i])) << 8) + Math.Min(255, Math.Max(0, idct_v[i]));
+                jpegYuv[i] = (Math.Min(255, Math.Max(0, idct_y[i]+128)) << 16) + (Math.Min(255, Math.Max(0, idct_u[i] + 128)) << 8) + Math.Min(255, Math.Max(0, idct_v[i] + 128));
             }
 
-            int[] jpegRgb = YuvRgb.YuvToRgb(jpegYuv);
+            int[] jpegRgb = YCbCrRgbColor.YuvToRgb(jpegYuv, 128);
 
             return new BlockAnalysisData()
             {

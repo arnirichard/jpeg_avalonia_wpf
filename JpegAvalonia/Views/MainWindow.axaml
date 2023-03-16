@@ -123,21 +123,21 @@
 
 			<local:GridPlot BorderThickness="0" NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Red" GrayScale="true"
+					Channel="Red" GrayScale="true" AddDisplayValue="-128"
 					DataContext="{Binding Analysis.Yuv}"/>
 
-			<TextBlock>U</TextBlock>
+			<TextBlock>Cb</TextBlock>
 
 			<local:GridPlot BorderThickness="0" NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Green"
+					Channel="Green" AddDisplayValue="-128"
 					DataContext="{Binding Analysis.Yuv}"/>
 
-			<TextBlock>V</TextBlock>
+			<TextBlock>Cr</TextBlock>
 
 			<local:GridPlot BorderThickness="0"  NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Blue"
+					Channel="Blue" AddDisplayValue="-128"
 					DataContext="{Binding Analysis.Yuv}"/>
 
 		</StackPanel>
@@ -149,21 +149,21 @@
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.YDct}"/>
 
-			<TextBlock>U DCT</TextBlock>
+			<TextBlock>Cb DCT</TextBlock>
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.UDct}"/>
 			
-			<TextBlock>V DCT</TextBlock>
+			<TextBlock>Cr DCT</TextBlock>
 
 			<local:GridPlot NumColumns="8" 
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.VDct}"/>
 		</StackPanel>
 
@@ -174,19 +174,19 @@
 
 			<local:GridPlot x:Name="quant_luminance" BorderThickness="0" NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"/>
+					Channel="Range" GrayScale="true"/>
 
 			<TextBlock>Chrom. quant. mat.</TextBlock>
 
 			<local:GridPlot x:Name="quant_crominance" BorderThickness="0" NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"/>
+					Channel="Range" GrayScale="true"/>
 
 			<TextBlock>Zigzat mat.</TextBlock>
 
 			<local:GridPlot x:Name="zigzag" BorderThickness="0" NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"/>
+					Channel="Range" GrayScale="true"/>
 
 		</StackPanel>
 
@@ -197,21 +197,21 @@
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.YDctQuantized}"/>
 
-			<TextBlock>U DCT Quant</TextBlock>
+			<TextBlock>Cb DCT Quant</TextBlock>
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.UDctQuantized}"/>
 
-			<TextBlock>V DCT Quant</TextBlock>
+			<TextBlock>Cr DCT Quant</TextBlock>
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.VDctQuantized}"/>
 		
 		</StackPanel>
@@ -223,21 +223,21 @@
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.YDctQZigZagged}"/>
 
-			<TextBlock>U DCT Q ZZ</TextBlock>
+			<TextBlock>Cb DCT Q ZZ</TextBlock>
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.UDctQZigZagged}"/>
 
-			<TextBlock>V DCT Q ZZ</TextBlock>
+			<TextBlock>Cr DCT Q ZZ</TextBlock>
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.VDctQZigZagged}"/>
 	
 		</StackPanel>
@@ -246,23 +246,23 @@
 
 			<TextBlock>Y IDCT</TextBlock>
 
-			<local:GridPlot x:Name="idct_luminance" BorderThickness="0" NumColumns="8"
+			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true" 
 					DataContext="{Binding Analysis.YIDct}"/>
 
-			<TextBlock>U IDCT</TextBlock>
+			<TextBlock>Cb IDCT</TextBlock>
 
-			<local:GridPlot x:Name="idct_cr" BorderThickness="0" NumColumns="8"
+			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true" 
 					DataContext="{Binding Analysis.UIDct}"/>
 
-			<TextBlock>V IDCT</TextBlock>
+			<TextBlock>Cr IDCT</TextBlock>
 
-			<local:GridPlot x:Name="idct_cb" BorderThickness="0" NumColumns="8"
+			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Abs" GrayScale="true"
+					Channel="Range" GrayScale="true" 
 					DataContext="{Binding Analysis.VIDct}"/>
 
 		</StackPanel>
@@ -273,21 +273,21 @@
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Red" GrayScale="true"
+					Channel="Red" GrayScale="true" AddDisplayValue="-128"
 					DataContext="{Binding Analysis.JpegYuv}"/>
 
-			<TextBlock>U JPEG</TextBlock>
+			<TextBlock>Cb JPEG</TextBlock>
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Green" 
+					Channel="Green" AddDisplayValue="-128"
 					DataContext="{Binding Analysis.JpegYuv}"/>
 
-			<TextBlock>V JPEG</TextBlock>
+			<TextBlock>Cr JPEG</TextBlock>
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Blue"
+					Channel="Blue" AddDisplayValue="-128"
 					DataContext="{Binding Analysis.JpegYuv}"/>			
 		
 		</StackPanel>

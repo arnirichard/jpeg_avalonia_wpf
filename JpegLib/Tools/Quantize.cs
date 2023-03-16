@@ -65,5 +65,10 @@ namespace JpegLib
 
             return result;
         }
+
+        public static int Dequantize(int number, int index, int[] quantTable)
+        {
+            return number * quantTable[index];
+        }
     }
 }

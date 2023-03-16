@@ -23,7 +23,7 @@ namespace JpegWpf
         Red = 16,
         Green = 8,
         Blue = 0,
-        Abs = 1
+        Range = 1
     }
 
     public partial class GridPlot : UserControl
@@ -38,6 +38,7 @@ namespace JpegWpf
         public int NumColumns { get; set; }
         public ColorChannel Channel { get; set; } = ColorChannel.None;
         public bool GrayScale { get; set; }
+        public int AddDisplayValue { get; set; }
 
         public static int NumRedraws;
         public static long TotRedrawsTicks;
@@ -74,24 +75,24 @@ namespace JpegWpf
             int height = (int)grid.ActualHeight;
 
             WriteableBitmap writeableBitmap = new WriteableBitmap(width, height,
-                96, 96, PixelFormats.Bgr32, null);          
+                96, 96, PixelFormats.Bgr32, null);
 
-            int rows = values.Length / NumColumns + ((values.Length % NumColumns) > 0 ? 1 : 0);
+            int rows = (values.Length + NumColumns - 1) / NumColumns;
             double columnWidth = width / (double)NumColumns;
             double rowHeight = height / (double)rows;
             int value;
             int colorValue;
-            long display = 0;
+            long display;
             int channelValue = (int)Channel;
             canvas.Children.Clear();
-            double maxAbs = Channel == ColorChannel.Abs ? values.Select(v => Math.Abs(v)).Max() : 255;
-            bool black = false;
-            if (maxAbs == 0)
-                maxAbs = 1;
+            bool black;
             double x = 0, y = -rowHeight;
             int posX, posY;
             writeableBitmap.Lock();
             double fontSize = height / NumColumns * 0.3;
+
+            double maxRange = Channel == ColorChannel.Range ? values.Max() : 255;
+            double minRange = Channel == ColorChannel.Range ? Math.Min(0, values.Min()) : 0;
 
             for (int i = 0; i < values.Length; i++)
             {
@@ -103,13 +104,13 @@ namespace JpegWpf
 
                 value = values[i];
 
-                if (Channel == ColorChannel.Abs)
+                if (Channel == ColorChannel.Range)
                 {
-                    display = value < 0 ? -value : value;
-                    colorValue = (int)((display / maxAbs) * 255);
+                    display = value;
+                    colorValue = (int)(((display - minRange) / (maxRange - minRange)) * 255);
                     black = colorValue > 127;
                     colorValue = (int)(colorValue << 16 | colorValue << 8 | colorValue | 0xff000000);
-                    canvas.Children.Add(GetTextBlock(display, x, y + 0.2 * rowHeight, black, fontSize, columnWidth));
+                    canvas.Children.Add(GetTextBlock(display+ AddDisplayValue, x, y + 0.2 * rowHeight, black, fontSize, columnWidth));
                 }
                 else if (Channel != ColorChannel.None)
                 {
@@ -125,7 +126,7 @@ namespace JpegWpf
                     }
 
                     black = GrayScale && display > 127;
-                    canvas.Children.Add(GetTextBlock(display, x, y + 0.2 * rowHeight, GrayScale && display > 127, fontSize, columnWidth));
+                    canvas.Children.Add(GetTextBlock(display+ AddDisplayValue, x, y + 0.2 * rowHeight, GrayScale && display > 127, fontSize, columnWidth));
                 }
                 else
                 {

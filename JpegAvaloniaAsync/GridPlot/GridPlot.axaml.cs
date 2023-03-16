@@ -22,7 +22,7 @@ namespace JpegAvaloniaAsync
         Red = 16,
         Green = 8,
         Blue = 0,
-        Abs = 1
+        Range = 1
     }
 
     public partial class GridPlot : UserControl
@@ -37,6 +37,7 @@ namespace JpegAvaloniaAsync
         public int NumColumns { get; set; }
         public ColorChannel Channel { get; set; } = ColorChannel.None;
         public bool GrayScale { get; set; }
+        public int AddDisplayValue { get; set; }
 
         public static int NumRedraws;
         public static long TotRedrawsTicks;
@@ -111,19 +112,20 @@ namespace JpegAvaloniaAsync
                         Avalonia.Platform.PixelFormat.Bgra8888,
                         Avalonia.Platform.AlphaFormat.Unpremul);
 
-                    int y, x;
-                    int rows = values.Length / NumColumns + ((values.Length % NumColumns) > 0 ? 1 : 0);
+                    int rows = (values.Length + NumColumns - 1) / NumColumns;
                     int columnWidth = width / NumColumns;
                     int rowHeight = height / rows;
                     int value;
                     uint colorValue;
                     long display;
                     int channelValue = (int)Channel;
-
-                    double maxAbs = Channel == ColorChannel.Abs ? values.Select(v => Math.Abs(v)).Max() : 255;
                     bool black;
-                    if (maxAbs == 0)
-                        maxAbs = 1;
+                    int posX, posY;
+                    double x = 0, y = -rowHeight;
+
+                    double maxRange = Channel == ColorChannel.Range ? values.Max() : 255;
+                    double minRange = Channel == ColorChannel.Range ? Math.Min(0, values.Min()) : 0;
+
                     double fontSize = height / NumColumns * 0.3;
 
                     for (int i = 0; i < values.Length; i++)
@@ -134,15 +136,18 @@ namespace JpegAvaloniaAsync
                             break;
                         }
 
-                        y = i / NumColumns;
-                        x = i % NumColumns;
+                        if (i % NumColumns == 0)
+                        {
+                            y += rowHeight;
+                            x = 0;
+                        }
 
                         value = values[i];
 
-                        if (Channel == ColorChannel.Abs)
+                        if (Channel == ColorChannel.Range)
                         {
                             display = value < 0 ? -value : value;
-                            colorValue = (uint)((display / maxAbs) * 255);
+                            colorValue = (uint)(((display - minRange) / (maxRange - minRange)) * 255);
                             black = colorValue > 127;
                             colorValue = colorValue << 16 | colorValue << 8 | colorValue | 0xff000000;
                         }
@@ -164,9 +169,16 @@ namespace JpegAvaloniaAsync
                             colorValue = (uint)value;
                         }
 
+                        posX = (int)x;
+                        posY = (int)y;
+
                         writeableBitmap.PaintRect(colorValue,
-                                    x * columnWidth, y * rowHeight,
-                                        columnWidth, rowHeight);
+                            posX % width,
+                            posY % height,
+                            (int)Math.Ceiling(x + columnWidth) - posX,
+                            (int)Math.Ceiling(y + rowHeight) - posY);
+
+                        x += columnWidth;
                     }
 
                     taskCompletionSource.SetResult(writeableBitmap);
