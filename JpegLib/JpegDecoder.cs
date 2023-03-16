@@ -19,8 +19,6 @@ namespace JpegLib
             
             int[][][] yuvBlocks = YuvBlocksJfif.JfifToYuvBlocks(jfif);
 
-            var jfif2  = YuvBlocksJfif.YCbCrBlocksToJfif(yuvBlocks, jfif.Width, jfif.Height);
-
             int[][] rgbBlocks = YCbCrRgbBlocks.YuvToRgb(yuvBlocks, jfif);
 
             BMP.WriteBitmap(bmpFileName, new BmpData(jfif.Width, jfif.Height, rgbBlocks));
