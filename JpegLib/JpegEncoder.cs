@@ -17,7 +17,7 @@ namespace JpegLib
 
             Jfif jfif = YuvBlocksJfif.YCbCrBlocksToJfif(yuvBlocks, bmpData.Width, bmpData.Height);
 
-            JpegSegments jpegSegments = jfif.ToSegments();
+            List<JpegSegment> jpegSegments = jfif.ToSegments();
 
             jpegSegments.WriteJpeg(jpgFileName);
         }

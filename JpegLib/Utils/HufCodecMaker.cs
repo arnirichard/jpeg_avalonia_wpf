@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace JpegLib
 {
+    // Class that creates HufCodec instances from blocks, both DC and AC
     public class HufCodecMaker
     {
         Dictionary<int, int> dcFreq = new();

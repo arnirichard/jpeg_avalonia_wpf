@@ -13,15 +13,48 @@ namespace JpegLib
     {
         public static async Task Decode(string jpegFileName, string bmpFileName)
         {
-            JpegSegments jpegSegments = await JpegSegments.ReadJpeg(jpegFileName);
+            List<JpegSegment> jpegSegments = await JpegSegments.ReadJpeg(jpegFileName);
 
             Jfif jfif = Jfif.FromSegments(jpegSegments);
-            
-            int[][][] yuvBlocks = YuvBlocksJfif.JfifToYuvBlocks(jfif);
+            int counter = 0;
 
-            int[][] rgbBlocks = YCbCrRgbBlocks.YuvToRgb(yuvBlocks, jfif);
+            foreach (var segment in jfif.Segments)
+            {
+                if (segment is StartOfScan s)
+                {
+                    counter++;
+                    YuvBlocksJfif.JfifToYuvBlocks(jfif, s);
+                }
+                else if (segment is HufCodec c)
+                {
+                    jfif.SetHufCodec(c);
+                }
+            }            
 
-            BMP.WriteBitmap(bmpFileName, new BmpData(jfif.Width, jfif.Height, rgbBlocks));
+            if(jfif.Header.IsProgessive)
+            {
+                for(int i = 0; i < jfif.YCbCrBlocks.Length; i++)
+                {
+                    for (int c = 0; c < jfif.Header.NumberOfComponents; c++)
+                    {
+                        if (jfif.YCbCrBlocks[i][c] != null)
+                            jfif.YCbCrBlocks[i][c] = Quant.Dequantize(jfif.YCbCrBlocks[i][c], jfif.QuantizationTables[jfif.Header.Components[c].QuantizationTableIndex].Table);
+                    }
+                }
+
+                for (int i = 0; i < jfif.YCbCrBlocks.Length; i++)
+                {
+                    for (int c = 0; c < jfif.Header.NumberOfComponents; c++)
+                    {
+                        if (jfif.YCbCrBlocks[i][c] != null)
+                            jfif.YCbCrBlocks[i][c] = DCT.InverseFast(jfif.YCbCrBlocks[i][c]);
+                    }
+                }
+            }
+
+            int[][] rgbBlocks = YCbCrRgbBlocks.YCbCrToRgb(jfif.YCbCrBlocks, jfif.Header);
+
+            BMP.WriteBitmap(bmpFileName, new BmpData(jfif.Header.Width, jfif.Header.Height, rgbBlocks));
         }
     }
 

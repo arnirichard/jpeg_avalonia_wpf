@@ -170,19 +170,19 @@
 		<!-- QUANTIZATION MATRICES -->
 		<StackPanel Orientation="Vertical" Grid.Column="5" Margin="10, 10">
 
-			<TextBlock>Lum. quant. mat.</TextBlock>
+			<TextBlock Background="Yellow">Lum. quant. mat.</TextBlock>
 
 			<local:GridPlot x:Name="quant_luminance" BorderThickness="0" NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					Channel="Range" GrayScale="true"/>
 
-			<TextBlock>Chrom. quant. mat.</TextBlock>
+			<TextBlock Background="Yellow">Chrom. quant. mat.</TextBlock>
 
 			<local:GridPlot x:Name="quant_crominance" BorderThickness="0" NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					Channel="Range" GrayScale="true"/>
 
-			<TextBlock>Zigzat mat.</TextBlock>
+			<TextBlock Background="Yellow">Zigzat mat.</TextBlock>
 
 			<local:GridPlot x:Name="zigzag" BorderThickness="0" NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"

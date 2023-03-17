@@ -15,18 +15,13 @@ namespace JpegLib
         public int SampFactorH; // Horizontal
         // Quantization table id
         public int QuantizationTableIndex;
-        public int HuffmanTableIdAc;
-        public int HuffmanTableIdDc;
 
-        public ColorComponent(int id, int sampFactorV, int sampFactorH, int qtabIdx,
-            int hfTableIdAc = 0, int hftableIdDc = 0)
+        public ColorComponent(int id, int sampFactorV, int sampFactorH, int qtabIdx)
         {
             Id = id;
             SampFactorV = sampFactorV;
             SampFactorH = sampFactorH;
             QuantizationTableIndex = qtabIdx;
-            HuffmanTableIdAc = hfTableIdAc;
-            HuffmanTableIdDc= hftableIdDc;
         }
     }
 }

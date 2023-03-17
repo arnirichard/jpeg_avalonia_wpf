@@ -8,7 +8,7 @@ namespace JpegLib
 {
     public static class YCbCrRgbBlocks
     {
-        public static int[][] YuvToRgb(int[][][] yuvBlocks, Jfif jfif)
+        public static int[][] YCbCrToRgb(int[][][] yuvBlocks, JfifHeader jfif)
         {
             int[] yBlock, uBlock, vBlock, rgbBlock;
             int[][] rgbBlocks = new int[jfif.NumBlocks][];

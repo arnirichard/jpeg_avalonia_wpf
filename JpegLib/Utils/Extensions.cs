@@ -19,5 +19,15 @@ namespace JpegLib
             }
             return length;
         }
+
+        public static string Print(this ArraySegment<byte> arrSeg)
+        {
+            StringBuilder stringBuilder= new StringBuilder();
+            for (int i = arrSeg.Offset; i < (arrSeg.Offset + arrSeg.Count); i++)
+            {
+                stringBuilder.Append(string.Format( "[{0}]:{1}"+Environment.NewLine, i, arrSeg.Array[i]));
+            }
+            return stringBuilder.ToString();
+        }
     }
 }

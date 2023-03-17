@@ -27,7 +27,7 @@ namespace JpegLib
         }
     }
 
-    public class HufCodec
+    public class HufCodec : IJpegSegment
     {
         // Maximum code length is 16 bits
         public const int MAX_HUFFMAN_CODE_LEN = 16;
@@ -74,7 +74,15 @@ namespace JpegLib
             }
         }
 
-        public int Decode(Jfif jfif)
+        public override string ToString()
+        {
+            return string.Format("{0}:{1}, {2} codes",
+                Id,
+                IsAc ? "AC" : "DC",
+                Codes.Length);
+        }
+
+        public int Decode(BitReader bitReader)
         {
             int result = -1;
             int b;
@@ -82,7 +90,7 @@ namespace JpegLib
 
             while (true)
             {
-                b = jfif.ScanBit();
+                b = bitReader.ScanBit();
                 if (b == -1)
                     break;
                 code <<= 1;
@@ -107,14 +115,14 @@ namespace JpegLib
             return new HufCode(0, 0);
         }
 
-        internal ArraySegment<byte> ToArraySegment()
+        public JpegSegment ToJpegSegment()
         {
             byte[] result = new byte[3 + HufTab.Length];
             result[0] = (byte)(result.Length >> 8);
             result[1] = (byte)result.Length;
             result[2] = (byte)(((IsAc ? 1 : 0) << 4) | Id);
             Array.Copy(HufTab, 0, result, 3, HufTab.Length);
-            return result;
+            return new JpegSegment(JpegMarker.DefineHuffmanTable, result);
         }
 
         internal static HufCodec FromArraySegment(ArraySegment<byte> arr)

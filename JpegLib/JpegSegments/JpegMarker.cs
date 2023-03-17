@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JpegLib
+namespace JpegLib   
 {
     public enum JpegMarker : byte
     {
@@ -145,108 +145,5 @@ namespace JpegLib
         /// End of image
         /// </summary>
         EndOfImage = 0xD9,
-    }
-
-    internal class JpegSegments
-    {
-        public readonly Dictionary<JpegMarker, List<ArraySegment<byte>>> Segments;
-
-        public JpegSegments(Dictionary<JpegMarker, List<ArraySegment<byte>>> segments)
-        {
-            Segments = segments;
-        }
-
-        public static async Task<JpegSegments> ReadJpeg(string fileName)
-        {
-            byte[] data = await File.ReadAllBytesAsync(fileName);
-
-            if (data.Length < 4)
-                throw new Exception("File is too short");
-
-            if (data[0] != 0xff || data[1] != 0xd8)
-                throw new Exception("SOI not found");
-
-            byte b;
-            Dictionary<JpegMarker, List<ArraySegment<byte>>> segments = new();
-            JpegMarker? segmentType;
-            List<ArraySegment<byte>>? list;
-            int i = 2;
-            int length;
-
-            // if 0xff is followed by 0xff , then ignore the first 0xff
-            while (i < data.Length)
-            {
-                if (data[i] != 0xff)
-                    throw new Exception("Expecting 0xff in " + i);
-
-                i++;
-                b = data[i++];
-
-                if (b == 0xff)
-                    break;
-
-                if (!Enum.IsDefined(typeof(JpegMarker), b))
-                    throw new Exception("Segment type not valid: " + b);
-
-                segmentType = (JpegMarker)b;
-
-                if (segmentType == JpegMarker.EndOfImage)
-                    break;
-
-                if (!segments.TryGetValue(segmentType.Value, out list))
-                    segments.Add(segmentType.Value, list = new List<ArraySegment<byte>>());
-
-                length = (data[i] << 8) + data[i + 1];
-                i += length;
-
-                if (segmentType == JpegMarker.StartOfScan)
-                {
-                    // Must include the length in this data
-                    while (i < data.Length)
-                    {
-                        if (data[i] == 0xff && data[i + 1] != 0x00 && data[i + 1] != 0xff)
-                            break;
-                        length++;
-                        i++;
-                    }
-                }
-
-                list.Add(new ArraySegment<byte>(data, i-length, length));
-            }
-
-            return new JpegSegments(segments);
-        }
-
-        internal void WriteJpeg(string fileName)
-        {
-            using (FileStream sw = File.OpenWrite(fileName))
-            {
-                WriteMarker(sw, JpegMarker.StartOfImage);
-                WriteSegment(sw, JpegMarker.DefineQuantizationTable);
-                WriteSegment(sw, JpegMarker.StartOfFrame0);
-                WriteSegment(sw, JpegMarker.DefineHuffmanTable);
-                WriteSegment(sw, JpegMarker.StartOfScan);
-                WriteMarker(sw, JpegMarker.EndOfImage);
-            }
-        }
-
-        static void WriteMarker(FileStream fs, JpegMarker jpegMarker)
-        {
-            fs.WriteByte(0xff);
-            fs.WriteByte((byte)jpegMarker);
-        }
-
-        void WriteSegment(FileStream fs, JpegMarker jpegMarker)
-        {
-            List<ArraySegment<byte>>? list;
-            if(Segments.TryGetValue(jpegMarker, out list))
-            {
-                foreach(var segment in list)
-                {
-                    WriteMarker(fs, jpegMarker);
-                    fs.Write(segment);
-                }
-            }
-        }
     }
 }
