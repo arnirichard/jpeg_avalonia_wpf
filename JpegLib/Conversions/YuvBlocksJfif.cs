@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -155,6 +156,7 @@ namespace JpegLib
             return new Jfif(header, quantTables, segments);
         }
 
+
         internal static int[][][] JfifToYuvBlocks(Jfif jfif, StartOfScan scanSegment)
         {
             int componentId;
@@ -163,10 +165,14 @@ namespace JpegLib
             int[] block;
             int[][][] result = jfif.YCbCrBlocks;
             int resultIndex;
+            int maxV, maxH;
+            bool luminanceOnly = scanSegment.NumberOfComponents == 1 && scanSegment.ComponentIds[0] == 1;
+            int yStep = luminanceOnly ? 1 : jfif.Header.VerticalSamplingFactor;
+            int xStep = luminanceOnly ? 1 : jfif.Header.HorizontalSamplingFactor;
 
-            for (int y = 0; y < jfif.Header.BlocksHeight; y += jfif.Header.VerticalSamplingFactor)
+            for (int y = 0; y < jfif.Header.BlocksHeight; y += yStep)
             {
-                for (int x = 0; x < jfif.Header.BlocksWidth; x += jfif.Header.HorizontalSamplingFactor)
+                for (int x = 0; x < jfif.Header.BlocksWidth; x += xStep)
                 {
                     for (int c = 0; c < scanSegment.NumberOfComponents; c++)
                     {
@@ -174,20 +180,14 @@ namespace JpegLib
                         hcdc = jfif.HufCodecsDc[scanSegment.HufTableIdDc[c]];
                         componentId = scanSegment.ComponentIds[c];
                         component = jfif.Header.GetComponent(componentId);
+                        maxV = luminanceOnly ? 1 : component.SampFactorV;
+                        maxH = luminanceOnly ? 1 : component.SampFactorH;
 
-                        
-
-                        for (int v = 0; v < component.SampFactorV; v++)
+                        for (int v = 0; v < maxV; v++)
                         {
-                            for (int h = 0; h < component.SampFactorH; h++)
+                            for (int h = 0; h < maxH; h++)
                             {
-                                resultIndex = (y + v) * jfif.Header.BlocksWidthWithPadding + (x + h);
-
-                                if (resultIndex == 41)
-                                {
-
-                                }
-
+                                resultIndex = (y + v) * jfif.Header.BlocksWidthWithPadding + x + h;
                                 block = result[resultIndex][componentId - jfif.Header.FirstComponentId];
 
                                 if (block == null)
