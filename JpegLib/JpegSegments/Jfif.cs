@@ -19,7 +19,6 @@ namespace JpegLib
         public int[] PreviousDc = new int[4];
         public HufCodec?[] HufCodecsAc = new HufCodec?[2];
         public HufCodec?[] HufCodecsDc = new HufCodec?[2];
-        public int[][][] YCbCrBlocks;
 
         public Jfif(JfifHeader header,
             List<QuantTable> quantTables,
@@ -28,9 +27,6 @@ namespace JpegLib
             Header = header;
             QuantizationTables = quantTables.ToArray();
             Segments = segments;
-            YCbCrBlocks = new int[Header.NumBlocksWithPadding][][];
-            for (int i = 0; i < YCbCrBlocks.Length; i++)
-                YCbCrBlocks[i] = new int[Header.NumberOfComponents][];
         }
 
         internal void SetHufCodec(HufCodec c)

@@ -15,7 +15,7 @@ namespace JpegLib
 
             int[][][] yuvBlocks = YCbCrRgbBlocks.RgbBlocksToYuvBlocks(bmpData.RgbBlocks, bmpData.Width, bmpData.Height);
 
-            Jfif jfif = YuvBlocksJfif.YCbCrBlocksToJfif(yuvBlocks, bmpData.Width, bmpData.Height);
+            Jfif jfif = YCbCrBlocksJfif.YCbCrBlocksToJfif(yuvBlocks, bmpData.Width, bmpData.Height);
 
             List<JpegSegment> jpegSegments = jfif.ToSegments();
 

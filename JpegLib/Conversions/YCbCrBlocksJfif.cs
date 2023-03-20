@@ -12,7 +12,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace JpegLib
 {
-    internal static class YuvBlocksJfif
+    internal static class YCbCrBlocksJfif
     {
         internal static Jfif YCbCrBlocksToJfif(int[][][] yuvBlocks, int width, int height)
         {
@@ -157,13 +157,12 @@ namespace JpegLib
         }
 
 
-        internal static int[][][] JfifToYuvBlocks(Jfif jfif, StartOfScan scanSegment)
+        internal static int[][][] JfifToYCbCrBlocks(Jfif jfif, StartOfScan scanSegment, int[][][] yCbCrBlocks)
         {
             int componentId;
             HufCodec? hcac, hcdc;
             ColorComponent component;
             int[] block;
-            int[][][] result = jfif.YCbCrBlocks;
             int resultIndex;
             int maxV, maxH;
             bool luminanceOnly = scanSegment.NumberOfComponents == 1 && scanSegment.ComponentIds[0] == 1;
@@ -188,10 +187,10 @@ namespace JpegLib
                             for (int h = 0; h < maxH; h++)
                             {
                                 resultIndex = (y + v) * jfif.Header.BlocksWidthWithPadding + x + h;
-                                block = result[resultIndex][componentId - jfif.Header.FirstComponentId];
+                                block = yCbCrBlocks[resultIndex][componentId - jfif.Header.FirstComponentId];
 
                                 if (block == null)
-                                    block = result[resultIndex][componentId - jfif.Header.FirstComponentId] = new int[64];
+                                    block = yCbCrBlocks[resultIndex][componentId - jfif.Header.FirstComponentId] = new int[64];
 
                                 if (jfif.Header.IsBaseLine)
                                 {
@@ -199,7 +198,7 @@ namespace JpegLib
                                         throw new Exception("Missing Hufman codec");
                                     ReadBaselineBlock(block, jfif, scanSegment, hcac, hcdc, component);
                                     Quant.Dequantize(block, jfif.QuantizationTables[component.QuantizationTableIndex].Table);
-                                    result[resultIndex][componentId - jfif.Header.FirstComponentId] = DCT.InverseFast(block);
+                                    yCbCrBlocks[resultIndex][componentId - jfif.Header.FirstComponentId] = DCT.InverseFast(block);
                                 }
                                 else if(scanSegment.StartOfSelection == 0)
                                 {
@@ -225,7 +224,7 @@ namespace JpegLib
                 }
             }
             
-            return result;
+            return yCbCrBlocks;
         }
 
         static void ReadProgressiveBlockAcRefinement(int[] block, Jfif jfif, StartOfScan scanSegment,

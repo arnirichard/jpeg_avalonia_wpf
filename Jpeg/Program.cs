@@ -4,7 +4,7 @@ using System;
 using JpegLib;
 using SkiaSharp;
 
-namespace MyApp // Note: actual namespace depends on the project name.
+namespace Jpeg
 {
     internal class Program
     {
@@ -17,14 +17,21 @@ namespace MyApp // Note: actual namespace depends on the project name.
                 return;
             }
 
-            if(args[0] == "-d")
+            try
             {
-                await JpegDecoder.Decode(args[1], args[2]);
+                if (args[0] == "-d")
+                {
+                    await JpegDecoder.Decode(args[1], args[2]);
+                }
+                else
+                {
+                    JpegEncoder.Encode(args[1], args[2]);
+                }
             }
-            else
+            catch(Exception ex) 
             {
-                JpegEncoder.Encode(args[1], args[2]);
-            }           
+                Console.WriteLine("Error: "+ex.Message);
+            }
         }
     }
 } 

@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:local="using:JpegAvalonia"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:Class="JpegAvalonia.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+		WindowStartupLocation="CenterScreen"
+        Title="JpegAvalonia">
+
+	<Window.Styles>
+		<Style Selector="TextBlock">
+			<Setter Property="FontSize" Value="20"/>
+			<Setter Property="Margin" Value="10"/>
+			<!-- Settings TextWrapping to NoWrap will cause columns to be unequal size and number of GridPlots redraws is doubled -->
+			<Setter Property="TextWrapping" Value="NoWrap"/>
+		</Style>
+	</Window.Styles>
+	
+    <Design.DataContext>
+		<local:MainWindowViewModel/>
+	</Design.DataContext>
+
+	<TabControl>
+		<TabItem Header="Block Analysis">
+			<local:BlockAnalysis/>
+		</TabItem>
+		<TabItem Header="Progressive Analysis">
+			<local:ProgressiveAnalysis/>
+		</TabItem>
+	</TabControl>
+
+</Window>

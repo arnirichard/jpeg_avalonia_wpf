@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace JpegAvalonia.ViewModels
+namespace JpegAvalonia
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class BlockAnalysisViewModel : ViewModelBase
     {
         public BlockAnalysisData Analysis { get; set; } = BlockAnalysisData.CreateFrom(GetInitialBlock());
         public long RefreshTime { get; set; }

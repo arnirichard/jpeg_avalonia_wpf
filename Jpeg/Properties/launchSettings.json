@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TestConsole": {
+      "commandName": "Project",
+      "commandLineArgs": "-d C:\\github\\jpeg_avalonia_wpf\\progressive.jpg progressive.bmp"
+    }
+  }
+}

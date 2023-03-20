@@ -1,8 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using JpegAvalonia.ViewModels;
-using JpegAvalonia.Views;
 
 namespace JpegAvalonia
 {
@@ -19,7 +17,7 @@ namespace JpegAvalonia
             {
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
+                    DataContext = new MainWindowViewModel()
                 };
             }
 

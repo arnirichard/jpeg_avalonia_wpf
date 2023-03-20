@@ -1,6 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using JpegAvalonia.ViewModels;
 using System;
 
 namespace JpegAvalonia

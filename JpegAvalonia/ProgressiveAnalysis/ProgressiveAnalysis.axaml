@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:local="using:JpegAvalonia"
+             x:Class="JpegAvalonia.ProgressiveAnalysis">
+
+	<ScrollViewer HorizontalScrollBarVisibility="Visible">
+		<ItemsControl Items="{Binding Steps}" VerticalAlignment="Center">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<StackPanel Orientation="Horizontal" />
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemTemplate>
+				<DataTemplate>
+					<StackPanel Orientation="Vertical" HorizontalAlignment="Center">					
+						<Image x:Name="img" Source="{Binding WriteableBitmap}" Margin="30"/>
+						<TextBlock Text="{Binding ScanInfo}" TextWrapping="Wrap" MaxWidth="{Binding Path=Bounds.Width, ElementName=img}"/>
+					</StackPanel>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+	</ScrollViewer>
+
+</UserControl>

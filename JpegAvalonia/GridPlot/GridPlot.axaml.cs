@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Styling;
 using DynamicData;
 using SkiaSharp;
 using System;
@@ -29,7 +30,15 @@ namespace JpegAvalonia
         public static int Beige = int.Parse("FFDDDDDD", System.Globalization.NumberStyles.HexNumber);
         public static int Blue = int.Parse("FF0000FF", System.Globalization.NumberStyles.HexNumber);
 
-        public int NumColumns { get; set; }
+        public static readonly StyledProperty<int> NumColumnsProperty =
+            AvaloniaProperty.Register<GridPlot, int>(nameof(NumColumns), defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
+
+        public int NumColumns
+        {
+            get { return GetValue(NumColumnsProperty); }
+            set { SetValue(NumColumnsProperty, value); }
+        }
+
         public ColorChannel Channel { get; set; } = ColorChannel.None;
         public bool GrayScale { get; set; }
         public int AddDisplayValue { get; set; }
@@ -42,6 +51,14 @@ namespace JpegAvalonia
             InitializeComponent();
 
             grid.GetObservable(BoundsProperty).Subscribe(value =>
+            {
+                if (DataContext is int[] values)
+                {
+                    Redraw(values);
+                }
+            });
+
+            this.GetObservable(NumColumnsProperty).Subscribe(value =>
             {
                 if (DataContext is int[] values)
                 {
@@ -62,7 +79,7 @@ namespace JpegAvalonia
 
         void Redraw(int[] values)
         {
-            if(grid.Bounds.Width == 0 || grid.Bounds.Height == 0) 
+            if(grid.Bounds.Width == 0 || grid.Bounds.Height == 0 || NumColumns <= 0) 
                 return;
 
             Stopwatch stopwatch = Stopwatch.StartNew();

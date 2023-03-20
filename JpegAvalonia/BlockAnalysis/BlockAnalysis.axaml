@@ -1,26 +1,9 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:JpegAvalonia.ViewModels"
-		xmlns:local="using:JpegAvalonia"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        x:Class="JpegAvalonia.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
-		WindowStartupLocation="CenterScreen"
-        Title="JpegAvalonia">
-
-	<Window.Styles>
-		<Style Selector="TextBlock">
-			<Setter Property="FontSize" Value="20"/>
-			<Setter Property="Margin" Value="10"/>
-			<!-- Settings TextWrapping to NoWrap will cause columns to be unequal size and number of GridPlots redraws is doubled -->
-			<Setter Property="TextWrapping" Value="NoWrap"/>
-		</Style>
-	</Window.Styles>
-	
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-	</Design.DataContext>
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:local="using:JpegAvalonia"
+             x:Class="JpegAvalonia.BlockAnalysis">
 
 	<Grid>
 		<Grid.ColumnDefinitions>
@@ -79,13 +62,13 @@
 
 			<TextBlock>Original</TextBlock>
 
-			<local:GridPlot NumColumns="8" 
+			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					DataContext="{Binding Analysis.Rgb}"/>
-			
+
 			<TextBlock>Jpeg</TextBlock>
 
-			<local:GridPlot NumColumns="8" 
+			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					DataContext="{Binding Analysis.JpegRgb}"/>
 
@@ -94,8 +77,8 @@
 		<!--ORIGINAL RGB -->
 		<StackPanel Orientation="Vertical" Grid.Column="2" Margin="10, 10">
 
-			<TextBlock>Red</TextBlock> 
-			
+			<TextBlock>Red</TextBlock>
+
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					Channel="Red"
@@ -158,10 +141,10 @@
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.UDct}"/>
-			
+
 			<TextBlock>Cr DCT</TextBlock>
 
-			<local:GridPlot NumColumns="8" 
+			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.VDct}"/>
@@ -213,7 +196,7 @@
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.VDctQuantized}"/>
-		
+
 		</StackPanel>
 
 		<!-- DCT QUANTIZED ZIGZAGGED -->
@@ -239,7 +222,7 @@
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.VDctQZigZagged}"/>
-	
+
 		</StackPanel>
 
 		<StackPanel Orientation="Vertical" Grid.Column="8" Margin="10, 10">
@@ -248,25 +231,25 @@
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Range" GrayScale="true" 
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.YIDct}"/>
 
 			<TextBlock>Cb IDCT</TextBlock>
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Range" GrayScale="true" 
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.UIDct}"/>
 
 			<TextBlock>Cr IDCT</TextBlock>
 
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
-					Channel="Range" GrayScale="true" 
+					Channel="Range" GrayScale="true"
 					DataContext="{Binding Analysis.VIDct}"/>
 
 		</StackPanel>
-		
+
 		<StackPanel Orientation="Vertical" Grid.Column="9" Margin="10, 10">
 
 			<TextBlock>Y JPEG</TextBlock>
@@ -288,10 +271,10 @@
 			<local:GridPlot NumColumns="8"
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					Channel="Blue" AddDisplayValue="-128"
-					DataContext="{Binding Analysis.JpegYuv}"/>			
-		
+					DataContext="{Binding Analysis.JpegYuv}"/>
+
 		</StackPanel>
-		
+
 		<StackPanel Orientation="Vertical" Grid.Column="10" Margin="10, 10">
 
 			<TextBlock>Red JPEG</TextBlock>
@@ -314,9 +297,8 @@
 					Height="{Binding Bounds.Width, RelativeSource={RelativeSource Self}}"
 					Channel="Blue"
 					DataContext="{Binding Analysis.JpegRgb}"/>
-				
+
 		</StackPanel>
 
 	</Grid>
-
-</Window>
+</UserControl>

@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JpegAvalonia", "JpegAvaloni
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JpegAvaloniaAsync", "JpegAvaloniaAsync\JpegAvaloniaAsync.csproj", "{CF1CFC78-AB1C-4C88-B695-AF8780D8B7BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "TestConsole\TestConsole.csproj", "{CA93129B-F58B-4933-844D-3883874053E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jpeg", "Jpeg\Jpeg.csproj", "{1083B3E5-328A-4A49-AF44-5A352FAE2D67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{CF1CFC78-AB1C-4C88-B695-AF8780D8B7BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF1CFC78-AB1C-4C88-B695-AF8780D8B7BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF1CFC78-AB1C-4C88-B695-AF8780D8B7BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CA93129B-F58B-4933-844D-3883874053E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CA93129B-F58B-4933-844D-3883874053E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CA93129B-F58B-4933-844D-3883874053E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CA93129B-F58B-4933-844D-3883874053E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1083B3E5-328A-4A49-AF44-5A352FAE2D67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1083B3E5-328A-4A49-AF44-5A352FAE2D67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1083B3E5-328A-4A49-AF44-5A352FAE2D67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1083B3E5-328A-4A49-AF44-5A352FAE2D67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
