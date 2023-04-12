@@ -1,6 +1,6 @@
 # jpeg_avalonia_wpf
-Jpeg 8x8px block compression demo with both Avalonia and WPF and WriteableBitmap.
-The Encoder/Decoder works for Baseline Jpeg with chroma subsampling (to Bitmap) but only common formats are supported yet.
+Jpeg 8x8px block compression demo with both Avalonia and WPF using WriteableBitmap.
+The Encoder/Decoder works for Baseline/Progressive Jpeg with chroma subsampling (to Bitmap) but only common formats are supported yet.
 
 This purpose of this project:
 
@@ -9,10 +9,10 @@ This purpose of this project:
 
 The graphical part is implemented in both Avalonia and WPF (.Net) using WriteableBitmap
 
-This project shows some problems in Avalonia
+This project reveals some issues with Avalonia
 
-1. Performance problems with multiple TextBlocks in Canvas
-2. Grid columns that should be equally sized are not, due to overflowing TextBlocks. This can cause Grid columns to resize infinitely as demonstrated in the project JpegAvaloniaAsync.
+1. Performance problems with multiple TextBlocks
+2. Grid columns that should be equally sized are not, due to overflowing TextBlocks. This can cause Grid columns to resize infinitely as demonstrated in the project JpegAvaloniaAsync (to reproduce: run the project and reduce the window to cause Textblock overflow).
 
 WriteableBitmap in Avalonia has the advantage over WPF that it can be created in worker thread for better performance
 (that does not apply to the Textblocks in Canvas though).
