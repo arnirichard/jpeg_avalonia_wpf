@@ -28,7 +28,7 @@ namespace JpegLib
         public static BlockAnalysisData CreateFrom(int[] rgb)
         {
             // Adding 128 so the values fit into 0-255
-            int[][] yuv = YCbCrRgbColor.RgbToYCrCb(rgb, 0);
+            int[][] yuv = YCbCrRgbColor.RgbToYCbCr(rgb, 0);
             int[] originalYuv = new int[64];
             for (int i = 0; i < originalYuv.Length; i++)
             {

@@ -21,22 +21,82 @@ namespace JpegLib
             return result;
         }
 
-        public static int[][] RgbToYCrCb(int[] rgbValues, int add = 0)
+        public static int[][] RgbToYCbCr(int[] rgbValues, int add = 0)
         {
             int[][] result = new int[3][];
-            int[] yuv;
+            int[] yCbCr;
 
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = new int[64];
+                result[i] = new int[rgbValues.Length];
             }
 
             for(int i =0; i< rgbValues.Length; i++)
             {
-                yuv = RgbToYuv(rgbValues[i], add);
-                result[0][i] = yuv[0];
-                result[1][i] = yuv[1];
-                result[2][i] = yuv[2];
+                yCbCr = RgbToYuv(rgbValues[i], add);
+                result[0][i] = yCbCr[0];
+                result[1][i] = yCbCr[1];
+                result[2][i] = yCbCr[2];
+            }
+
+            return result;
+        }
+
+        public static byte[][] RgbToYuv(int[] rgb)
+        {
+            byte[][] result = new byte[3][];
+            int[] yCbCr;
+
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = new byte[rgb.Length];
+            }
+
+            for (int i = 0; i < rgb.Length; i++)
+            {
+                yCbCr = RgbToYuv(rgb[i], 128);
+                result[0][i] = (byte)yCbCr[0];
+                result[1][i] = (byte)yCbCr[1];
+                result[2][i] = (byte)yCbCr[2];
+            }
+
+            return result;
+        }
+
+        public static byte[][] YuvToRgb(byte[][] yuv)
+        {
+            byte[][] result = new byte[3][];
+
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = new byte[yuv[0].Length];
+            }
+
+            int y, u, v;
+            int r, g, b;
+            for (int i = 0; i < yuv[0].Length; i++)
+            {
+                y = yuv[0][i] - 128;
+                u = yuv[1][i] - 128;
+                v = yuv[2][i] - 128;
+                r = (int)(y + 1.402 * v + 128);
+                g = (int)(y - 0.344f * u - 0.714f * v + 128);
+                b = (int)(y + 1.772f * u + 128);
+                if (r < 0)
+                    r = 0;
+                if (r > 255)
+                    r = 255;
+                if (g < 0)
+                    g = 0;
+                if (g > 255)
+                    g = 255;
+                if (b < 0)
+                    b = 0;
+                if (b > 255)
+                    b = 255;
+                result[0][i] = (byte)r;
+                result[1][i] = (byte)g;
+                result[2][i] = (byte)b;
             }
 
             return result;
