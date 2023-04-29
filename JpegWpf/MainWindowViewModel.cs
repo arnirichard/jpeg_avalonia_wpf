@@ -19,11 +19,11 @@ namespace JpegWpf
 
             Analysis = BlockAnalysisData.CreateFrom(originalRgb);
 
-            OnPropertyChanged("Analysis");
+            OnPropertyChanged(nameof(Analysis));
             
             RefreshTime = stopwatch.ElapsedMilliseconds;
 
-            OnPropertyChanged("RefreshTime");
+            OnPropertyChanged(nameof(RefreshTime));
         }
 
         public static int[] GetInitialBlock()

@@ -43,7 +43,7 @@ namespace JpegAvalonia
                 ));
             }
 
-            this.RaisePropertyChanged("Steps");
+            this.RaisePropertyChanged(nameof(Steps));
         }
 
         WriteableBitmap FromBitmapData(BmpData bmpData)

@@ -19,11 +19,11 @@ namespace JpegAvaloniaAsync.ViewModels
 
             Analysis = BlockAnalysisData.CreateFrom(originalRgb);
 
-            this.RaisePropertyChanged("Analysis");
+            this.RaisePropertyChanged(nameof(Analysis));
 
             RefreshTime = stopwatch.ElapsedMilliseconds;
 
-            this.RaisePropertyChanged("RefreshTime");
+            this.RaisePropertyChanged(nameof(RefreshTime));
         }
 
         public static int[] GetInitialBlock()

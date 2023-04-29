@@ -85,12 +85,7 @@ namespace JpegAvaloniaAsync
 
             WriteableBitmap? wbitmap = await CreateBitmap(values, width, height);
 
-            if (wbitmap != null
-                //&& values == DataContext && 
-                //width == currentWidth &&
-                //height == currentHeight &&
-                //currentValues == values
-                )
+            if (wbitmap != null)
             {
                 image.Source = wbitmap;
                 NumRedraws++;

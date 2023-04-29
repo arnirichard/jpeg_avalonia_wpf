@@ -142,7 +142,22 @@ namespace JpegLib
             int v = (int)(0.5000 * r - 0.4187 * g - 0.0813 * b + add);
 
             return new int[] { y, u, v };
-                //(y << 16) | (u << 8) | v;
+        }
+
+        public static (byte y, byte cb, byte cr) RgbToYCbCr(byte r, byte b, byte g)
+        {
+            byte y = (byte)(0.2990 * r + 0.5870 * g + 0.1140 * b);
+            int cb = (int)(-0.1687 * r - 0.3313 * g + 0.5000 * b + 128);
+            if(cb > 255) 
+                cb = 255;
+            if(cb < 0) 
+                cb = 0;
+            int cr = (int)(0.5000 * r - 0.4187 * g - 0.0813 * b + 128);
+            if (cr > 255)
+                cr = 255;
+            if (cr < 0)
+                cr = 0;
+            return (y, (byte)cb, (byte)cr);
         }
     }
 }
