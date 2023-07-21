@@ -6,7 +6,7 @@
              x:Class="JpegAvalonia.ProgressiveAnalysis">
 
 	<ScrollViewer HorizontalScrollBarVisibility="Visible">
-		<ItemsControl Items="{Binding Steps}" VerticalAlignment="Center">
+		<ItemsControl ItemsSource="{Binding Steps}" VerticalAlignment="Center">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
 					<StackPanel Orientation="Horizontal" />
